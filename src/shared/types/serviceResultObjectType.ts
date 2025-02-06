@@ -6,7 +6,6 @@ export enum DomainStatusCode {
   BadRequest = 4,
   InternalServerError = 5,
 }
-
 export type Extensions = {
   message: string;
   field?: string;
