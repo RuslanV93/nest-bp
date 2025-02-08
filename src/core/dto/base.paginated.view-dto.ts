@@ -1,9 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export abstract class PaginatedViewDto<T> {
-  abstract items: T;
-  totalCount: number;
-  pagesCount: number;
-  page: number;
-  pageSize: number;
+  @ApiProperty() pagesCount: number;
+  @ApiProperty() page: number;
+  @ApiProperty() pageSize: number;
+  @ApiProperty() totalCount: number;
+  @ApiProperty({ isArray: true, type: Object }) abstract items: T;
 
   static mapToView<T>(data: {
     items: T;

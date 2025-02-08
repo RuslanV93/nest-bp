@@ -1,7 +1,8 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
-
 import { CommentsService } from '../application/comments.service';
 import { CommentsQueryRepository } from '../infrastructure/repositories/comments.query.repository';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CommentViewDto } from './dto/comment.view-dto';
 //
 // function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 //   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -20,6 +21,10 @@ export class CommentsController {
   ) {}
 
   @Get('id')
+  @ApiResponse({ type: CommentViewDto })
+  @ApiOperation({
+    summary: 'Get a comment by id.',
+  })
   async getCommentById(@Param('id') id: string) {
     const comment = await this.postsQueryRepository.getCommentById(id);
 

@@ -22,6 +22,13 @@ import {
   ResultObject,
 } from '../../../../shared/types/serviceResultObjectType';
 import { GetCommentsQueryParams } from '../../comments/interface/dto/get-comments.query-params.input.dto';
+import {
+  ApiPaginatedResponse,
+  ApiPaginationQueries,
+} from '../../../../../swagger/swagger.decorator';
+import { PostViewDto } from './dto/post.view-dto';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -40,7 +47,13 @@ export class PostsController {
   ) {}
 
   /** Getting all posts. Using pagination and sort filters */
+
   @Get()
+  @ApiPaginatedResponse(PostViewDto)
+  @ApiPaginationQueries()
+  @ApiOperation({
+    summary: 'Gets all posts.',
+  })
   async getPosts(@Query() query: GetPostsQueryParams) {
     const posts = await this.postsQueryRepository.getPosts(query);
     if (!posts) {
@@ -50,7 +63,12 @@ export class PostsController {
   }
 
   /** Get one post using post id*/
+
   @Get(':id')
+  @ApiResponse({ type: PostViewDto })
+  @ApiOperation({
+    summary: 'Gets post by id.',
+  })
   async getPostById(@Param('id') id: string) {
     const post = await this.postsQueryRepository.getPostById(id);
     if (!post) {
@@ -61,6 +79,11 @@ export class PostsController {
 
   /** Create new Post */
   @Post()
+  @ApiResponse({ type: PostViewDto })
+  @ApiBody({ type: PostInputDto })
+  @ApiOperation({
+    summary: 'Create new post.',
+  })
   async createNewPost(@Body() body: PostInputDto) {
     const postCreateResult = await this.postsService.createPost(
       body.blogId,
@@ -81,12 +104,19 @@ export class PostsController {
 
   /** Update post fields using post id*/
   @Put(':id')
+  @ApiBody({ type: PostUpdateInputDto })
+  @ApiOperation({
+    summary: 'Update existing post fields.',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(@Param('id') id: string, @Body() body: PostUpdateInputDto) {
     await this.postsService.updatePost(id, body);
   }
-
+  /** Delete existing post by post id */
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete post by id.',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('id') id: string) {
     const deleteResult = await this.postsService.deletePost(id);
@@ -96,8 +126,14 @@ export class PostsController {
     return deleteResult.status;
   }
 
-  /** Getting comments by post Id*/
+  /** Getting comments by post id*/
   @Get(':id/comments')
+  @ApiPaginatedResponse(CommentViewDto)
+  @ApiPaginationQueries()
+  @ApiOperation({
+    summary: 'Gets all posts.',
+    description: 'Returns all comments for the post.',
+  })
   async getCommentsByPostId(
     @Param('id') id: string,
     @Query() query: GetCommentsQueryParams,

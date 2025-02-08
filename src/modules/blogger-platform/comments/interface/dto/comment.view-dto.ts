@@ -1,20 +1,21 @@
 import { CommentDocument } from '../../domain/comments.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LikesInfo {
-  likesCount: number;
-  dislikesCount: number;
-  myStatus: string;
+  @ApiProperty() likesCount: number;
+  @ApiProperty() dislikesCount: number;
+  @ApiProperty() myStatus: string;
 }
 export class CommentatorInfo {
-  userId: string;
-  userLogin: string;
+  @ApiProperty() userId: string;
+  @ApiProperty() userLogin: string;
 }
 export class CommentViewDto {
-  id: string;
-  content: string;
-  commentatorInfo: CommentatorInfo;
-  createdAt: string;
-  likesInfo: LikesInfo;
+  @ApiProperty() id: string;
+  @ApiProperty() content: string;
+  @ApiProperty({ type: CommentatorInfo }) commentatorInfo: CommentatorInfo;
+  @ApiProperty() createdAt: string;
+  @ApiProperty({ type: LikesInfo }) likesInfo: LikesInfo;
   public static mapToView(
     this: void,
     comment: CommentDocument,

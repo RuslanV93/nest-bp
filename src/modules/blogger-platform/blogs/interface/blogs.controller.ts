@@ -25,6 +25,13 @@ import { PostsQueryRepository } from '../../posts/infrastructure/repositories/po
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
 import { PostInputDto } from '../../posts/interface/dto/post.input-dto';
 import { PostsService } from '../../posts/application/posts.service';
+import { BlogViewDto } from './dto/blog.view-dto';
+import {
+  ApiPaginatedResponse,
+  ApiPaginationQueries,
+} from '../../../../../swagger/swagger.decorator';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -47,6 +54,13 @@ export class BlogsController {
 
   /** Getting all blogs. Using pagination and search terms (blog name search term). */
   @Get()
+  @ApiPaginatedResponse(BlogViewDto)
+  @ApiPaginationQueries('blogs')
+  @ApiOperation({
+    summary: 'Get a list of blogs',
+    description:
+      'Fetches all blogs with optional query parameters for search, sorting, and pagination.',
+  })
   async getBlogs(@Query() query: GetBlogsQueryParams) {
     const blogs = await this.blogsQueryRepository.getBlogs(query);
     if (!blogs) {
@@ -57,6 +71,10 @@ export class BlogsController {
 
   /** Returns one blog by id */
   @Get(':id')
+  @ApiResponse({ type: BlogViewDto })
+  @ApiOperation({
+    summary: 'Get 1 blog by id.',
+  })
   async getBlogById(@Param('id') id: string) {
     const user = await this.blogsQueryRepository.getBlogById(id);
     if (!user) {
@@ -66,7 +84,13 @@ export class BlogsController {
   }
 
   /** Create new blog */
+
   @Post()
+  @ApiResponse({ type: BlogViewDto })
+  @ApiBody({ type: BlogInputDto })
+  @ApiOperation({
+    summary: 'Creates new blog. Returns new created blog',
+  })
   async createNewBlog(@Body() body: BlogInputDto) {
     const blogCreateResult: ResultObject<ObjectId | null> =
       await this.blogsService.createBlog(body);
@@ -84,7 +108,12 @@ export class BlogsController {
   }
 
   /** Update blog fields by blog id. */
+
   @Put(':id')
+  @ApiBody({ type: BlogUpdateInputDto })
+  @ApiOperation({
+    summary: 'Update blog fields.',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(@Param('id') id: string, @Body() body: BlogUpdateInputDto) {
     await this.blogsService.updateBlog(id, body);
@@ -92,6 +121,9 @@ export class BlogsController {
 
   /** Delete blog by id. */
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete one blog by id.',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: string) {
     const deleteResult = await this.blogsService.deleteBlog(id);
@@ -103,14 +135,18 @@ export class BlogsController {
 
   /** Getting all posts by blog id. */
   @Get(':id/posts')
+  @ApiPaginatedResponse(PostViewDto)
+  @ApiOperation({
+    summary: 'Get posts belonging to the blog by the blog ID.',
+    description:
+      'Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.',
+  })
   async getPostsByBlogId(
     @Param('id') id: string,
     @Query() query: GetPostsQueryParams,
   ) {
-    const existingBlog = await this.blogsQueryRepository.getBlogById(id);
-    if (!existingBlog) {
-      throw new NotFoundException('Blog not found');
-    }
+    await this.blogsQueryRepository.getBlogById(id);
+
     const posts = await this.postsQueryRepository.getPosts(query, id);
     if (!posts) {
       throw new InternalServerErrorException();
@@ -120,6 +156,13 @@ export class BlogsController {
 
   /** Creating new Post by blog id in params. Using blogs endpoint */
   @Post(':id/posts')
+  @ApiResponse({ type: PostViewDto })
+  @ApiBody({ type: PostInputDto })
+  @ApiOperation({
+    summary: 'Create post using blogs uri',
+    description:
+      'Create and return one post to existing blog. Using blogs uri parameter. ',
+  })
   async createPostByBlogId(
     @Param('id') id: string,
     @Body() body: PostInputDto,

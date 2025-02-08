@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogModelType } from '../../domain/blogs.model';
 import { GetBlogsQueryParams } from '../../interface/dto/get-blogs.query-params.input.dto';
@@ -41,7 +41,7 @@ export class BlogsQueryRepository {
       _id: new ObjectId(id),
     });
     if (!blog) {
-      return null;
+      throw new NotFoundException('Blog not found');
     }
     return BlogViewDto.mapToView(blog);
   }

@@ -1,12 +1,13 @@
 import { BlogDocument } from '../../domain/blogs.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BlogViewDto {
-  id: string;
-  name: string;
-  description: string;
-  websiteUrl: string;
-  createdAt: string;
-  isMembership: boolean;
+  @ApiProperty() id: string;
+  @ApiProperty() name: string;
+  @ApiProperty() description: string;
+  @ApiProperty() websiteUrl: string;
+  @ApiProperty() createdAt: string;
+  @ApiProperty() isMembership: boolean;
 
   public static mapToView(this: void, blog: BlogDocument) {
     const dto = new BlogViewDto();

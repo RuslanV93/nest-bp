@@ -22,6 +22,12 @@ import {
 import { GetUsersQueryParams } from './dto/get-users.query-params.input.dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { UserViewDto } from './dto/userViewDto';
+import {
+  ApiPaginatedResponse,
+  ApiPaginationQueries,
+} from '../../../../../swagger/swagger.decorator';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { User } from '../domain/users.model';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -38,6 +44,11 @@ export class UsersController {
   /** Get all users using query pagination and sort parameters.
    Login, email and created at fields of users can be used as a search term. */
   @Get()
+  @ApiPaginatedResponse(UserViewDto)
+  @ApiPaginationQueries('users')
+  @ApiOperation({
+    summary: 'Get all users.',
+  })
   async getUsers(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
@@ -49,6 +60,11 @@ export class UsersController {
   }
   /** Create and return new user */
   @Post()
+  @ApiResponse({ type: UserViewDto })
+  @ApiBody({ type: UserInputDto })
+  @ApiOperation({
+    summary: 'Create new user',
+  })
   async createNewUser(@Body() body: UserInputDto) {
     const userCreateResult: ResultObject<ObjectId | null> =
       await this.usersService.createUser(body);
@@ -70,6 +86,9 @@ export class UsersController {
    * This method sets the `deletedAt` field, which is used as one of the filters in the `get` method.
    */
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete user',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(@Param('id') id: string) {
     const deleteResult = await this.usersService.deleteUser(id);

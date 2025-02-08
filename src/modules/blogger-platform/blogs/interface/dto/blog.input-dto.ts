@@ -1,9 +1,13 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BlogInputDto {
-  name: string;
-  description: string;
-  websiteUrl: string;
+  @ApiProperty() name: string;
+  @ApiProperty() description: string;
+  @ApiProperty() websiteUrl: string;
 }
 
-export class BlogUpdateInputDto extends PartialType(BlogInputDto) {}
+export class BlogUpdateInputDto extends BlogInputDto {
+  @ApiProperty() name: string;
+  @ApiProperty() description: string;
+  @ApiProperty() websiteUrl: string;
+}

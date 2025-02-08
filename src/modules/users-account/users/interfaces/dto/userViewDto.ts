@@ -1,10 +1,11 @@
 import { UserDocument } from '../../domain/users.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UserViewDto {
-  id: string;
-  login: string;
-  email: string;
-  createdAt: string;
+  @ApiProperty() id: string;
+  @ApiProperty() login: string;
+  @ApiProperty() email: string;
+  @ApiProperty() createdAt: string;
 
   public static mapToView(this: void, user: UserDocument) {
     const dto = new UserViewDto();

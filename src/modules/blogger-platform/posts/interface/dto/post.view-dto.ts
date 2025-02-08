@@ -1,26 +1,28 @@
 import { PostDocument } from '../../domain/posts.model';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class NewestLikesViewDto {
-  addedAt: string;
-  userId: string;
-  login: string;
+  @ApiProperty() addedAt: string;
+  @ApiProperty() userId: string;
+  @ApiProperty() login: string;
 }
 
 export class ExtendedLikesInfoViewDto {
-  likesCount: number;
-  'dislikesCount': number;
-  'myStatus': string;
-  'newestLikes': NewestLikesViewDto[];
+  @ApiProperty() likesCount: number;
+  @ApiProperty() dislikesCount: number;
+  @ApiProperty() myStatus: string;
+  @ApiProperty({ type: NewestLikesViewDto }) newestLikes: NewestLikesViewDto[];
 }
 
 export class PostViewDto {
-  id: string;
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-  blogName: string;
-  createdAt: string;
+  @ApiProperty() id: string;
+  @ApiProperty() title: string;
+  @ApiProperty() shortDescription: string;
+  @ApiProperty() content: string;
+  @ApiProperty() blogId: string;
+  @ApiProperty() blogName: string;
+  @ApiProperty() createdAt: string;
+  @ApiProperty({ type: ExtendedLikesInfoViewDto })
   extendedLikesInfo: ExtendedLikesInfoViewDto;
   public static mapToView(this: void, post: PostDocument) {
     const dto = new PostViewDto();

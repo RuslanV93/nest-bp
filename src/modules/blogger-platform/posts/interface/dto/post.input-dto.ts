@@ -1,10 +1,15 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PostInputDto {
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
+  @ApiProperty() title: string;
+  @ApiProperty() shortDescription: string;
+  @ApiProperty() content: string;
+  @ApiProperty() blogId: string;
 }
 
-export class PostUpdateInputDto extends PartialType(PostInputDto) {}
+export class PostUpdateInputDto extends PostInputDto {
+  @ApiProperty() title: string;
+  @ApiProperty() shortDescription: string;
+  @ApiProperty() content: string;
+  @ApiProperty() blogId: string;
+}
