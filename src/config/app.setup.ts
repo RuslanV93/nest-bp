@@ -2,7 +2,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { get } from 'http';
 import { createWriteStream } from 'fs';
 
-const serverUrl = 'http://localhost:3003';
+const serverUrl = 'http://localhost:5000';
 
 export const appSetup = (app) => {
   const config = new DocumentBuilder()
