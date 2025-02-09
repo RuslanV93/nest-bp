@@ -19,7 +19,7 @@ import { join } from 'path';
     BloggersPlatformModule,
     DropCollectionModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'swagger-static'),
+      rootPath: join(__dirname, '..', 'swagger'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/swagger',
     }),
   ],
