@@ -15,11 +15,11 @@ export class CommentsQueryRepository {
     @InjectModel(Comment.name) private readonly commentModel: CommentModelType,
   ) {}
 
-  async getComments(query: GetCommentsQueryParams, postId: string) {
+  async getComments(query: GetCommentsQueryParams, postId: ObjectId) {
     const baseFilter: FilterQuery<Comment> = { deletedAt: null };
     const conditions: Array<FilterQuery<Post>> = [];
     if (postId) {
-      conditions.push({ blogId: new ObjectId(postId) });
+      conditions.push({ postId: postId });
     }
     /** If conditions exists, add them to filter */
     const filter = conditions.length

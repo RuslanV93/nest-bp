@@ -6,9 +6,9 @@ import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: UserModelType) {}
-  async findById(id: string): Promise<UserDocument | null> {
+  async findById(id: ObjectId): Promise<UserDocument | null> {
     return this.userModel.findOne({
-      _id: new ObjectId(id),
+      _id: id,
       deletedAt: null,
     });
   }
@@ -16,7 +16,7 @@ export class UsersRepository {
     const newUser: UserDocument = await user.save();
     return newUser._id;
   }
-  async findOrNotFoundException(id: string): Promise<UserDocument> {
+  async findOrNotFoundException(id: ObjectId): Promise<UserDocument> {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException('User not Found');

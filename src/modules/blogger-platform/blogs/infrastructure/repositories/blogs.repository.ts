@@ -6,14 +6,14 @@ import { ObjectId } from 'mongodb';
 @Injectable()
 export class BlogsRepository {
   constructor(@InjectModel(Blog.name) private blogModel: BlogModelType) {}
-  async findOne(id: string): Promise<BlogDocument | null> {
+  async findOne(id: ObjectId): Promise<BlogDocument | null> {
     return this.blogModel.findOne({
       deletedAt: null,
-      _id: new ObjectId(id),
+      _id: id,
     });
   }
 
-  async findOneOrNotFoundException(id: string): Promise<BlogDocument> {
+  async findOneOrNotFoundException(id: ObjectId): Promise<BlogDocument> {
     const blog = await this.findOne(id);
     if (!blog) {
       throw new NotFoundException('Blog not Found');

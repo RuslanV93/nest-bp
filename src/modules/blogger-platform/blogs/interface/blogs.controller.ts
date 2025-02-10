@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
 import { BlogsQueryRepository } from '../infrastructure/repositories/blogs.query-repository';
-import { BlogInputDto, BlogUpdateInputDto } from './dto/blog.input-dto';
+import { BlogInputDto } from './dto/blog.input-dto';
 import {
   DomainStatusCode,
   ResultObject,
@@ -32,6 +32,7 @@ import {
 } from '../../../../../swagger/swagger.decorator';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
+import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -75,7 +76,9 @@ export class BlogsController {
   @ApiOperation({
     summary: 'Get 1 blog by id.',
   })
-  async getBlogById(@Param('id') id: string) {
+  async getBlogById(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+  ) {
     const user = await this.blogsQueryRepository.getBlogById(id);
     if (!user) {
       throw new NotFoundException('Blog not found');
@@ -110,12 +113,15 @@ export class BlogsController {
   /** Update blog fields by blog id. */
 
   @Put(':id')
-  @ApiBody({ type: BlogUpdateInputDto })
+  @ApiBody({ type: BlogInputDto })
   @ApiOperation({
     summary: 'Update blog fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updateBlog(@Param('id') id: string, @Body() body: BlogUpdateInputDto) {
+  async updateBlog(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Body() body: BlogInputDto,
+  ) {
     await this.blogsService.updateBlog(id, body);
   }
 
@@ -125,7 +131,9 @@ export class BlogsController {
     summary: 'Delete one blog by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id') id: string) {
+  async deleteBlog(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+  ) {
     const deleteResult = await this.blogsService.deleteBlog(id);
     if (deleteResult.status !== DomainStatusCode.Success) {
       throw new NotFoundException(deleteResult.extensions);
@@ -142,7 +150,7 @@ export class BlogsController {
       'Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.',
   })
   async getPostsByBlogId(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
     @Query() query: GetPostsQueryParams,
   ) {
     await this.blogsQueryRepository.getBlogById(id);
@@ -164,7 +172,7 @@ export class BlogsController {
       'Create and return one post to existing blog. Using blogs uri parameter. ',
   })
   async createPostByBlogId(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
     @Body() body: PostInputDto,
   ) {
     const postCreateResult = await this.postsService.createPost(id, body);

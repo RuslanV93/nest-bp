@@ -16,7 +16,7 @@ import { PostsService } from '../application/posts.service';
 import { PostsQueryRepository } from '../infrastructure/repositories/posts.query.repository';
 import { CommentsQueryRepository } from '../../comments/infrastructure/repositories/comments.query.repository';
 import { GetPostsQueryParams } from './dto/get-posts.query-params.input.dto';
-import { PostInputDto, PostUpdateInputDto } from './dto/post.input-dto';
+import { PostInputDto } from './dto/post.input-dto';
 import {
   DomainStatusCode,
   ResultObject,
@@ -29,6 +29,8 @@ import {
 import { PostViewDto } from './dto/post.view-dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
+import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
+import { ObjectId } from 'mongodb';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -69,7 +71,9 @@ export class PostsController {
   @ApiOperation({
     summary: 'Gets post by id.',
   })
-  async getPostById(@Param('id') id: string) {
+  async getPostById(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+  ) {
     const post = await this.postsQueryRepository.getPostById(id);
     if (!post) {
       throw new NotFoundException('Post not Found.');
@@ -104,21 +108,27 @@ export class PostsController {
 
   /** Update post fields using post id*/
   @Put(':id')
-  @ApiBody({ type: PostUpdateInputDto })
+  @ApiBody({ type: PostInputDto })
   @ApiOperation({
     summary: 'Update existing post fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePost(@Param('id') id: string, @Body() body: PostUpdateInputDto) {
+  async updatePost(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Body() body: PostInputDto,
+  ) {
     await this.postsService.updatePost(id, body);
   }
+
   /** Delete existing post by post id */
   @Delete(':id')
   @ApiOperation({
     summary: 'Delete post by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(@Param('id') id: string) {
+  async deletePost(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+  ) {
     const deleteResult = await this.postsService.deletePost(id);
     if (deleteResult.status !== DomainStatusCode.Success) {
       throw new InternalServerErrorException(deleteResult.extensions);
@@ -135,7 +145,7 @@ export class PostsController {
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
     @Query() query: GetCommentsQueryParams,
   ) {
     const comments = await this.commentsQueryRepository.getComments(query, id);

@@ -27,7 +27,7 @@ import {
   ApiPaginationQueries,
 } from '../../../../../swagger/swagger.decorator';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { User } from '../domain/users.model';
+import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -90,7 +90,9 @@ export class UsersController {
     summary: 'Delete user',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserById(@Param('id') id: string) {
+  async deleteUserById(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+  ) {
     const deleteResult = await this.usersService.deleteUser(id);
     if (deleteResult.status !== DomainStatusCode.Success) {
       throw new NotFoundException(deleteResult.extensions);

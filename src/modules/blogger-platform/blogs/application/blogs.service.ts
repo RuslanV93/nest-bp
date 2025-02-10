@@ -1,13 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument, BlogModelType } from '../domain/blogs.model';
 import { BlogsRepository } from '../infrastructure/repositories/blogs.repository';
-import {
-  BlogInputDto,
-  BlogUpdateInputDto,
-} from '../interface/dto/blog.input-dto';
+import { BlogInputDto } from '../interface/dto/blog.input-dto';
 import { Injectable } from '@nestjs/common';
 import { DomainBlog } from '../domain/blogs.domain';
 import { ServiceResultObjectFactory } from '../../../../shared/utils/serviceResultObject';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class BlogsService {
@@ -34,7 +32,7 @@ export class BlogsService {
   }
 
   /** Update blog fields. Finding by blog id */
-  async updateBlog(id: string, updateBlogDto: BlogUpdateInputDto) {
+  async updateBlog(id: ObjectId, updateBlogDto: BlogInputDto) {
     const blog = await this.blogsRepository.findOneOrNotFoundException(id);
 
     const newBlogEntity = DomainBlog.update(blog, updateBlogDto);
@@ -44,7 +42,7 @@ export class BlogsService {
   }
 
   /** Delete blog by id. Using soft delete */
-  async deleteBlog(id: string) {
+  async deleteBlog(id: ObjectId) {
     const blog = await this.blogsRepository.findOneOrNotFoundException(id);
 
     try {

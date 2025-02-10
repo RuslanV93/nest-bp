@@ -1,6 +1,6 @@
 import { BlogDomainDto } from './dto/blog.domain-dto';
-import { BlogUpdateInputDto } from '../interface/dto/blog.input-dto';
 import { BlogDocument } from './blogs.model';
+import { BlogInputDto } from '../interface/dto/blog.input-dto';
 
 export class DomainBlog {
   constructor(
@@ -25,7 +25,7 @@ export class DomainBlog {
   }
   static update(
     currentBlog: BlogDocument,
-    updateDto: BlogUpdateInputDto,
+    updateDto: BlogInputDto,
   ): DomainBlog {
     return new DomainBlog(
       updateDto.name || currentBlog.name,

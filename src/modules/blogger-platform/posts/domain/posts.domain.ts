@@ -3,14 +3,15 @@ import {
   PostDomainDto,
   PostUpdateDomainDto,
 } from './dto/post.domain.dto';
-import { PostUpdateInputDto } from '../interface/dto/post.input-dto';
+import { PostInputDto } from '../interface/dto/post.input-dto';
+import { ObjectId } from 'mongodb';
 
 export class DomainPost {
   constructor(
     private title: string,
     private shortDescription: string,
     private content: string,
-    private blogId: string,
+    private blogId: ObjectId,
     private blogName: string,
     private extendedLikesInfo: ExtendedLikesInfo,
   ) {}
@@ -19,7 +20,7 @@ export class DomainPost {
     title: string,
     shortDescription: string,
     content: string,
-    blogId: string,
+    blogId: ObjectId,
     blogName: string,
   ): DomainPost {
     const extendedLikesInfo: ExtendedLikesInfo = {
@@ -38,13 +39,13 @@ export class DomainPost {
 
   static update(
     currentPost: PostUpdateDomainDto,
-    updatedDto: PostUpdateInputDto,
+    updatedDto: PostInputDto,
   ): DomainPost {
     return new DomainPost(
       updatedDto.title || currentPost.title,
       updatedDto.shortDescription || currentPost.shortDescription,
       updatedDto.content || currentPost.content,
-      updatedDto.blogId || currentPost.blogId.toString(),
+      updatedDto.blogId || currentPost.blogId,
       currentPost.blogName || currentPost.blogName,
       currentPost.extendedLikesInfo,
     );

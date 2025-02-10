@@ -1,15 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Post, PostDocument, PostModelType } from '../domain/posts.model';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  PostInputDto,
-  PostUpdateInputDto,
-} from '../interface/dto/post.input-dto';
+import { PostInputDto } from '../interface/dto/post.input-dto';
 import { BlogsRepository } from '../../blogs/infrastructure/repositories/blogs.repository';
 import { DomainPost } from '../domain/posts.domain';
 import { PostsRepository } from '../infrastructure/repositories/posts.repository';
 import { ServiceResultObjectFactory } from '../../../../shared/utils/serviceResultObject';
-import { PostDomainDto } from '../domain/dto/post.domain.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class PostsService {
@@ -19,7 +16,7 @@ export class PostsService {
     private readonly blogRepository: BlogsRepository,
   ) {}
   /** Creates new Post. Returns new post id. */
-  async createPost(blogId: string, newPostDto: PostInputDto) {
+  async createPost(blogId: ObjectId, newPostDto: PostInputDto) {
     const existingBlog =
       await this.blogRepository.findOneOrNotFoundException(blogId);
 
@@ -47,7 +44,7 @@ export class PostsService {
   }
 
   /** Update existing post fields */
-  async updatePost(id: string, updatePostDto: PostUpdateInputDto) {
+  async updatePost(id: ObjectId, updatePostDto: PostInputDto) {
     const post: PostDocument =
       await this.postsRepository.findOneAndNotFoundException(id);
 
@@ -57,7 +54,7 @@ export class PostsService {
     return ServiceResultObjectFactory.successResultObject(postId);
   }
   /** Delete post by post id */
-  async deletePost(id: string) {
+  async deletePost(id: ObjectId) {
     const post = await this.postsRepository.findOneAndNotFoundException(id);
     try {
       const deleteDate = post.deletePost();

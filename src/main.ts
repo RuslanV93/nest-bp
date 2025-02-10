@@ -9,6 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   appSetup(app);
   app.enableCors();
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
+
   app.setGlobalPrefix('api');
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path === '/') {
@@ -17,7 +23,7 @@ async function bootstrap() {
     next();
   });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
   await app.listen(process.env.PORT ?? 5000);
-  console.log('hello');
 }
 bootstrap();

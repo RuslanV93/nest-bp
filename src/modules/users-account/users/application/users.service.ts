@@ -30,7 +30,7 @@ export class UsersService {
     return ServiceResultObjectFactory.successResultObject(newUserId);
   }
   /** Delete existing user. Using soft deletion */
-  async deleteUser(id: string) {
+  async deleteUser(id: ObjectId) {
     const user = await this.usersRepository.findOrNotFoundException(id);
     try {
       const deleteDate = user.deleteUser();

@@ -8,13 +8,13 @@ export class PostsRepository {
   constructor(
     @InjectModel(Post.name) private readonly postModel: PostModelType,
   ) {}
-  async findOne(id: string) {
+  async findOne(id: ObjectId) {
     return this.postModel.findOne({
       deletedAt: null,
-      _id: new ObjectId(id),
+      _id: id,
     });
   }
-  async findOneAndNotFoundException(id: string) {
+  async findOneAndNotFoundException(id: ObjectId) {
     const post = await this.findOne(id);
     if (!post) {
       throw new NotFoundException('Post not Found.');

@@ -13,12 +13,12 @@ export class PostsQueryRepository {
     @InjectModel(Post.name) private readonly postModel: PostModelType,
   ) {}
 
-  async getPosts(query: GetPostsQueryParams, blogId?: string) {
+  async getPosts(query: GetPostsQueryParams, blogId?: ObjectId) {
     const baseFilter: FilterQuery<Post> = { deletedAt: null };
     const conditions: Array<FilterQuery<Post>> = [];
 
     if (blogId) {
-      conditions.push({ blogId: new ObjectId(blogId) });
+      conditions.push({ blogId: blogId });
     }
 
     if (query.searchTitleTerm) {
@@ -47,10 +47,10 @@ export class PostsQueryRepository {
     });
   }
 
-  async getPostById(id: string) {
+  async getPostById(id: ObjectId) {
     const post = await this.postModel.findOne({
       deletedAt: null,
-      _id: new ObjectId(id),
+      _id: id,
     });
     if (!post) {
       return null;

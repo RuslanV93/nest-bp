@@ -170,7 +170,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -321,7 +321,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -350,7 +350,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -359,7 +359,7 @@ window.onload = function() {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BlogUpdateInputDto"
+                  "$ref": "#/components/schemas/BlogInputDto"
                 }
               }
             }
@@ -382,7 +382,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -407,7 +407,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -457,7 +457,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -614,7 +614,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -643,7 +643,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -652,7 +652,7 @@ window.onload = function() {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PostUpdateInputDto"
+                  "$ref": "#/components/schemas/PostInputDto"
                 }
               }
             }
@@ -675,7 +675,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -700,7 +700,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             },
             {
@@ -915,6 +915,10 @@ window.onload = function() {
             "email"
           ]
         },
+        "ObjectId": {
+          "type": "object",
+          "properties": {}
+        },
         "BlogViewDto": {
           "type": "object",
           "properties": {
@@ -947,25 +951,6 @@ window.onload = function() {
           ]
         },
         "BlogInputDto": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            },
-            "websiteUrl": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name",
-            "description",
-            "websiteUrl"
-          ]
-        },
-        "BlogUpdateInputDto": {
           "type": "object",
           "properties": {
             "name": {
@@ -1078,30 +1063,7 @@ window.onload = function() {
               "type": "string"
             },
             "blogId": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "title",
-            "shortDescription",
-            "content",
-            "blogId"
-          ]
-        },
-        "PostUpdateInputDto": {
-          "type": "object",
-          "properties": {
-            "title": {
-              "type": "string"
-            },
-            "shortDescription": {
-              "type": "string"
-            },
-            "content": {
-              "type": "string"
-            },
-            "blogId": {
-              "type": "string"
+              "$ref": "#/components/schemas/ObjectId"
             }
           },
           "required": [
