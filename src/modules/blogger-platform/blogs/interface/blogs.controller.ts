@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  UseFilters,
 } from '@nestjs/common';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
 import { BlogsQueryRepository } from '../infrastructure/repositories/blogs.query-repository';
@@ -33,6 +34,8 @@ import {
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
+import { BaseExceptionFilter } from '../../../../core/exceptions/filters/base-exception.filter';
+import { isValidObjectId } from 'mongoose';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -76,9 +79,7 @@ export class BlogsController {
   @ApiOperation({
     summary: 'Get 1 blog by id.',
   })
-  async getBlogById(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-  ) {
+  async getBlogById(@Param('id') id: ObjectId) {
     const user = await this.blogsQueryRepository.getBlogById(id);
     if (!user) {
       throw new NotFoundException('Blog not found');
@@ -150,7 +151,7 @@ export class BlogsController {
       'Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.',
   })
   async getPostsByBlogId(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Query() query: GetPostsQueryParams,
   ) {
     await this.blogsQueryRepository.getBlogById(id);
@@ -172,7 +173,7 @@ export class BlogsController {
       'Create and return one post to existing blog. Using blogs uri parameter. ',
   })
   async createPostByBlogId(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Body() body: PostInputDto,
   ) {
     const postCreateResult = await this.postsService.createPost(id, body);

@@ -11,6 +11,7 @@ import { mongoUrl } from './config/database.config';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -19,6 +20,8 @@ import { join } from 'path';
     UsersAccountModule,
     BloggersPlatformModule,
     DropCollectionModule,
+    NotificationModule,
+
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger'),
       serveRoot: process.env.NODE_ENV === 'development' ? '/' : '/swagger',

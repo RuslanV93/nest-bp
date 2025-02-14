@@ -1,16 +1,16 @@
 /** Users inner object type. Email confirmation field types*/
 export type EmailConfirmationInfoType = {
-  confirmCode: string;
-  codeExpirationDate: Date;
+  confirmCode: string | null;
+  codeExpirationDate: Date | null;
   isConfirmed: boolean;
-  emailConfirmationCooldown: Date;
+  emailConfirmationCooldown: Date | null;
 };
 
 /** Users inner object type. Password information, hash, recovery code */
 export type PasswordInfoType = {
   passwordHash: string;
-  passwordRecoveryCode: string;
-  passwordRecoveryCodeExpirationDate: Date;
+  passwordRecoveryCode: string | null;
+  passwordRecoveryCodeExpirationDate: Date | null;
 };
 
 /**

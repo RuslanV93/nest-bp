@@ -5,7 +5,6 @@ import {
   postDescriptionConstraints,
   postTitleConstraints,
 } from '../../constants/posts-constants';
-import { IsObjectId } from '../../../../../core/decorators/validation/isObjectId';
 import { Transform } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 import { isValidObjectId } from 'mongoose';

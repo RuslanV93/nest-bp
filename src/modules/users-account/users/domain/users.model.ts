@@ -6,17 +6,17 @@ import { Optional } from '@nestjs/common';
 
 @Schema({ _id: false, versionKey: false })
 class EmailConfirmationInfo {
-  @Prop()
-  confirmCode: string;
+  @Prop({ type: String, nullable: true })
+  confirmCode: string | null;
 
-  @Prop()
-  codeExpirationDate: Date;
+  @Prop({ type: Date, nullable: true })
+  codeExpirationDate: Date | null;
 
   @Prop()
   isConfirmed: boolean;
 
-  @Prop()
-  emailConfirmationCooldown: Date;
+  @Prop({ type: Date, nullable: true })
+  emailConfirmationCooldown: Date | null;
 }
 
 @Schema({ _id: false, versionKey: false })
@@ -24,11 +24,11 @@ class PasswordInfo {
   @Prop()
   passwordHash: string;
 
-  @Prop()
-  passwordRecoveryCode: string;
+  @Prop({ type: String, nullable: true })
+  passwordRecoveryCode: string | null;
 
-  @Prop()
-  passwordRecoveryCodeExpirationDate: Date;
+  @Prop({ type: String, nullable: true })
+  passwordRecoveryCodeExpirationDate: Date | null;
 }
 
 @Schema({ timestamps: true })
@@ -65,6 +65,37 @@ export class User {
     user.deletedAt = null;
     return user;
   }
+  setPasswordRecoveryInfo(recoveryCode: string) {
+    this.passwordInfo.passwordRecoveryCode = recoveryCode;
+    this.passwordInfo.passwordRecoveryCodeExpirationDate = new Date(
+      Date.now() + 60 * 60 * 1000,
+    );
+  }
+
+  /** Set confirmation code*/
+  setEmailConfirmationCode(confirmCode: string) {
+    this.emailConfirmationInfo.confirmCode = confirmCode;
+    this.emailConfirmationInfo.codeExpirationDate = new Date(
+      Date.now() + 24 * 60 * 60 * 1000,
+    );
+    this.emailConfirmationInfo.emailConfirmationCooldown = new Date(
+      Date.now() + 10 * 60 * 1000,
+    );
+    return this;
+  }
+  /** Confirm email. Set isConfirmed field */
+  confirmEmail() {
+    this.emailConfirmationInfo.isConfirmed = true;
+  }
+
+  /** Update password */
+  updatePassword(newPasswordHash: string) {
+    this.passwordInfo.passwordHash = newPasswordHash;
+    this.passwordInfo.passwordRecoveryCode = null;
+    this.passwordInfo.passwordRecoveryCodeExpirationDate = null;
+    return this;
+  }
+
   /** Soft delete, set delete date. entity doesn't dropping from db */
   deleteUser() {
     if (this.deletedAt !== null) {
