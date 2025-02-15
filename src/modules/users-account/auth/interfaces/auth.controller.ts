@@ -28,8 +28,9 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Body() body: LoginInputDto) {
-    const loginResult = await this.authService.login(body);
+    return await this.authService.login(body);
   }
   @Get('me')
   async getMe() {
