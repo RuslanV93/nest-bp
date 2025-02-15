@@ -189,18 +189,8 @@ window.onload = function() {
         "post": {
           "operationId": "AuthController_login",
           "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginInputDto"
-                }
-              }
-            }
-          },
           "responses": {
-            "201": {
+            "200": {
               "description": ""
             }
           },
@@ -1076,21 +1066,6 @@ window.onload = function() {
         "ObjectId": {
           "type": "object",
           "properties": {}
-        },
-        "LoginInputDto": {
-          "type": "object",
-          "properties": {
-            "email": {
-              "type": "string"
-            },
-            "password": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "email",
-            "password"
-          ]
         },
         "ConfirmCodeDto": {
           "type": "object",

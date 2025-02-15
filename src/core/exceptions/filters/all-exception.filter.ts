@@ -15,13 +15,5 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     exception: HttpException,
     response: Response,
     request: Request,
-  ): void {
-    const status = exception.getStatus();
-
-    const responseBody = exception.getResponse() as ResponseBody;
-
-    response
-      .status(status)
-      .json(this.formatMultipleErrors(responseBody.message));
-  }
+  ): void {}
 }

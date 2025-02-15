@@ -10,6 +10,9 @@ import { NotificationModule } from '../notification/notification.module';
 import { EmailService } from '../notification/application/email.service';
 import { AuthController } from './auth/interfaces/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthQueryRepository } from './auth/infrastructure/auth.query-repository';
+import { AuthService } from './auth/application/auth.service';
+import { TokenService } from './auth/application/jwt.service';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { JwtModule } from '@nestjs/jwt';
     UsersService,
     UsersRepository,
     UsersQueryRepository,
+    AuthQueryRepository,
+    AuthService,
+    TokenService,
     CryptoService,
     EmailService,
   ],

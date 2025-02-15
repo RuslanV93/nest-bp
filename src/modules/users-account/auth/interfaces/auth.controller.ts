@@ -6,6 +6,7 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserInputDto } from '../../users/interfaces/dto/userInputDto';
 import { UsersService } from '../../users/application/users.service';
@@ -16,8 +17,12 @@ import {
   PasswordUpdateInputDto,
   PasswordRecoveryInputDto,
 } from './dto/password.dto';
-import { LoginInputDto } from './dto/login.input-dto';
 import { AuthService } from '../application/auth.service';
+import { LocalAuthGuard } from '../guards/local/local.auth.guard';
+import { ExtractUserFromRequest } from '../guards/decorators/extract-user-from-request-decorator';
+import { UserContextDto } from '../guards/dto/user-context.dto';
+import { JwtAuthGuard } from '../guards/bearer/jwt-auth-guard';
+import { AuthQueryRepository } from '../infrastructure/auth.query-repository';
 
 @Controller('auth')
 export class AuthController {
@@ -25,16 +30,20 @@ export class AuthController {
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
+    private readonly authQueryRepository: AuthQueryRepository,
   ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() body: LoginInputDto) {
-    return await this.authService.login(body);
+  @UseGuards(LocalAuthGuard)
+  login(@ExtractUserFromRequest() user: UserContextDto) {
+    const { accessToken } = this.authService.login(user.id);
+    return accessToken;
   }
   @Get('me')
-  async getMe() {
-    return true;
+  @UseGuards(JwtAuthGuard)
+  async getMe(@ExtractUserFromRequest() user: UserContextDto) {
+    return this.authQueryRepository.getMe(user.id);
   }
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
