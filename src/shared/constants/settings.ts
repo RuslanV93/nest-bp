@@ -1,5 +1,7 @@
 import process from 'node:process';
+import { config } from 'dotenv';
 
+config();
 export const PORT =
   process.env.NODE_ENV === 'development' ? (process.env.PORT ?? 3003) : 5000;
 export const URL =
