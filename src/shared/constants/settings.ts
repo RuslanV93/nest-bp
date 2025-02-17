@@ -9,3 +9,5 @@ export const URL =
 export const EMAIL_PASS_CODE = process.env.EMAIL_PASS_CODE;
 export const EMAIL_SENDER_ADDRESS = process.env.EMAIL_SENDER_ADDRESS;
 export const WEBSITE_URL = process.env.WEBSITE_URL;
+
+console.log(EMAIL_SENDER_ADDRESS, EMAIL_PASS_CODE);
