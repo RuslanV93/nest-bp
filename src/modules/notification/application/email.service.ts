@@ -18,7 +18,7 @@ export class EmailService {
       subject: 'Email Confirmation',
       html: `<h1>Hi ${login}! Thanks for your registration</h1>
     <p>To finish registration please follow the link below:
-    <a href=${WEBSITE_URL}/registration-confirmation/${confirmCode}>
+    <a href=${WEBSITE_URL}/confirm-registration?code=${confirmCode}>
      Complete registration!</a></p>`,
     });
   }
@@ -33,7 +33,7 @@ export class EmailService {
       subject: 'Password Recovery',
       html: `<h1>Hi ${login}!</h1>
     <p>To finish password recovery please follow the link below:
-    <a href=${WEBSITE_URL}/registration-confirmation/${recoveryCode}>
+    <a href=${WEBSITE_URL}/password-recovery?code=${recoveryCode}>
      Complete registration!</a></p>`,
     });
   }

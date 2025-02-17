@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../infrastructure/repositories/users.query.repository';
 import { UserInputDto } from './dto/userInputDto';
@@ -26,8 +27,15 @@ import {
   ApiPaginatedResponse,
   ApiPaginationQueries,
 } from '../../../../../swagger/swagger.decorator';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
+import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
+import { Public } from '../../auth/guards/decorators/is-public.decorator';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -35,6 +43,7 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 
 /** Users endpoint controller. Response to /users uri path. Have @get, @post, @delete methods. */
 @Controller('users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersQueryRepository: UsersQueryRepository,
@@ -44,6 +53,7 @@ export class UsersController {
   /** Get all users using query pagination and sort parameters.
    Login, email and created at fields of users can be used as a search term. */
   @Get()
+  @ApiBasicAuth('basicAuth')
   @ApiPaginatedResponse(UserViewDto)
   @ApiPaginationQueries('users')
   @ApiOperation({

@@ -125,6 +125,11 @@ window.onload = function() {
               }
             }
           },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
           "summary": "Get all users.",
           "tags": [
             "Users"
@@ -185,29 +190,55 @@ window.onload = function() {
           ]
         }
       },
-      "/api/auth/login": {
-        "post": {
-          "operationId": "AuthController_login",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
       "/api/auth/me": {
         "get": {
           "operationId": "AuthController_getMe",
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MeViewDto"
+                  }
+                }
+              }
             }
           },
+          "summary": "Get info about current user",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "operationId": "AuthController_login",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ConfirmCodeViewDto"
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Login user into system.",
           "tags": [
             "Auth"
           ]
@@ -232,6 +263,7 @@ window.onload = function() {
               "description": ""
             }
           },
+          "summary": "User registration",
           "tags": [
             "Auth"
           ]
@@ -246,7 +278,7 @@ window.onload = function() {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfirmCodeDto"
+                  "$ref": "#/components/schemas/ConfirmCodeViewDto"
                 }
               }
             }
@@ -256,6 +288,7 @@ window.onload = function() {
               "description": ""
             }
           },
+          "summary": "Confirm registration",
           "tags": [
             "Auth"
           ]
@@ -280,6 +313,7 @@ window.onload = function() {
               "description": ""
             }
           },
+          "summary": "Email confirmation code send",
           "tags": [
             "Auth"
           ]
@@ -304,6 +338,7 @@ window.onload = function() {
               "description": ""
             }
           },
+          "summary": "Password recovery code send",
           "tags": [
             "Auth"
           ]
@@ -328,6 +363,7 @@ window.onload = function() {
               "description": ""
             }
           },
+          "summary": "Set new password",
           "tags": [
             "Auth"
           ]
@@ -1067,7 +1103,37 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "ConfirmCodeDto": {
+        "MeViewDto": {
+          "type": "object",
+          "properties": {
+            "login": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "login",
+            "email"
+          ]
+        },
+        "LoginInputDto": {
+          "type": "object",
+          "properties": {
+            "loginOrEmail": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "loginOrEmail",
+            "password"
+          ]
+        },
+        "ConfirmCodeViewDto": {
           "type": "object",
           "properties": {
             "code": {

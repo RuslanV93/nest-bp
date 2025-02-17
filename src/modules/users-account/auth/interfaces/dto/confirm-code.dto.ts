@@ -2,7 +2,7 @@ import { IsStringWithTrim } from '../../../../../core/decorators/validation/isSt
 import { IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ConfirmCodeDto {
+export class ConfirmCodeViewDto {
   @ApiProperty()
   @IsStringWithTrim(1, 100)
   code: string;

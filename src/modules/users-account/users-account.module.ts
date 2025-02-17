@@ -13,9 +13,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthQueryRepository } from './auth/infrastructure/auth.query-repository';
 import { AuthService } from './auth/application/auth.service';
 import { TokenService } from './auth/application/jwt.service';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './auth/guards/local/local.strategy';
+import { LocalAuthGuard } from './auth/guards/local/local.auth.guard';
+import { JwtStrategy } from './auth/guards/bearer/jwt-strategy';
 
 @Module({
   imports: [
+    PassportModule,
     JwtModule.register({
       secret: 'accessToken',
       signOptions: { expiresIn: '5m' },
@@ -25,6 +30,8 @@ import { TokenService } from './auth/application/jwt.service';
   ],
   controllers: [UsersController, AuthController],
   providers: [
+    LocalStrategy,
+    JwtStrategy,
     UsersService,
     UsersRepository,
     UsersQueryRepository,

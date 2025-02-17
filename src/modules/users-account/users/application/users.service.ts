@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UserInputDto } from '../interfaces/dto/userInputDto';
 import { DomainUser } from '../domain/users.domain';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,7 +16,7 @@ import { randomUUID } from 'node:crypto';
 import { isSuccess } from '../../../../shared/utils/isSuccessHelpFunction';
 import { EmailService } from '../../../notification/application/email.service';
 import {
-  ConfirmCodeDto,
+  ConfirmCodeViewDto,
   EmailResendingDto,
 } from '../../auth/interfaces/dto/confirm-code.dto';
 import {
@@ -56,6 +60,12 @@ export class UsersService {
     if (!user) {
       throw BadRequestDomainException.create('User not exists', 'email');
     }
+    if (user.emailConfirmationInfo.isConfirmed) {
+      throw BadRequestDomainException.create(
+        'Email is already confirmed',
+        'email',
+      );
+    }
     const emailConfirmCode = randomUUID();
     user.setEmailConfirmationCode(emailConfirmCode);
     this.emailService.sendConfirmationEmail(
@@ -66,11 +76,11 @@ export class UsersService {
     await this.usersRepository.save(user);
     return ServiceResultObjectFactory.successResultObject();
   }
-  async confirmEmail(confirmCodeDto: ConfirmCodeDto) {
+  async confirmEmail(confirmCodeDto: ConfirmCodeViewDto) {
     const user: UserDocument =
       await this.usersRepository.findByEmailConfirmCode(confirmCodeDto.code);
     DomainUser.validateEmailConfirmation(user, confirmCodeDto.code);
-    if (!user.emailConfirmationInfo.isConfirmed) {
+    if (user.emailConfirmationInfo.isConfirmed) {
       return ServiceResultObjectFactory.internalErrorResultObject();
     }
     user.confirmEmail();
@@ -88,7 +98,7 @@ export class UsersService {
       return ServiceResultObjectFactory.successResultObject();
     }
     const recoveryCode = randomUUID();
-    this.emailService.sendConfirmationEmail(
+    this.emailService.sendPasswordRecovery(
       user.email,
       user.login,
       recoveryCode,

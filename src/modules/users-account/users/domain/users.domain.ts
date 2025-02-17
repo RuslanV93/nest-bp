@@ -5,7 +5,6 @@ import {
 } from './dto/user.domain-dto';
 import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
 import { UserDocument } from './users.model';
-import bcrypt from 'bcrypt';
 import { CryptoService } from '../../auth/application/crypto.service';
 
 export class DomainUser {
@@ -38,7 +37,7 @@ export class DomainUser {
     if (user.emailConfirmationInfo.isConfirmed) {
       throw BadRequestDomainException.create(
         'Email is already confirmed',
-        'email',
+        'code',
       );
     }
     if (

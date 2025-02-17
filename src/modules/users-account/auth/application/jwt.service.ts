@@ -8,7 +8,10 @@ export class TokenService {
   generateTokens(userId: string) {
     const accessToken = this.jwtService.sign(
       { id: userId },
-      { secret: jwtConfig.access.secret, expiresIn: jwtConfig.access.secret },
+      {
+        secret: jwtConfig.access.secret,
+        expiresIn: jwtConfig.access.expiresIn,
+      },
     );
     return { accessToken };
   }

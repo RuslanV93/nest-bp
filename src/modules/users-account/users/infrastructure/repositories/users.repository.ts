@@ -63,7 +63,7 @@ export class UsersRepository {
     };
 
     if (loginOrEmail.includes('@')) {
-      filter.email = loginOrEmail;
+      filter.email = loginOrEmail.toLowerCase();
     } else {
       filter.login = loginOrEmail;
     }
