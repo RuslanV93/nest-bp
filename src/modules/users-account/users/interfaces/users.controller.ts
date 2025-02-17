@@ -35,7 +35,6 @@ import {
 } from '@nestjs/swagger';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
-import { Public } from '../../auth/guards/decorators/is-public.decorator';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
