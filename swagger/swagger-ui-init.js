@@ -127,6 +127,9 @@ window.onload = function() {
           },
           "security": [
             {
+              "basic": []
+            },
+            {
               "basicAuth": []
             }
           ],
@@ -160,6 +163,11 @@ window.onload = function() {
               }
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Create new user",
           "tags": [
             "Users"
@@ -184,6 +192,11 @@ window.onload = function() {
               "description": ""
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Delete user",
           "tags": [
             "Users"
@@ -1026,6 +1039,17 @@ window.onload = function() {
     "tags": [],
     "servers": [],
     "components": {
+      "securitySchemes": {
+        "bearer": {
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "type": "http"
+        },
+        "basic": {
+          "type": "http",
+          "scheme": "basic"
+        }
+      },
       "schemas": {
         "PaginatedViewDto": {
           "type": "object",

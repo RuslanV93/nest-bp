@@ -2,15 +2,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { get } from 'http';
 import { createWriteStream } from 'fs';
 import { INestApplication } from '@nestjs/common';
-import { PORT, URL } from '../shared/constants/settings';
+import { appConfig } from '../app.config';
 
-const serverUrl = `${URL}${PORT}`;
+const serverUrl = `${appConfig.localUrl}${appConfig.port}`;
 
 export const swaggerSetup = (app: INestApplication) => {
   const config = new DocumentBuilder()
     .setTitle('Blogger Platform')
     .setDescription('Blogger Platform API')
     .setVersion('1.0')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
+    .addBasicAuth({ type: 'http', scheme: 'basic' })
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);

@@ -1,5 +1,3 @@
-import process from 'node:process';
+import { appConfig } from '../app.config';
 
-export const mongoUrl: string = process.env.MONGO_URL
-  ? process.env.MONGO_URL
-  : 'mongodb://0.0.0.0:27017/nest-bp';
+export const mongoUrl: string = appConfig.mongoUri;

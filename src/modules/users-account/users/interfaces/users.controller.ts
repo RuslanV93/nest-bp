@@ -58,6 +58,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Get all users.',
   })
+  @ApiBasicAuth()
   async getUsers(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
@@ -74,6 +75,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Create new user',
   })
+  @ApiBasicAuth()
   async createNewUser(@Body() body: UserInputDto) {
     const userCreateResult: ResultObject<ObjectId | null> =
       await this.usersService.createUser(body);
@@ -98,6 +100,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Delete user',
   })
+  @ApiBasicAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserById(
     @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
