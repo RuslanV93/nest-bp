@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { User, UserDocument, UserModelType } from '../../domain/users.model';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
@@ -53,6 +57,9 @@ export class UsersRepository {
 
   async save(user: UserDocument): Promise<ObjectId> {
     const newUser: UserDocument = await user.save();
+    if (!newUser._id) {
+      throw new Error('Failed to save user');
+    }
     return newUser._id;
   }
   async findByEmailAndLoginField(

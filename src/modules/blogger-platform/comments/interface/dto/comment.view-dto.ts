@@ -1,5 +1,7 @@
 import { CommentDocument } from '../../domain/comments.model';
 import { ApiProperty } from '@nestjs/swagger';
+import { CommentLikeDocument } from '../../../likes/domain/comments.likes.model';
+import { LikeStatus } from '../../../likes/domain/dto/like.domain.dto';
 
 export class LikesInfo {
   @ApiProperty() likesCount: number;
@@ -19,15 +21,21 @@ export class CommentViewDto {
   public static mapToView(
     this: void,
     comment: CommentDocument,
+    likeInfo: CommentLikeDocument[] | null,
   ): CommentViewDto {
+    const likesMap = new Map(
+      likeInfo?.map((like) => [like.parentId.toString(), like.status]) ?? [],
+    );
+
     const commentatorInfo: CommentatorInfo = {
       userId: comment.commentatorInfo.userId.toString(),
       userLogin: comment.commentatorInfo.userLogin,
     };
+
     const likesInfo: LikesInfo = {
       likesCount: comment.likesInfo.likesCount,
       dislikesCount: comment.likesInfo.dislikesCount,
-      myStatus: 'None',
+      myStatus: likesMap.get(comment._id.toString()) ?? LikeStatus.None,
     };
     return {
       id: comment._id.toString(),

@@ -5,6 +5,8 @@ import {
 } from '../types/serviceResultObjectType';
 
 export class ServiceResultObjectFactory {
+  static successResultObject<T>(data: T): ResultObject<T>;
+  static successResultObject<T>(data?: T | null): ResultObject<T | null>;
   static successResultObject<T>(data: T | null = null): ResultObject<T | null> {
     return {
       status: DomainStatusCode.Success,

@@ -887,6 +887,40 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{id}/like-status": {
+        "put": {
+          "operationId": "PostsController_updateLikeStatus",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update post like.",
+          "tags": [
+            "Posts"
+          ]
+        }
+      },
       "/api/posts/{id}/comments": {
         "get": {
           "description": "Returns all comments for the post.",
@@ -976,13 +1010,73 @@ window.onload = function() {
               }
             }
           },
-          "summary": "Gets all posts.",
+          "summary": "Gets all comments.",
+          "tags": [
+            "Posts"
+          ]
+        },
+        "post": {
+          "description": "Create and returns a new comment.",
+          "operationId": "PostsController_createComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CommentViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Create new comment",
           "tags": [
             "Posts"
           ]
         }
       },
-      "/api/comments/id": {
+      "/api/comments/{id}": {
         "get": {
           "operationId": "CommentsController_getCommentById",
           "parameters": [
@@ -991,7 +1085,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/ObjectId"
               }
             }
           ],
@@ -1008,6 +1102,94 @@ window.onload = function() {
             }
           },
           "summary": "Get a comment by id.",
+          "tags": [
+            "Comments"
+          ]
+        },
+        "put": {
+          "operationId": "CommentsController_updateComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update commentary.",
+          "tags": [
+            "Comments"
+          ]
+        },
+        "delete": {
+          "operationId": "CommentsController_deleteComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Delete 1 comment by id.",
+          "tags": [
+            "Comments"
+          ]
+        }
+      },
+      "/api/comments/{id}/like-status": {
+        "put": {
+          "operationId": "CommentsController_updateLikeStatus",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update commentary like.",
           "tags": [
             "Comments"
           ]
@@ -1359,6 +1541,10 @@ window.onload = function() {
             "blogId"
           ]
         },
+        "LikeInputDto": {
+          "type": "object",
+          "properties": {}
+        },
         "CommentatorInfo": {
           "type": "object",
           "properties": {
@@ -1419,6 +1605,10 @@ window.onload = function() {
             "createdAt",
             "likesInfo"
           ]
+        },
+        "CommentInputDto": {
+          "type": "object",
+          "properties": {}
         }
       }
     }

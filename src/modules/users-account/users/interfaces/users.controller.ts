@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
-  NotFoundException,
   Param,
   Post,
   Query,
@@ -14,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../infrastructure/repositories/users.query.repository';
 import { UserInputDto } from './dto/userInputDto';
-import { UsersService } from '../application/users.service';
 import { ObjectId } from 'mongodb';
 import {
   DomainStatusCode,
@@ -35,6 +33,9 @@ import {
 } from '@nestjs/swagger';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../../auth/application/users-use-cases/create-user.use-case';
+import { DeleteUserCommand } from '../../auth/application/users-use-cases/delete-user.use-case';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -46,7 +47,7 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 export class UsersController {
   constructor(
     private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly usersService: UsersService,
+    private readonly commandBus: CommandBus,
   ) {}
 
   /** Get all users using query pagination and sort parameters.
@@ -78,7 +79,7 @@ export class UsersController {
   @ApiBasicAuth()
   async createNewUser(@Body() body: UserInputDto) {
     const userCreateResult: ResultObject<ObjectId | null> =
-      await this.usersService.createUser(body);
+      await this.commandBus.execute(new CreateUserCommand(body));
 
     if (!isSuccess(userCreateResult)) {
       throw new InternalServerErrorException(userCreateResult.extensions);
@@ -105,10 +106,6 @@ export class UsersController {
   async deleteUserById(
     @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
   ) {
-    const deleteResult = await this.usersService.deleteUser(id);
-    if (deleteResult.status !== DomainStatusCode.Success) {
-      throw new NotFoundException(deleteResult.extensions);
-    }
-    return deleteResult.data;
+    await this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsStringWithTrim } from '../../../../../core/decorators/validation/isStringWithTrim';
 import {
   postContentConstraints,
@@ -7,8 +7,9 @@ import {
 } from '../../constants/posts-constants';
 import { Transform } from 'class-transformer';
 import { ObjectId } from 'mongodb';
-import { isValidObjectId } from 'mongoose';
-import { BadRequestException } from '@nestjs/common';
+import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
+import { BlogExistsValidator } from '../../../blogs/constants/blogs-constants';
+import { IsObjectId } from '../../../../../core/decorators/validation/isObjectId';
 
 export class PostInputDto {
   @ApiProperty()
@@ -33,11 +34,23 @@ export class PostInputDto {
   content: string;
 
   @ApiProperty()
-  @Transform(({ value }: { value: string }) => {
-    if (!isValidObjectId(value)) {
-      throw new BadRequestException('Invalid ObjectId');
-    }
-    return new ObjectId(value);
-  })
+  @Transform(
+    ({ value }) => {
+      if (!value) {
+        return null;
+      }
+
+      return value;
+    },
+    { toClassOnly: true },
+  )
+  @Validate(BlogExistsValidator)
+  @IsObjectId()
+  @IsString()
+  @IsNotEmpty()
   blogId: ObjectId;
 }
+
+export class PostInputDtoWithoutBlogId extends OmitType(PostInputDto, [
+  'blogId',
+] as const) {}

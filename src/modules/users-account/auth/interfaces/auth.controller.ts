@@ -6,13 +6,13 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Post,
+  Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserInputDto } from '../../users/interfaces/dto/userInputDto';
-import { UsersService } from '../../users/application/users.service';
 import { UsersQueryRepository } from '../../users/infrastructure/repositories/users.query.repository';
 import { ConfirmCodeViewDto, EmailResendingDto } from './dto/confirm-code.dto';
-import { isSuccess } from '../../../../shared/utils/isSuccessHelpFunction';
 import {
   PasswordUpdateInputDto,
   PasswordRecoveryInputDto,
@@ -23,18 +23,31 @@ import { ExtractUserFromRequest } from '../guards/decorators/extract-user-from-r
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth-guard';
 import { AuthQueryRepository } from '../infrastructure/auth.query-repository';
-import { DomainStatusCode } from '../../../../shared/types/serviceResultObjectType';
+import { ResultObject } from '../../../../shared/types/serviceResultObjectType';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MeViewDto } from '../../users/interfaces/dto/userViewDto';
 import { LoginInputDto } from './dto/login.input-dto';
+import { LoginCommand } from '../application/auth-use-cases/login.use-case';
+import { CommandBus } from '@nestjs/cqrs';
+import { Tokens } from '../application/jwt.service';
+import { RegistrationCommand } from '../application/users-use-cases/registration.use-case';
+import { ObjectId } from 'mongodb';
+import { EmailResendCommand } from '../application/users-use-cases/email-resend.use-case';
+import { RegistrationConfirmCommand } from '../application/users-use-cases/registration-confirm.use-case';
+import { PasswordRecoveryCommand } from '../application/users-use-cases/password-recovery.use-case';
+import { PasswordUpdateCommand } from '../application/users-use-cases/password-update.use-case';
+import {
+  CookieInterceptor,
+  LoginResponseDto,
+} from '../../../../core/interceptors/refresh-cookie.interceptor';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly authQueryRepository: AuthQueryRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get('me')
@@ -47,14 +60,17 @@ export class AuthController {
   }
 
   @Post('login')
+  @UseInterceptors(CookieInterceptor)
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @ApiResponse({ type: ConfirmCodeViewDto })
   @ApiOperation({ summary: 'Login user into system.' })
   @ApiBody({ type: LoginInputDto })
-  login(@ExtractUserFromRequest() user: UserContextDto) {
-    const { accessToken } = this.authService.login(user.id);
-    return { accessToken: accessToken };
+  async login(@ExtractUserFromRequest() user: UserContextDto) {
+    const { accessToken, refreshToken }: Tokens = await this.commandBus.execute(
+      new LoginCommand(user.id),
+    );
+    return new LoginResponseDto(accessToken, refreshToken);
   }
 
   @Post('registration')
@@ -62,7 +78,9 @@ export class AuthController {
   @ApiOperation({ summary: 'User registration' })
   /** User registration endpoint */
   async registration(@Body() body: UserInputDto) {
-    const createUserResult = await this.usersService.registration(body);
+    const createUserResult: ResultObject<ObjectId> =
+      await this.commandBus.execute(new RegistrationCommand(body));
+
     const newUser = await this.usersQueryRepository.getUserById(
       createUserResult.data,
     );
@@ -75,11 +93,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Confirm registration' })
   async registrationConfirm(@Body() body: ConfirmCodeViewDto) {
-    const confirmResult = await this.usersService.confirmEmail(body);
-
-    if (!isSuccess(confirmResult)) {
-      throw new InternalServerErrorException();
-    }
+    await this.commandBus.execute(new RegistrationConfirmCommand(body));
     return true;
   }
 
@@ -87,10 +101,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Email confirmation code send' })
   async registrationEmailResending(@Body() body: EmailResendingDto) {
-    const emailResendResult = await this.usersService.emailResend(body);
-    if (emailResendResult.status !== DomainStatusCode.Success) {
-      throw new InternalServerErrorException();
-    }
+    await this.commandBus.execute(new EmailResendCommand(body));
     return true;
   }
 
@@ -98,21 +109,17 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Password recovery code send' })
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto) {
-    const passwordRecoveryResult =
-      await this.usersService.passwordRecovery(body);
-    if (passwordRecoveryResult.status !== DomainStatusCode.Success) {
-      throw new InternalServerErrorException();
-    }
+    await this.commandBus.execute(new PasswordRecoveryCommand(body));
+
     return true;
   }
+
   @Post('new-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Set new password' })
   async newPassword(@Body() body: PasswordUpdateInputDto) {
-    const passwordUpdateResult = await this.usersService.passwordUpdate(body);
-    if (passwordUpdateResult.status !== DomainStatusCode.Success) {
-      throw new InternalServerErrorException();
-    }
+    await this.commandBus.execute(new PasswordUpdateCommand(body));
+
     return true;
   }
 }

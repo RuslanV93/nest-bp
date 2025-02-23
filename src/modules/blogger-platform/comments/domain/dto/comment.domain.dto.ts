@@ -1,17 +1,13 @@
 import { ObjectId } from 'mongodb';
 
-export class LikesInfo {
-  likesCount: number;
-  dislikesCount: number;
-}
-export class CommentatorInfo<T = string> {
+export class CommentatorInfo<T = ObjectId> {
   userId: T;
   userLogin: string;
 }
-export class CommentDomainDto<T = string> {
+export class CommentDomainDto<T = ObjectId> {
   content: string;
+  postId: ObjectId;
   commentatorInfo: CommentatorInfo<T>;
-  likesInfo: LikesInfo;
 }
 
 export class CommentUpdateDomainDto extends CommentDomainDto<ObjectId> {}

@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users/application/users.service';
 import { UsersController } from './users/interfaces/users.controller';
 import { UsersRepository } from './users/infrastructure/repositories/users.repository';
 import { UsersQueryRepository } from './users/infrastructure/repositories/users.query.repository';
@@ -15,24 +14,43 @@ import { AuthService } from './auth/application/auth.service';
 import { TokenService } from './auth/application/jwt.service';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './auth/guards/local/local.strategy';
-import { LocalAuthGuard } from './auth/guards/local/local.auth.guard';
 import { JwtStrategy } from './auth/guards/bearer/jwt-strategy';
+import { LoginUseCase } from './auth/application/auth-use-cases/login.use-case';
+import { CreateUserUseCase } from './auth/application/users-use-cases/create-user.use-case';
+import { RegistrationUseCase } from './auth/application/users-use-cases/registration.use-case';
+import { DeleteUserUseCase } from './auth/application/users-use-cases/delete-user.use-case';
+import { EmailResendUseCase } from './auth/application/users-use-cases/email-resend.use-case';
+import { PasswordRecoveryUseCase } from './auth/application/users-use-cases/password-recovery.use-case';
+import { PasswordUpdateUseCase } from './auth/application/users-use-cases/password-update.use-case';
+import { RegistrationConfirmUseCase } from './auth/application/users-use-cases/registration-confirm.use-case';
+import { SoftJwtStrategy } from './auth/guards/bearer/soft-jwt-strategy';
+
+const usersUseCases = [
+  RegistrationUseCase,
+  RegistrationConfirmUseCase,
+  CreateUserUseCase,
+  DeleteUserUseCase,
+  EmailResendUseCase,
+  PasswordRecoveryUseCase,
+  PasswordUpdateUseCase,
+];
+
+const authUseCases = [LoginUseCase];
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: 'accessToken',
-      signOptions: { expiresIn: '5m' },
-    }),
+    JwtModule.register({}),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     NotificationModule,
   ],
   controllers: [UsersController, AuthController],
   providers: [
+    ...usersUseCases,
+    ...authUseCases,
     LocalStrategy,
     JwtStrategy,
-    UsersService,
+    SoftJwtStrategy,
     UsersRepository,
     UsersQueryRepository,
     AuthQueryRepository,
@@ -41,5 +59,6 @@ import { JwtStrategy } from './auth/guards/bearer/jwt-strategy';
     CryptoService,
     EmailService,
   ],
+  exports: [UsersRepository],
 })
 export class UsersAccountModule {}

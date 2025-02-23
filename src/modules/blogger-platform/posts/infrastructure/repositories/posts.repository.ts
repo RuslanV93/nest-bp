@@ -14,7 +14,7 @@ export class PostsRepository {
       _id: id,
     });
   }
-  async findOneAndNotFoundException(id: ObjectId) {
+  async findOneAndNotFoundException(id: ObjectId): Promise<PostDocument> {
     const post = await this.findOne(id);
     if (!post) {
       throw new NotFoundException('Post not Found.');

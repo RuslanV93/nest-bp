@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service';
 import { PostsQueryRepository } from '../infrastructure/repositories/posts.query.repository';
@@ -31,6 +32,18 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { ObjectId } from 'mongodb';
+import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
+import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
+import {
+  Nullable,
+  UserContextDto,
+} from '../../../users-account/auth/guards/dto/user-context.dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { UpdatePostLikeStatusCommand } from '../../likes/application/use-cases/update.post-like-status.use-case';
+import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
+import { CommentInputDto } from '../../comments/interface/dto/comment.input-dto';
+import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.use-case';
+import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -46,6 +59,7 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   /** Getting all posts. Using pagination and sort filters */
@@ -56,8 +70,15 @@ export class PostsController {
   @ApiOperation({
     summary: 'Gets all posts.',
   })
-  async getPosts(@Query() query: GetPostsQueryParams) {
-    const posts = await this.postsQueryRepository.getPosts(query);
+  async getPosts(
+    @Query() query: GetPostsQueryParams,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    const posts = await this.postsQueryRepository.getPosts(
+      query,
+      undefined,
+      user.id,
+    );
     if (!posts) {
       throw new InternalServerErrorException();
     }
@@ -73,8 +94,9 @@ export class PostsController {
   })
   async getPostById(
     @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    const post = await this.postsQueryRepository.getPostById(id);
+    const post = await this.postsQueryRepository.getPostById(id, user.id);
     if (!post) {
       throw new NotFoundException('Post not Found.');
     }
@@ -83,12 +105,17 @@ export class PostsController {
 
   /** Create new Post */
   @Post()
+  @UseGuards(BasicAuthGuard)
   @ApiResponse({ type: PostViewDto })
   @ApiBody({ type: PostInputDto })
   @ApiOperation({
     summary: 'Create new post.',
   })
-  async createNewPost(@Body() body: PostInputDto) {
+  async createNewPost(
+    @Body() body: PostInputDto,
+    @ExtractUserFromRequest()
+    user: Nullable<UserContextDto>,
+  ) {
     const postCreateResult = await this.postsService.createPost(
       body.blogId,
       body,
@@ -98,6 +125,7 @@ export class PostsController {
     }
     const newPost = await this.postsQueryRepository.getPostById(
       postCreateResult.data,
+      user.id,
     );
 
     if (!newPost) {
@@ -108,6 +136,7 @@ export class PostsController {
 
   /** Update post fields using post id*/
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @ApiBody({ type: PostInputDto })
   @ApiOperation({
     summary: 'Update existing post fields.',
@@ -120,8 +149,27 @@ export class PostsController {
     await this.postsService.updatePost(id, body);
   }
 
+  /** Update Like Status. Update posts like counters */
+  @Put(':id/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: LikeInputDto })
+  @ApiOperation({
+    summary: 'Update post like.',
+  })
+  async updateLikeStatus(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Body() body: LikeInputDto,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    await this.commandBus.execute(
+      new UpdatePostLikeStatusCommand(user.id, id, body.likeStatus),
+    );
+  }
+
   /** Delete existing post by post id */
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @ApiOperation({
     summary: 'Delete post by id.',
   })
@@ -136,22 +184,49 @@ export class PostsController {
     return deleteResult.status;
   }
 
-  /** Getting comments by post id*/
+  /** Get comments belongs to a post by post id*/
   @Get(':id/comments')
   @ApiPaginatedResponse(CommentViewDto)
   @ApiPaginationQueries()
   @ApiOperation({
-    summary: 'Gets all posts.',
+    summary: 'Gets all comments.',
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
     @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
     @Query() query: GetCommentsQueryParams,
+    @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    const comments = await this.commentsQueryRepository.getComments(query, id);
+    const comments = await this.commentsQueryRepository.getComments(
+      query,
+      id,
+      user.id,
+    );
     if (!comments) {
       throw new InternalServerErrorException();
     }
     return comments;
+  }
+
+  /** Create new comment to existing post*/
+  @Post(':id/comments')
+  @UseGuards(JwtAuthGuard)
+  @ApiPaginatedResponse(CommentViewDto)
+  @ApiOperation({
+    summary: 'Create new comment',
+    description: 'Create and returns a new comment.',
+  })
+  async createComment(
+    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Body() body: CommentInputDto,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    const newCommentId: ObjectId = await this.commandBus.execute(
+      new CreateCommentCommand(body.content, user.id, id),
+    );
+    return await this.commentsQueryRepository.getCommentById(
+      newCommentId,
+      user.id,
+    );
   }
 }

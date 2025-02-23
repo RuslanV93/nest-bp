@@ -54,6 +54,10 @@ export class Post {
     this.content = updatedPost.content;
     this.blogId = new ObjectId(updatedPost.blogId);
   }
+  updateLikesInfo(likesCounter: { like: number; dislike: number }) {
+    this.extendedLikesInfo.likesCount += likesCounter.like;
+    this.extendedLikesInfo.dislikesCount += likesCounter.dislike;
+  }
 
   deletePost() {
     if (this.deletedAt !== null) {

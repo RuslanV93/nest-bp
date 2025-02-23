@@ -1,5 +1,7 @@
 import { PostDocument } from '../../domain/posts.model';
 import { ApiProperty } from '@nestjs/swagger';
+import { PostLikeDocument } from '../../../likes/domain/posts.likes.model';
+import { LikeStatus } from '../../../likes/domain/dto/like.domain.dto';
 
 export class NewestLikesViewDto {
   @ApiProperty() addedAt: string;
@@ -24,22 +26,34 @@ export class PostViewDto {
   @ApiProperty() createdAt: string;
   @ApiProperty({ type: ExtendedLikesInfoViewDto })
   extendedLikesInfo: ExtendedLikesInfoViewDto;
-  public static mapToView(this: void, post: PostDocument) {
+  public static mapToView(
+    this: void,
+    post: PostDocument,
+    likeInfo: PostLikeDocument[] | null,
+    newestLikesMap: Map<string, NewestLikesViewDto[]>,
+  ) {
+    const likesMap = new Map(
+      likeInfo?.map((like) => {
+        return [like.parentId.toString(), like.status];
+      }) ?? [],
+    );
+
     const dto = new PostViewDto();
-    const extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo.likesCount,
-      dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus: 'None',
-      newestLikes: [],
-    };
-    dto.id = post._id.toString();
+    const postId = post._id.toString();
+
+    dto.id = postId;
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
     dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt.toISOString();
-    dto.extendedLikesInfo = extendedLikesInfo;
+    dto.extendedLikesInfo = {
+      likesCount: post.extendedLikesInfo.likesCount,
+      dislikesCount: post.extendedLikesInfo.dislikesCount,
+      myStatus: likesMap.get(postId) ?? LikeStatus.None,
+      newestLikes: newestLikesMap.get(postId) ?? [],
+    };
     return dto;
   }
 }

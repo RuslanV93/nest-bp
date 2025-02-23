@@ -11,7 +11,7 @@ import {
   Post,
   Put,
   Query,
-  UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
 import { BlogsQueryRepository } from '../infrastructure/repositories/blogs.query-repository';
@@ -24,7 +24,10 @@ import { ObjectId } from 'mongodb';
 import { BlogsService } from '../application/blogs.service';
 import { PostsQueryRepository } from '../../posts/infrastructure/repositories/posts.query.repository';
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
-import { PostInputDto } from '../../posts/interface/dto/post.input-dto';
+import {
+  PostInputDto,
+  PostInputDtoWithoutBlogId,
+} from '../../posts/interface/dto/post.input-dto';
 import { PostsService } from '../../posts/application/posts.service';
 import { BlogViewDto } from './dto/blog.view-dto';
 import {
@@ -34,8 +37,9 @@ import {
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
-import { BaseExceptionFilter } from '../../../../core/exceptions/filters/base-exception.filter';
-import { isValidObjectId } from 'mongoose';
+import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
+import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
+import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -90,6 +94,7 @@ export class BlogsController {
   /** Create new blog */
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   @ApiResponse({ type: BlogViewDto })
   @ApiBody({ type: BlogInputDto })
   @ApiOperation({
@@ -114,6 +119,7 @@ export class BlogsController {
   /** Update blog fields by blog id. */
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @ApiBody({ type: BlogInputDto })
   @ApiOperation({
     summary: 'Update blog fields.',
@@ -128,6 +134,7 @@ export class BlogsController {
 
   /** Delete blog by id. */
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @ApiOperation({
     summary: 'Delete one blog by id.',
   })
@@ -153,10 +160,11 @@ export class BlogsController {
   async getPostsByBlogId(
     @Param('id') id: ObjectId,
     @Query() query: GetPostsQueryParams,
+    @ExtractUserFromRequest() user: UserContextDto,
   ) {
     await this.blogsQueryRepository.getBlogById(id);
 
-    const posts = await this.postsQueryRepository.getPosts(query, id);
+    const posts = await this.postsQueryRepository.getPosts(query, id, user.id);
     if (!posts) {
       throw new InternalServerErrorException();
     }
@@ -165,6 +173,7 @@ export class BlogsController {
 
   /** Creating new Post by blog id in params. Using blogs endpoint */
   @Post(':id/posts')
+  @UseGuards(BasicAuthGuard)
   @ApiResponse({ type: PostViewDto })
   @ApiBody({ type: PostInputDto })
   @ApiOperation({
@@ -174,7 +183,7 @@ export class BlogsController {
   })
   async createPostByBlogId(
     @Param('id') id: ObjectId,
-    @Body() body: PostInputDto,
+    @Body() body: PostInputDtoWithoutBlogId,
   ) {
     const postCreateResult = await this.postsService.createPost(id, body);
     if (!isSuccess(postCreateResult)) {

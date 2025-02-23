@@ -10,9 +10,11 @@ import { mongoUrl } from './config/database.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './modules/notification/notification.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
   imports: [
+    CqrsModule.forRoot(),
     MongooseModule.forRoot(mongoUrl),
     UsersAccountModule,
     BloggersPlatformModule,

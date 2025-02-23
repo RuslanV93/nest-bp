@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Post, PostDocument, PostModelType } from '../domain/posts.model';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostInputDto } from '../interface/dto/post.input-dto';
+import {
+  PostInputDto,
+  PostInputDtoWithoutBlogId,
+} from '../interface/dto/post.input-dto';
 import { BlogsRepository } from '../../blogs/infrastructure/repositories/blogs.repository';
 import { DomainPost } from '../domain/posts.domain';
 import { PostsRepository } from '../infrastructure/repositories/posts.repository';
@@ -16,7 +19,10 @@ export class PostsService {
     private readonly blogRepository: BlogsRepository,
   ) {}
   /** Creates new Post. Returns new post id. */
-  async createPost(blogId: ObjectId, newPostDto: PostInputDto) {
+  async createPost(
+    blogId: ObjectId,
+    newPostDto: PostInputDto | PostInputDtoWithoutBlogId,
+  ) {
     const existingBlog =
       await this.blogRepository.findOneOrNotFoundException(blogId);
 
