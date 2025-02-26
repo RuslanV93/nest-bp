@@ -13,7 +13,7 @@ export class AppConfig {
   @IsEnum(EnvTypes)
   env: string = this.configService.getOrThrow('NODE_ENV');
   port: number = Number(this.configService.get('PORT'));
-  mongoUri: string = this.configService.getOrThrow('LOCAL_MONGO_URL');
+  mongoUri: string = this.configService.getOrThrow('MONGO_URL');
   localUrl: string = this.configService.getOrThrow('URL');
   jwtAccessSecret: string = this.configService.getOrThrow('JWT_ACCESS_SECRET');
 

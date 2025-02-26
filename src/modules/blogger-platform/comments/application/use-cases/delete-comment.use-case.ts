@@ -5,7 +5,7 @@ import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-
 
 export class DeleteCommentCommand {
   constructor(
-    public commendId: ObjectId,
+    public commentId: ObjectId,
     public userId: ObjectId,
   ) {}
 }
@@ -17,7 +17,7 @@ export class DeleteCommentUseCase
   constructor(private readonly commentsRepository: CommentsRepository) {}
   async execute(command: DeleteCommentCommand) {
     const comment = await this.commentsRepository.findOneAndNotFoundException(
-      command.commendId,
+      command.commentId,
     );
     if (
       comment.commentatorInfo.userId.toString() !== command.userId.toString()

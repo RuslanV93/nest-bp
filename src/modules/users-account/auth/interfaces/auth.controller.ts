@@ -6,7 +6,6 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Post,
-  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,7 +19,10 @@ import {
 import { AuthService } from '../application/auth.service';
 import { LocalAuthGuard } from '../guards/local/local.auth.guard';
 import { ExtractUserFromRequest } from '../guards/decorators/extract-user-from-request-decorator';
-import { UserContextDto } from '../guards/dto/user-context.dto';
+import {
+  UserContextDto,
+  UserRefreshContextDto,
+} from '../guards/dto/user-context.dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth-guard';
 import { AuthQueryRepository } from '../infrastructure/auth.query-repository';
 import { ResultObject } from '../../../../shared/types/serviceResultObjectType';
@@ -40,6 +42,8 @@ import {
   CookieInterceptor,
   LoginResponseDto,
 } from '../../../../core/interceptors/refresh-cookie.interceptor';
+import { RefreshTokenCommand } from '../application/auth-use-cases/refresh-token.use-case';
+import { RefreshGuard } from '../guards/bearer/jwt-refresh-auth-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -121,5 +125,16 @@ export class AuthController {
     await this.commandBus.execute(new PasswordUpdateCommand(body));
 
     return true;
+  }
+
+  /** Refresh and access token sending*/
+  @Post('refresh-token')
+  @UseGuards(RefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh token' })
+  async refreshToken(@ExtractUserFromRequest() user: UserRefreshContextDto) {
+    const { accessToken, refreshToken } = await this.commandBus.execute(
+      new RefreshTokenCommand(user),
+    );
   }
 }

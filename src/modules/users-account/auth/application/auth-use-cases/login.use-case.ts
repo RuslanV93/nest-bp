@@ -1,14 +1,14 @@
 import { TokenService } from '../jwt.service';
-import { CommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ObjectId } from 'mongodb';
 
 export class LoginCommand {
   constructor(public userId: ObjectId) {}
 }
 @CommandHandler(LoginCommand)
-export class LoginUseCase {
+export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(private readonly tokenService: TokenService) {}
-  execute(command: LoginCommand) {
+  async execute(command: LoginCommand) {
     const { accessToken, refreshToken } = this.tokenService.generateTokens(
       command.userId.toString(),
     );

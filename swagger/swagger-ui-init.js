@@ -382,6 +382,21 @@ window.onload = function() {
           ]
         }
       },
+      "/api/auth/refresh-token": {
+        "post": {
+          "operationId": "AuthController_refreshToken",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "summary": "Refresh token",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "description": "Fetches all blogs with optional query parameters for search, sorting, and pagination.",

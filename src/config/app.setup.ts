@@ -5,13 +5,14 @@ import { pipeSetup } from './pipe.setup';
 import { exceptionFilterSetup } from './exception.setup';
 import { appConfig } from '../app.config';
 import { SoftJwtAuthGuard } from '../modules/users-account/auth/guards/bearer/soft-jwt-auth-guard';
+import cookieParser from 'cookie-parser';
 
 export const appSetup = (app: INestApplication) => {
   if (appConfig.isSwaggerEnabled) {
     swaggerSetup(app);
   }
   app.useGlobalGuards(new SoftJwtAuthGuard());
-
+  app.use(cookieParser());
   pipeSetup(app);
   setGlobalPrefixAndRedirectSetup(app);
   exceptionFilterSetup(app);

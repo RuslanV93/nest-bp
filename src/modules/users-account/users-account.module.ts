@@ -24,6 +24,8 @@ import { PasswordRecoveryUseCase } from './auth/application/users-use-cases/pass
 import { PasswordUpdateUseCase } from './auth/application/users-use-cases/password-update.use-case';
 import { RegistrationConfirmUseCase } from './auth/application/users-use-cases/registration-confirm.use-case';
 import { SoftJwtStrategy } from './auth/guards/bearer/soft-jwt-strategy';
+import { JwtRefreshStrategy } from './auth/guards/bearer/jwt-refresh-strategy';
+import { RefreshTokenUseCase } from './auth/application/auth-use-cases/refresh-token.use-case';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -35,7 +37,7 @@ const usersUseCases = [
   PasswordUpdateUseCase,
 ];
 
-const authUseCases = [LoginUseCase];
+const authUseCases = [LoginUseCase, RefreshTokenUseCase];
 
 @Module({
   imports: [
@@ -51,6 +53,7 @@ const authUseCases = [LoginUseCase];
     LocalStrategy,
     JwtStrategy,
     SoftJwtStrategy,
+    JwtRefreshStrategy,
     UsersRepository,
     UsersQueryRepository,
     AuthQueryRepository,

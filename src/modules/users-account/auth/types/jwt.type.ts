@@ -3,4 +3,5 @@ export type JwtPayloadType = {
 };
 export type Tokens = {
   accessToken: string;
+  refreshToken: string;
 };
