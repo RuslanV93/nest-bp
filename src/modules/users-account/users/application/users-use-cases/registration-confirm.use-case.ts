@@ -1,8 +1,8 @@
-import { ConfirmCodeViewDto } from '../../interfaces/dto/confirm-code.dto';
+import { ConfirmCodeViewDto } from '../../../auth/interfaces/dto/confirm-code.dto';
 import { CommandHandler } from '@nestjs/cqrs';
-import { UserDocument } from '../../../users/domain/users.model';
-import { DomainUser } from '../../../users/domain/users.domain';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
+import { UserDocument } from '../../domain/users.model';
+import { DomainUser } from '../../domain/users.domain';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 
 export class RegistrationConfirmCommand {
   constructor(public confirmCodeDto: ConfirmCodeViewDto) {}

@@ -6,12 +6,14 @@ import { exceptionFilterSetup } from './exception.setup';
 import { appConfig } from '../app.config';
 import { SoftJwtAuthGuard } from '../modules/users-account/auth/guards/bearer/soft-jwt-auth-guard';
 import cookieParser from 'cookie-parser';
+import { UserAgentInterceptor } from '../core/interceptors/user-agent.interceptor';
 
 export const appSetup = (app: INestApplication) => {
   if (appConfig.isSwaggerEnabled) {
     swaggerSetup(app);
   }
   app.useGlobalGuards(new SoftJwtAuthGuard());
+  app.useGlobalInterceptors(new UserAgentInterceptor());
   app.use(cookieParser());
   pipeSetup(app);
   setGlobalPrefixAndRedirectSetup(app);

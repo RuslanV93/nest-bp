@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PasswordUpdateInputDto } from '../../interfaces/dto/password.dto';
-import { DomainUser } from '../../../users/domain/users.domain';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
-import { CryptoService } from '../crypto.service';
+import { PasswordUpdateInputDto } from '../../../auth/interfaces/dto/password.dto';
+import { DomainUser } from '../../domain/users.domain';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
+import { CryptoService } from '../../../auth/application/crypto.service';
 
 export class PasswordUpdateCommand {
   constructor(public passwordUpdateDto: PasswordUpdateInputDto) {}

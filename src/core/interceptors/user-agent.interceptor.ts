@@ -13,7 +13,9 @@ export class UserAgentInterceptor implements NestInterceptor {
   private getIp(request: Request) {
     return Array.isArray(request.headers['x-forwarded-for'])
       ? request.headers['x-forwarded-for'][0]
-      : request.headers['x-forwarded-for'] || request.socket.remoteAddress;
+      : request.headers['x-forwarded-for'] ||
+          request.socket.remoteAddress ||
+          '0.0.0.0';
   }
   intercept(
     context: ExecutionContext,
@@ -21,18 +23,19 @@ export class UserAgentInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     const request: Request = context.switchToHttp().getRequest();
 
-    const ip = this.getIp(request);
+    const ip: string = this.getIp(request);
 
-    const userAgentString = request.headers['user-agent'] || '';
+    const userAgentString: string = request.headers['user-agent'] || '';
     const userAgentInfo = useragent.parse(userAgentString);
     request.clientInfo = {
       ip,
+
       browser: userAgentInfo.family,
       os: userAgentInfo.os.family,
       device: userAgentInfo.device.family,
       userAgentString,
     };
-
+    console.log(request.clientInfo);
     return next.handle();
   }
 }

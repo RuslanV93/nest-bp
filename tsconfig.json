@@ -19,7 +19,5 @@
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
   },
-  "files": [
-    "src/shared/types/index.d.ts"
-  ]
+
 }

@@ -1,10 +1,10 @@
-import { EmailResendingDto } from '../../interfaces/dto/confirm-code.dto';
+import { EmailResendingDto } from '../../../auth/interfaces/dto/confirm-code.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserDocument } from '../../../users/domain/users.model';
+import { UserDocument } from '../../domain/users.model';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
 import { randomUUID } from 'node:crypto';
 import { ServiceResultObjectFactory } from '../../../../../shared/utils/serviceResultObject';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { EmailService } from '../../../../notification/application/email.service';
 
 export class EmailResendCommand {

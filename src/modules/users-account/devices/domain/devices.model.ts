@@ -37,6 +37,7 @@ export class Device {
     device.tokenVersion = newDevice.tokenVersion;
     device.lastActivity = new Date();
     device.loginDate = new Date();
+    return device;
   }
   updateLastActivityInfo(updatedSession: DeviceDomainDto) {
     this.ip = updatedSession.ip;

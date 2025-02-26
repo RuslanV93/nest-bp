@@ -34,8 +34,8 @@ import {
 import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from '../../auth/application/users-use-cases/create-user.use-case';
-import { DeleteUserCommand } from '../../auth/application/users-use-cases/delete-user.use-case';
+import { CreateUserCommand } from '../application/users-use-cases/create-user.use-case';
+import { DeleteUserCommand } from '../application/users-use-cases/delete-user.use-case';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;

@@ -26,7 +26,6 @@ export class CookieInterceptor implements NestInterceptor {
             secure: true,
           });
 
-          // Возвращаем только accessToken в ответе
           return { accessToken: data.accessToken };
         }
         return data;

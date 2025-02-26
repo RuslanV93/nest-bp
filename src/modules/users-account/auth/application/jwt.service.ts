@@ -43,7 +43,8 @@ export class TokenService {
     );
     return { refreshToken };
   }
-  validateTokenVersion(userId: ObjectId, tokenVersion: string) {
-    return true;
+  getRefreshTokenVersion(token: string) {
+    const decodedToken: { exp: string } = this.jwtService.decode(token);
+    return decodedToken.exp;
   }
 }

@@ -1,10 +1,10 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserInputDto } from '../../../users/interfaces/dto/userInputDto';
+import { UserInputDto } from '../../interfaces/dto/userInputDto';
 import { isSuccess } from '../../../../../shared/utils/isSuccessHelpFunction';
 import { InternalServerErrorException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { CreateUserCommand, CreateUserUseCase } from './create-user.use-case';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { EmailService } from '../../../../notification/application/email.service';
 import { ResultObject } from '../../../../../shared/types/serviceResultObjectType';
 import { ObjectId } from 'mongodb';

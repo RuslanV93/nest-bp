@@ -1,8 +1,8 @@
-import { PasswordRecoveryInputDto } from '../../interfaces/dto/password.dto';
+import { PasswordRecoveryInputDto } from '../../../auth/interfaces/dto/password.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserDocument } from '../../../users/domain/users.model';
+import { UserDocument } from '../../domain/users.model';
 import { randomUUID } from 'node:crypto';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { EmailService } from '../../../../notification/application/email.service';
 
 export class PasswordRecoveryCommand {

@@ -12,7 +12,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(private readonly tokenService: TokenService) {
     super({
-      jwtFromRequest: (req) => req?.cookies?.refreshToken,
+      jwtFromRequest: (req: Request) => req?.cookies?.refreshToken,
       ignoreExpiration: false,
       secretOrKey: appConfig.jwtRefreshSecret,
       passReqToCallback: true,
@@ -23,7 +23,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (!payload || !payload.id || !refreshToken) {
       throw UnauthorizedDomainException.create('Invalid refresh token');
     }
-
     return payload;
   }
 }

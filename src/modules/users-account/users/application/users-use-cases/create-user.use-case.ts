@@ -1,16 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserInputDto } from '../../../users/interfaces/dto/userInputDto';
+import { UserInputDto } from '../../interfaces/dto/userInputDto';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
-import { DomainUser } from '../../../users/domain/users.domain';
-import {
-  User,
-  UserDocument,
-  UserModelType,
-} from '../../../users/domain/users.model';
+import { DomainUser } from '../../domain/users.domain';
+import { User, UserDocument, UserModelType } from '../../domain/users.model';
 import { ObjectId } from 'mongodb';
 import { ServiceResultObjectFactory } from '../../../../../shared/utils/serviceResultObject';
-import { UsersRepository } from '../../../users/infrastructure/repositories/users.repository';
-import { CryptoService } from '../crypto.service';
+import { UsersRepository } from '../../infrastructure/repositories/users.repository';
+import { CryptoService } from '../../../auth/application/crypto.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ResultObject } from '../../../../../shared/types/serviceResultObjectType';
 

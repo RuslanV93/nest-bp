@@ -16,16 +16,17 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './auth/guards/local/local.strategy';
 import { JwtStrategy } from './auth/guards/bearer/jwt-strategy';
 import { LoginUseCase } from './auth/application/auth-use-cases/login.use-case';
-import { CreateUserUseCase } from './auth/application/users-use-cases/create-user.use-case';
-import { RegistrationUseCase } from './auth/application/users-use-cases/registration.use-case';
-import { DeleteUserUseCase } from './auth/application/users-use-cases/delete-user.use-case';
-import { EmailResendUseCase } from './auth/application/users-use-cases/email-resend.use-case';
-import { PasswordRecoveryUseCase } from './auth/application/users-use-cases/password-recovery.use-case';
-import { PasswordUpdateUseCase } from './auth/application/users-use-cases/password-update.use-case';
-import { RegistrationConfirmUseCase } from './auth/application/users-use-cases/registration-confirm.use-case';
+import { CreateUserUseCase } from './users/application/users-use-cases/create-user.use-case';
+import { RegistrationUseCase } from './users/application/users-use-cases/registration.use-case';
+import { DeleteUserUseCase } from './users/application/users-use-cases/delete-user.use-case';
+import { EmailResendUseCase } from './users/application/users-use-cases/email-resend.use-case';
+import { PasswordRecoveryUseCase } from './users/application/users-use-cases/password-recovery.use-case';
+import { PasswordUpdateUseCase } from './users/application/users-use-cases/password-update.use-case';
+import { RegistrationConfirmUseCase } from './users/application/users-use-cases/registration-confirm.use-case';
 import { SoftJwtStrategy } from './auth/guards/bearer/soft-jwt-strategy';
 import { JwtRefreshStrategy } from './auth/guards/bearer/jwt-refresh-strategy';
 import { RefreshTokenUseCase } from './auth/application/auth-use-cases/refresh-token.use-case';
+import { CreateDeviceUseCase } from './devices/application/use-cases/create-device.use-case';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -37,7 +38,7 @@ const usersUseCases = [
   PasswordUpdateUseCase,
 ];
 
-const authUseCases = [LoginUseCase, RefreshTokenUseCase];
+const authUseCases = [LoginUseCase, RefreshTokenUseCase, CreateDeviceUseCase];
 
 @Module({
   imports: [

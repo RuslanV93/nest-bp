@@ -13,6 +13,5 @@ export class RefreshTokenUseCase
   constructor(private readonly tokenService: TokenService) {}
   async execute(command: RefreshTokenCommand) {
     const { id, exp } = command.user;
-    const isActiveVersion = this.tokenService.validateTokenVersion(id, exp);
   }
 }

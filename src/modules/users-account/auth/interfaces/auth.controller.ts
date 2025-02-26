@@ -32,18 +32,20 @@ import { LoginInputDto } from './dto/login.input-dto';
 import { LoginCommand } from '../application/auth-use-cases/login.use-case';
 import { CommandBus } from '@nestjs/cqrs';
 import { Tokens } from '../application/jwt.service';
-import { RegistrationCommand } from '../application/users-use-cases/registration.use-case';
+import { RegistrationCommand } from '../../users/application/users-use-cases/registration.use-case';
 import { ObjectId } from 'mongodb';
-import { EmailResendCommand } from '../application/users-use-cases/email-resend.use-case';
-import { RegistrationConfirmCommand } from '../application/users-use-cases/registration-confirm.use-case';
-import { PasswordRecoveryCommand } from '../application/users-use-cases/password-recovery.use-case';
-import { PasswordUpdateCommand } from '../application/users-use-cases/password-update.use-case';
+import { EmailResendCommand } from '../../users/application/users-use-cases/email-resend.use-case';
+import { RegistrationConfirmCommand } from '../../users/application/users-use-cases/registration-confirm.use-case';
+import { PasswordRecoveryCommand } from '../../users/application/users-use-cases/password-recovery.use-case';
+import { PasswordUpdateCommand } from '../../users/application/users-use-cases/password-update.use-case';
 import {
   CookieInterceptor,
   LoginResponseDto,
 } from '../../../../core/interceptors/refresh-cookie.interceptor';
 import { RefreshTokenCommand } from '../application/auth-use-cases/refresh-token.use-case';
 import { RefreshGuard } from '../guards/bearer/jwt-refresh-auth-guard';
+import { ClientInfo } from '../../../../core/decorators/client-info.decorator';
+import { ClientInfoDto } from '../../devices/types/client-info.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -70,9 +72,12 @@ export class AuthController {
   @ApiResponse({ type: ConfirmCodeViewDto })
   @ApiOperation({ summary: 'Login user into system.' })
   @ApiBody({ type: LoginInputDto })
-  async login(@ExtractUserFromRequest() user: UserContextDto) {
+  async login(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @ClientInfo() clientInfo: ClientInfoDto,
+  ) {
     const { accessToken, refreshToken }: Tokens = await this.commandBus.execute(
-      new LoginCommand(user.id),
+      new LoginCommand(user.id, clientInfo),
     );
     return new LoginResponseDto(accessToken, refreshToken);
   }
@@ -136,5 +141,6 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.commandBus.execute(
       new RefreshTokenCommand(user),
     );
+    return true;
   }
 }
