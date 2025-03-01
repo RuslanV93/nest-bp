@@ -18,9 +18,9 @@ export interface AccessTokenType {
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
-  generateTokens(userId: string): Tokens {
+  generateTokens(userId: string, deviceId: string): Tokens {
     const { accessToken } = this.generateAccessToken(userId);
-    const { refreshToken } = this.generateRefreshToken(userId);
+    const { refreshToken } = this.generateRefreshToken(userId, deviceId);
     return { accessToken, refreshToken };
   }
   generateAccessToken(userId: string): AccessTokenType {
@@ -33,9 +33,9 @@ export class TokenService {
     );
     return { accessToken };
   }
-  generateRefreshToken(userId: string): RefreshTokenType {
+  generateRefreshToken(userId: string, deviceId: string): RefreshTokenType {
     const refreshToken = this.jwtService.sign(
-      { id: userId },
+      { id: userId, deviceId: deviceId },
       {
         secret: jwtConfig.refresh.secret,
         expiresIn: jwtConfig.refresh.expiresIn,
@@ -43,8 +43,7 @@ export class TokenService {
     );
     return { refreshToken };
   }
-  getRefreshTokenVersion(token: string) {
-    const decodedToken: { exp: string } = this.jwtService.decode(token);
-    return decodedToken.exp;
+  getRefreshTokenPayload(token: string): { exp: string; deviceId: string } {
+    return this.jwtService.decode(token);
   }
 }

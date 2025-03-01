@@ -26,8 +26,4 @@ export class AuthService {
     }
     return { id: user._id.toString() };
   }
-  login(userId: string) {
-    const { accessToken } = this.tokenService.generateTokens(userId);
-    return { accessToken };
-  }
 }

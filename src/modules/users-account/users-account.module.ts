@@ -27,6 +27,16 @@ import { SoftJwtStrategy } from './auth/guards/bearer/soft-jwt-strategy';
 import { JwtRefreshStrategy } from './auth/guards/bearer/jwt-refresh-strategy';
 import { RefreshTokenUseCase } from './auth/application/auth-use-cases/refresh-token.use-case';
 import { CreateDeviceUseCase } from './devices/application/use-cases/create-device.use-case';
+import {
+  DeleteOtherDevicesUseCase,
+  DeleteSpecifiedDeviceUseCase,
+} from './devices/application/use-cases/delete-device.use-case';
+import { DevicesRepository } from './devices/infrastructure/repositories/devices.repository';
+import { DevicesQueryRepository } from './devices/infrastructure/repositories/devices.query-repository';
+import { Device, DeviceSchema } from './devices/domain/devices.model';
+import { DevicesController } from './devices/interfaces/devices.controller';
+import { GetDevicesHandler } from './devices/application/use-cases/get-devices.query-handler';
+import { DevicesService } from './devices/application/devices.service';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -38,16 +48,24 @@ const usersUseCases = [
   PasswordUpdateUseCase,
 ];
 
-const authUseCases = [LoginUseCase, RefreshTokenUseCase, CreateDeviceUseCase];
+const authUseCases = [
+  LoginUseCase,
+  RefreshTokenUseCase,
+  CreateDeviceUseCase,
+  DeleteSpecifiedDeviceUseCase,
+  DeleteOtherDevicesUseCase,
+  GetDevicesHandler,
+];
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.register({}),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Device.name, schema: DeviceSchema }]),
     NotificationModule,
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, DevicesController],
   providers: [
     ...usersUseCases,
     ...authUseCases,
@@ -62,6 +80,8 @@ const authUseCases = [LoginUseCase, RefreshTokenUseCase, CreateDeviceUseCase];
     TokenService,
     CryptoService,
     EmailService,
+    DevicesRepository,
+    DevicesQueryRepository,
   ],
   exports: [UsersRepository],
 })

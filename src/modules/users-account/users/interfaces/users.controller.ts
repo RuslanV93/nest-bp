@@ -31,7 +31,6 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/users-use-cases/create-user.use-case';
@@ -103,9 +102,7 @@ export class UsersController {
   })
   @ApiBasicAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserById(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-  ) {
+  async deleteUserById(@Param('id') id: ObjectId) {
     await this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

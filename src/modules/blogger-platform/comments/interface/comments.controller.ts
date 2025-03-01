@@ -13,7 +13,6 @@ import {
 import { CommentsQueryRepository } from '../infrastructure/repositories/comments.query.repository';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from './dto/comment.view-dto';
-import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { ObjectId } from 'mongodb';
 import { CommentInputDto } from './dto/comment.input-dto';
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
@@ -43,7 +42,7 @@ export class CommentsController {
     summary: 'Get a comment by id.',
   })
   async getCommentById(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const comment = await this.postsQueryRepository.getCommentById(id, user.id);
@@ -63,7 +62,7 @@ export class CommentsController {
     summary: 'Update commentary.',
   })
   async updateComment(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Body() body: CommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -82,7 +81,7 @@ export class CommentsController {
   })
   /** Update Like Status. Update comments like counters */
   async updateLikeStatus(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Body() body: LikeInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -97,7 +96,7 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete 1 comment by id.' })
   async deleteComment(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const userId = user.id;

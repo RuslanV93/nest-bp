@@ -30,7 +30,6 @@ import {
 import { PostViewDto } from './dto/post.view-dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
-import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { ObjectId } from 'mongodb';
 import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
@@ -93,7 +92,7 @@ export class PostsController {
     summary: 'Gets post by id.',
   })
   async getPostById(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const post = await this.postsQueryRepository.getPostById(id, user.id);
@@ -142,10 +141,7 @@ export class PostsController {
     summary: 'Update existing post fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePost(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-    @Body() body: PostInputDto,
-  ) {
+  async updatePost(@Param('id') id: ObjectId, @Body() body: PostInputDto) {
     await this.postsService.updatePost(id, body);
   }
 
@@ -158,7 +154,7 @@ export class PostsController {
     summary: 'Update post like.',
   })
   async updateLikeStatus(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Body() body: LikeInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -174,9 +170,7 @@ export class PostsController {
     summary: 'Delete post by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-  ) {
+  async deletePost(@Param('id') id: ObjectId) {
     const deleteResult = await this.postsService.deletePost(id);
     if (deleteResult.status !== DomainStatusCode.Success) {
       throw new InternalServerErrorException(deleteResult.extensions);
@@ -193,7 +187,7 @@ export class PostsController {
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Query() query: GetCommentsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -217,7 +211,7 @@ export class PostsController {
     description: 'Create and returns a new comment.',
   })
   async createComment(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
+    @Param('id') id: ObjectId,
     @Body() body: CommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {

@@ -40,7 +40,7 @@ import { PasswordRecoveryCommand } from '../../users/application/users-use-cases
 import { PasswordUpdateCommand } from '../../users/application/users-use-cases/password-update.use-case';
 import {
   CookieInterceptor,
-  LoginResponseDto,
+  TokensResponseDto,
 } from '../../../../core/interceptors/refresh-cookie.interceptor';
 import { RefreshTokenCommand } from '../application/auth-use-cases/refresh-token.use-case';
 import { RefreshGuard } from '../guards/bearer/jwt-refresh-auth-guard';
@@ -79,7 +79,7 @@ export class AuthController {
     const { accessToken, refreshToken }: Tokens = await this.commandBus.execute(
       new LoginCommand(user.id, clientInfo),
     );
-    return new LoginResponseDto(accessToken, refreshToken);
+    return new TokensResponseDto(accessToken, refreshToken);
   }
 
   @Post('registration')
@@ -134,6 +134,7 @@ export class AuthController {
 
   /** Refresh and access token sending*/
   @Post('refresh-token')
+  @UseInterceptors(CookieInterceptor)
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh token' })
@@ -141,6 +142,6 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.commandBus.execute(
       new RefreshTokenCommand(user),
     );
-    return true;
+    return new TokensResponseDto(accessToken, refreshToken);
   }
 }

@@ -7,7 +7,7 @@ import {
 import { map, Observable } from 'rxjs';
 import { Response } from 'express';
 
-export class LoginResponseDto {
+export class TokensResponseDto {
   constructor(
     public accessToken: string,
     public refreshToken: string,
@@ -19,7 +19,7 @@ export class CookieInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
-        if (data instanceof LoginResponseDto && data.isRefreshTokenCookie) {
+        if (data instanceof TokensResponseDto && data.isRefreshTokenCookie) {
           const response: Response = context.switchToHttp().getResponse();
           response.cookie('refreshToken', data.refreshToken, {
             httpOnly: true,

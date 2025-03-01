@@ -23,6 +23,9 @@ export class Device {
   @Prop()
   tokenVersion: string;
 
+  @Prop()
+  deviceId: string;
+
   createdAt: Date;
   updatedAt: Date;
 
@@ -37,9 +40,10 @@ export class Device {
     device.tokenVersion = newDevice.tokenVersion;
     device.lastActivity = new Date();
     device.loginDate = new Date();
+    device.deviceId = newDevice.deviceId;
     return device;
   }
-  updateLastActivityInfo(updatedSession: DeviceDomainDto) {
+  updateSession(updatedSession: DeviceDomainDto) {
     this.ip = updatedSession.ip;
     this.title = updatedSession.title;
     this.tokenVersion = updatedSession.tokenVersion;

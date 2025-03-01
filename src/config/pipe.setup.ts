@@ -4,7 +4,6 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
-import { ObjectIdValidationTransformationPipe } from '../core/pipes/object-id.validation-transformation-pipe';
 
 const pipeErrorFormatter = (
   errors: ValidationError[],
@@ -30,7 +29,6 @@ const pipeErrorFormatter = (
 
 export const pipeSetup = (app: INestApplication) => {
   app.useGlobalPipes(
-    new ObjectIdValidationTransformationPipe(),
     new ValidationPipe({
       stopAtFirstError: true,
       transform: true,

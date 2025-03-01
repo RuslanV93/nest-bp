@@ -36,7 +36,6 @@ import {
 } from '../../../../../swagger/swagger.decorator';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
-import { ObjectIdValidationTransformationPipe } from '../../../../core/pipes/object-id.validation-transformation-pipe';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
@@ -125,10 +124,7 @@ export class BlogsController {
     summary: 'Update blog fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updateBlog(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-    @Body() body: BlogInputDto,
-  ) {
+  async updateBlog(@Param('id') id: ObjectId, @Body() body: BlogInputDto) {
     await this.blogsService.updateBlog(id, body);
   }
 
@@ -139,9 +135,7 @@ export class BlogsController {
     summary: 'Delete one blog by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(
-    @Param('id', ObjectIdValidationTransformationPipe) id: ObjectId,
-  ) {
+  async deleteBlog(@Param('id') id: ObjectId) {
     const deleteResult = await this.blogsService.deleteBlog(id);
     if (deleteResult.status !== DomainStatusCode.Success) {
       throw new NotFoundException(deleteResult.extensions);

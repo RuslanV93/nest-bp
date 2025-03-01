@@ -397,6 +397,55 @@ window.onload = function() {
           ]
         }
       },
+      "/api/security/devices": {
+        "get": {
+          "operationId": "DevicesController_getDevices",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Devices"
+          ]
+        },
+        "delete": {
+          "operationId": "DevicesController_terminateOtherSessions",
+          "parameters": [],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Devices"
+          ]
+        }
+      },
+      "/api/security/devices/{id}": {
+        "delete": {
+          "operationId": "DevicesController_terminateSessionById",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Devices"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "description": "Fetches all blogs with optional query parameters for search, sorting, and pagination.",

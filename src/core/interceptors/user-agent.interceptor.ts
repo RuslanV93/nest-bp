@@ -35,7 +35,6 @@ export class UserAgentInterceptor implements NestInterceptor {
       device: userAgentInfo.device.family,
       userAgentString,
     };
-    console.log(request.clientInfo);
     return next.handle();
   }
 }

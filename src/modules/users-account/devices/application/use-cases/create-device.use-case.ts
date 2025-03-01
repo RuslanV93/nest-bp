@@ -1,4 +1,4 @@
-import { ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ClientInfoDto } from '../../types/client-info.dto';
 import {
   Device,
@@ -15,8 +15,11 @@ export class CreateDeviceCommand {
     public userId: ObjectId,
     public clientInfo: ClientInfoDto,
     public tokenVersion: string,
+    public deviceId: string,
   ) {}
 }
+
+@CommandHandler(CreateDeviceCommand)
 export class CreateDeviceUseCase
   implements ICommandHandler<CreateDeviceCommand>
 {
@@ -32,6 +35,7 @@ export class CreateDeviceUseCase
       userId: command.userId,
       tokenVersion: command.tokenVersion,
       ip: command.clientInfo.ip,
+      deviceId: command.deviceId,
     };
     const newDevice: DeviceDocument =
       this.DeviceModel.createInstance(newDeviceDto);
