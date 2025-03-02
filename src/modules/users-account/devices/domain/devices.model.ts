@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { HydratedDocument, Model } from 'mongoose';
 import { DeviceDomainDto } from './dto/device.domain-dto';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, optimisticConcurrency: true })
 export class Device {
   @Prop()
   userId: ObjectId;
@@ -50,6 +50,7 @@ export class Device {
     this.lastActivity = new Date();
   }
   deleteDevice() {
+    this.tokenVersion = '';
     this.deletedAt = new Date();
   }
 }

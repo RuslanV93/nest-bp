@@ -5,6 +5,18 @@ import { UserContextDto } from '../dto/user-context.dto';
 import { Request } from 'express';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
 import { TokenService } from '../../application/jwt.service';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+} from '@nestjs/common';
+import { DevicesRepository } from '../../../devices/infrastructure/repositories/devices.repository';
+import { ObjectId } from 'mongodb';
+import { Reflector } from '@nestjs/core';
 
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -24,5 +36,58 @@ export class JwtRefreshStrategy extends PassportStrategy(
       throw UnauthorizedDomainException.create('Invalid refresh token');
     }
     return payload;
+  }
+}
+
+export class SoftRefreshStrategy implements CanActivate {
+  constructor(
+    @Inject(forwardRef(() => TokenService))
+    private readonly tokenService: TokenService,
+    @Inject(forwardRef(() => DevicesRepository))
+    private readonly devicesRepository: DevicesRepository,
+    private readonly reflector: Reflector,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: Request = context.switchToHttp().getRequest<Request>();
+    const response: Response = context.switchToHttp().getResponse<Response>();
+    const refreshToken: string = request.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return true;
+    }
+
+    try {
+      const tokenPayload =
+        this.tokenService.getRefreshTokenPayload(refreshToken);
+
+      if (!tokenPayload?.id || !tokenPayload?.exp) {
+        return true;
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      if (Number(tokenPayload.exp) < now) {
+        return true;
+      }
+
+      const session = await this.devicesRepository.findSessionByTokenVersion(
+        tokenPayload.exp,
+        new ObjectId(tokenPayload.id),
+      );
+
+      if (session) {
+        throw new HttpException(
+          'User already has active session',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw new BadRequestException('User already has active session');
+      }
+      return true;
+    }
   }
 }

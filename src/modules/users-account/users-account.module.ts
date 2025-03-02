@@ -36,7 +36,9 @@ import { DevicesQueryRepository } from './devices/infrastructure/repositories/de
 import { Device, DeviceSchema } from './devices/domain/devices.model';
 import { DevicesController } from './devices/interfaces/devices.controller';
 import { GetDevicesHandler } from './devices/application/use-cases/get-devices.query-handler';
-import { DevicesService } from './devices/application/devices.service';
+import { LogoutUseCase } from './auth/application/auth-use-cases/logout.use-case';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -55,6 +57,7 @@ const authUseCases = [
   DeleteSpecifiedDeviceUseCase,
   DeleteOtherDevicesUseCase,
   GetDevicesHandler,
+  LogoutUseCase,
 ];
 
 @Module({
@@ -67,6 +70,10 @@ const authUseCases = [
   ],
   controllers: [UsersController, AuthController, DevicesController],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     ...usersUseCases,
     ...authUseCases,
     LocalStrategy,

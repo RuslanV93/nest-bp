@@ -46,6 +46,10 @@ import { RefreshTokenCommand } from '../application/auth-use-cases/refresh-token
 import { RefreshGuard } from '../guards/bearer/jwt-refresh-auth-guard';
 import { ClientInfo } from '../../../../core/decorators/client-info.decorator';
 import { ClientInfoDto } from '../../devices/types/client-info.dto';
+import { SoftRefreshStrategy } from '../guards/bearer/jwt-refresh-strategy';
+import { LogoutCommand } from '../application/auth-use-cases/logout.use-case';
+import { LogoutInterceptor } from '../../../../core/interceptors/logout.interceptor';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -66,9 +70,11 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @UseInterceptors(CookieInterceptor)
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @UseGuards(SoftRefreshStrategy)
   @ApiResponse({ type: ConfirmCodeViewDto })
   @ApiOperation({ summary: 'Login user into system.' })
   @ApiBody({ type: LoginInputDto })
@@ -83,6 +89,7 @@ export class AuthController {
   }
 
   @Post('registration')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'User registration' })
   /** User registration endpoint */
@@ -98,7 +105,9 @@ export class AuthController {
     }
     return newUser;
   }
+
   @Post('registration-confirmation')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Confirm registration' })
   async registrationConfirm(@Body() body: ConfirmCodeViewDto) {
@@ -107,6 +116,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Email confirmation code send' })
   async registrationEmailResending(@Body() body: EmailResendingDto) {
@@ -115,6 +125,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Password recovery code send' })
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto) {
@@ -124,6 +135,7 @@ export class AuthController {
   }
 
   @Post('new-password')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Set new password' })
   async newPassword(@Body() body: PasswordUpdateInputDto) {
@@ -134,14 +146,30 @@ export class AuthController {
 
   /** Refresh and access token sending*/
   @Post('refresh-token')
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @UseInterceptors(CookieInterceptor)
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh token' })
-  async refreshToken(@ExtractUserFromRequest() user: UserRefreshContextDto) {
-    const { accessToken, refreshToken } = await this.commandBus.execute(
-      new RefreshTokenCommand(user),
-    );
+  async refreshToken(
+    @ExtractUserFromRequest() user: UserRefreshContextDto,
+    @ClientInfo() clientInfo: ClientInfoDto,
+  ) {
+    const {
+      accessToken,
+      refreshToken,
+    }: { accessToken: string; refreshToken: string } =
+      await this.commandBus.execute(new RefreshTokenCommand(user, clientInfo));
     return new TokensResponseDto(accessToken, refreshToken);
+  }
+
+  @Post('logout')
+  @UseGuards(RefreshGuard)
+  @UseInterceptors(LogoutInterceptor)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Logout' })
+  async logout(@ExtractUserFromRequest() user: UserRefreshContextDto) {
+    await this.commandBus.execute(new LogoutCommand(user));
+    return;
   }
 }

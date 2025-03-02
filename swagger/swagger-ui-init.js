@@ -397,6 +397,21 @@ window.onload = function() {
           ]
         }
       },
+      "/api/auth/logout": {
+        "post": {
+          "operationId": "AuthController_logout",
+          "parameters": [],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Logout",
+          "tags": [
+            "Auth"
+          ]
+        }
+      },
       "/api/security/devices": {
         "get": {
           "operationId": "DevicesController_getDevices",

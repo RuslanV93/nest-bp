@@ -43,7 +43,11 @@ export class TokenService {
     );
     return { refreshToken };
   }
-  getRefreshTokenPayload(token: string): { exp: string; deviceId: string } {
+  getRefreshTokenPayload(token: string): {
+    id: string;
+    exp: string;
+    deviceId: string;
+  } {
     return this.jwtService.decode(token);
   }
 }

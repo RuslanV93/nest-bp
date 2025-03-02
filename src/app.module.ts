@@ -11,9 +11,18 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 10000,
+          limit: 20,
+        },
+      ],
+    }),
     CqrsModule.forRoot(),
     MongooseModule.forRoot(mongoUrl),
     UsersAccountModule,

@@ -6,7 +6,6 @@ import {
 } from '../../domain/devices.model';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
-import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
 
 @Injectable()
 export class DevicesRepository {
@@ -25,9 +24,7 @@ export class DevicesRepository {
       userId: userId,
       deletedAt: null,
     });
-    if (!session) {
-      throw UnauthorizedDomainException.create('Token is expired');
-    }
+
     return session;
   }
   async findOrNotFoundException(deviceId: string) {
