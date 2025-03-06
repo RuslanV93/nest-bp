@@ -11,6 +11,7 @@ import {
   postgresDbName,
   postgresLogin,
   postgresPassword,
+  postgresPort,
   postgresUrl,
 } from './config/database.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -34,7 +35,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: postgresUrl,
-      port: 5432,
+      port: postgresPort,
       username: postgresLogin,
       password: postgresPassword,
       database: postgresDbName,

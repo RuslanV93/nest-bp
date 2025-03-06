@@ -31,7 +31,7 @@ class PasswordInfo {
   passwordRecoveryCodeExpirationDate: Date | null;
 }
 
-@Schema({ timestamps: true })
+@Schema({ _id: false, timestamps: true })
 export class User {
   @Prop()
   login: string;

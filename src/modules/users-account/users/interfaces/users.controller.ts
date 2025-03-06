@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../infrastructure/repositories/users.query.repository';
 import { UserInputDto } from './dto/userInputDto';
 import { ObjectId } from 'mongodb';
 import {
@@ -35,6 +34,7 @@ import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/users-use-cases/create-user.use-case';
 import { DeleteUserCommand } from '../application/users-use-cases/delete-user.use-case';
+import { UsersSqlQueryRepository } from '../infrastructure/repositories/users.sql.query.repository';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -45,7 +45,8 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly usersQueryRepository: UsersSqlQueryRepository,
+
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -79,10 +80,10 @@ export class UsersController {
   async createNewUser(@Body() body: UserInputDto) {
     const userCreateResult: ResultObject<ObjectId | null> =
       await this.commandBus.execute(new CreateUserCommand(body));
-
     if (!isSuccess(userCreateResult)) {
       throw new InternalServerErrorException(userCreateResult.extensions);
     }
+
     const newUser = await this.usersQueryRepository.getUserById(
       userCreateResult.data,
     );

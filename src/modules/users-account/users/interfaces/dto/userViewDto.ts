@@ -1,6 +1,14 @@
 import { UserDocument } from '../../domain/users.model';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 
+export type UserFromSql = {
+  _id: string;
+  login: string;
+  email: string;
+  createdAt: Date;
+  totalCount: number;
+};
+
 export class UserViewDto {
   @ApiProperty() id: string;
   @ApiProperty() login: string;
@@ -15,6 +23,14 @@ export class UserViewDto {
     dto.email = user.email;
     dto.createdAt = user.createdAt.toISOString();
 
+    return dto;
+  }
+  public static sqlMapToView(this: void, user: UserFromSql) {
+    const dto = new UserViewDto();
+    dto.id = user._id;
+    dto.login = user.login;
+    dto.email = user.email;
+    dto.createdAt = user.createdAt.toISOString();
     return dto;
   }
 }

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserDocument, UserModelType } from '../../domain/users.model';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';

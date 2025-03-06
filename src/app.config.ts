@@ -20,6 +20,9 @@ export class AppConfig {
   postgresPassword: string = this.configService.getOrThrow('POSTGRES_PASSWORD');
   postgresUrl: string = this.configService.getOrThrow('POSTGRES_LOCAL_URL');
   postgresPort: string = this.configService.getOrThrow('POSTGRES_PORT');
+  postgresDbName: string = this.configService.getOrThrow(
+    'POSTGRES_DATABASE_NAME',
+  );
   jwtRefreshSecret: string =
     this.configService.getOrThrow('JWT_REFRESH_SECRET');
   @IsNotEmpty({

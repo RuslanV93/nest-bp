@@ -39,6 +39,8 @@ import { GetDevicesHandler } from './devices/application/use-cases/get-devices.q
 import { LogoutUseCase } from './auth/application/auth-use-cases/logout.use-case';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { UsersSqlQueryRepository } from './users/infrastructure/repositories/users.sql.query.repository';
+import { UsersSqlRepository } from './users/infrastructure/repositories/users.sql.repository';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -82,6 +84,8 @@ const authUseCases = [
     JwtRefreshStrategy,
     UsersRepository,
     UsersQueryRepository,
+    UsersSqlQueryRepository,
+    UsersSqlRepository,
     AuthQueryRepository,
     AuthService,
     TokenService,
