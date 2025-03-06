@@ -16,7 +16,10 @@ export class AppConfig {
   mongoUri: string = this.configService.getOrThrow('MONGO_URL');
   localUrl: string = this.configService.getOrThrow('URL');
   jwtAccessSecret: string = this.configService.getOrThrow('JWT_ACCESS_SECRET');
-
+  postgresLogin: string = this.configService.getOrThrow('POSTGRES_LOGIN');
+  postgresPassword: string = this.configService.getOrThrow('POSTGRES_PASSWORD');
+  postgresUrl: string = this.configService.getOrThrow('POSTGRES_LOCAL_URL');
+  postgresPort: string = this.configService.getOrThrow('POSTGRES_PORT');
   jwtRefreshSecret: string =
     this.configService.getOrThrow('JWT_REFRESH_SECRET');
   @IsNotEmpty({

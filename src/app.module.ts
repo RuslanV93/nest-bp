@@ -6,12 +6,19 @@ import { BloggersPlatformModule } from './modules/blogger-platform/bloggers-plat
 import { DropCollectionModule } from './modules/drop-collections/drop-collection.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { mongoUrl } from './config/database.config';
+import {
+  mongoUrl,
+  postgresDbName,
+  postgresLogin,
+  postgresPassword,
+  postgresUrl,
+} from './config/database.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -24,6 +31,16 @@ import { ThrottlerModule } from '@nestjs/throttler';
       ],
     }),
     CqrsModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: postgresUrl,
+      port: 5432,
+      username: postgresLogin,
+      password: postgresPassword,
+      database: postgresDbName,
+      autoLoadEntities: false,
+      synchronize: false,
+    }),
     MongooseModule.forRoot(mongoUrl),
     UsersAccountModule,
     BloggersPlatformModule,
