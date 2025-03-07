@@ -45,7 +45,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     const user: UserDocument = this.UserModel.createInstance(
       userEntity.toSchema(),
     );
-    const newUserId: ObjectId = await this.usersRepository.save(user);
+    const newUserId: ObjectId = await this.usersRepository.createUser(user);
 
     return ServiceResultObjectFactory.successResultObject(newUserId);
   }

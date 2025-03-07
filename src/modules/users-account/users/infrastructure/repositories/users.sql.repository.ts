@@ -13,17 +13,18 @@ import { BadRequestDomainException } from '../../../../../core/exceptions/domain
 export class UsersSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findById(id: ObjectId): Promise<UserDocument> {
+  async findById(id: ObjectId): Promise<UserDocument | null> {
     const users: UserDocument[] = await this.dataSource.query(
       `
           SELECT u.*, e.*, p.*
           FROM public."USERS" u
-                   LEFT JOIN public."EMAIL_CONFIRMATION_INFO" e ON u.id = e."userId"
-                   LEFT JOIN public."PASSWORD_INFO" p ON u.id = p."userId"
-          WHERE u.id = $1 AND u."deletedAt" IS NULL
+                   LEFT JOIN public."EMAIL_CONFIRMATION_INFO" e ON u._id = e."userId"
+                   LEFT JOIN public."PASSWORD_INFO" p ON u._id = p."userId"
+          WHERE u._id = $1 AND u."deletedAt" IS NULL
     `,
       [id.toString()],
     );
+
     return users[0];
   }
   async findExistingUserByLoginOrEmail(login: string, email: string) {
@@ -114,10 +115,10 @@ export class UsersSqlRepository {
   }
   async findOrNotFoundException(id: ObjectId): Promise<UserDocument> {
     const user = await this.findById(id);
-
     if (!user) {
       throw new NotFoundException('User not Found');
     }
+
     return user;
   }
 
@@ -173,26 +174,18 @@ export class UsersSqlRepository {
     }
   }
   async deleteUser(user: UserDocument) {
-    await this.dataSource.query(
-      `
+    try {
+      console.log(user);
+      await this.dataSource.query(
+        `
     UPDATE "USERS" 
     SET "deletedAt" = $1
-    WHERE id = $2
+    WHERE _id = $2
     `,
-      [new Date(), user._id],
-    );
-  }
-  async save(user: UserDocument) {
-    let userId: ObjectId;
-    if (user._id) {
-      await this.deleteUser(user);
-      return user._id;
-    } else {
-      userId = await this.createUser(user);
+        [user.deletedAt, user._id],
+      );
+    } catch (error) {
+      console.log(error);
     }
-    if (!userId) {
-      throw new InternalServerErrorException();
-    }
-    return userId;
   }
 }

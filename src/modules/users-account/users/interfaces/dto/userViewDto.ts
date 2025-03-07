@@ -1,5 +1,6 @@
 import { UserDocument } from '../../domain/users.model';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { UserDomainDto } from '../../domain/dto/user.domain-dto';
 
 export type UserFromSql = {
   _id: string;
@@ -25,7 +26,10 @@ export class UserViewDto {
 
     return dto;
   }
-  public static sqlMapToView(this: void, user: UserFromSql) {
+  public static sqlMapToView(
+    this: void,
+    user: (Omit<UserDocument, '_id'> & { _id: string }) | UserFromSql,
+  ) {
     const dto = new UserViewDto();
     dto.id = user._id;
     dto.login = user.login;

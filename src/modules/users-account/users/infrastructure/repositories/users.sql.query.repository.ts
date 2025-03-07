@@ -28,6 +28,7 @@ export class UsersSqlQueryRepository {
   }
   async getUsers(query: GetUsersQueryParams) {
     try {
+      console.log(query.searchLoginTerm);
       const validSortDirection =
         query.sortDirection === 'asc' || query.sortDirection === 'desc'
           ? query.sortDirection
@@ -35,13 +36,13 @@ export class UsersSqlQueryRepository {
       const users: UserFromSql[] = await this.dataSource.query(
         `
     SELECT u._id, u.login, u.email, u."createdAt",
-           COUNT(*) OVER () AS totalCount
+           COUNT(*) OVER () AS "totalCount"
     FROM public."USERS" u
     WHERE u."deletedAt" IS NULL
         AND (
-        (CAST($1 AS TEXT) IS NULL OR u.login ILIKE '%' || CAST($1 AS TEXT) || '%')
-        OR (CAST($2 AS TEXT) IS NULL OR u.email ILIKE '%' || CAST($2 AS TEXT) || '%')
-            )
+        (COALESCE($1::text, '') = '' OR u.login ILIKE '%' || $1::text || '%')
+            AND (COALESCE($2::text, '') = '' OR u.email ILIKE '%' || $2::text || '%')
+        )
     ORDER BY u."createdAt" ${validSortDirection}
     LIMIT $3 OFFSET $4;
 `,
@@ -58,7 +59,7 @@ export class UsersSqlQueryRepository {
         items,
         page: query.pageNumber,
         size: query.pageSize,
-        totalCount: users[0].totalCount || 0,
+        totalCount: users[0]?.totalCount || 0,
       });
     } catch (error) {
       console.error(error);
