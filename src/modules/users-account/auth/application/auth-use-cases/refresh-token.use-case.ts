@@ -1,10 +1,10 @@
 import { UserRefreshContextDto } from '../../guards/dto/user-context.dto';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { TokenService } from '../jwt.service';
-import { DevicesRepository } from '../../../devices/infrastructure/repositories/devices.repository';
 import { ClientInfoDto } from '../../../devices/types/client-info.dto';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
-import { DeviceDomainDto } from '../../../devices/domain/dto/device.domain-dto';
+import { UpdateDeviceCommand } from '../../../devices/application/use-cases/update-device.use-case';
+import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
 
 export class RefreshTokenCommand {
   constructor(
@@ -19,7 +19,7 @@ export class RefreshTokenUseCase
 {
   constructor(
     private readonly tokenService: TokenService,
-    private readonly devicesRepository: DevicesRepository,
+    private readonly devicesRepository: DevicesSqlRepository,
     private readonly commandBus: CommandBus,
   ) {}
   async execute(
@@ -42,19 +42,14 @@ export class RefreshTokenUseCase
     );
     /** getting token payload from new token. version exists */
     const tokenPayload = this.tokenService.getRefreshTokenPayload(refreshToken);
-
-    const title = `Device: ${command.clientInfo.device || 'other'},
-     Platform: ${command.clientInfo.os || 'other'}, Browser: ${command.clientInfo.browser || 'other'}`;
-    const updateDto: DeviceDomainDto = {
-      userId: command.user.id,
-      ip: command.clientInfo.ip,
-      title: title,
-      tokenVersion: tokenPayload.exp,
-      deviceId: command.user.deviceId,
-    };
-
-    session.updateSession(updateDto);
-    await this.devicesRepository.save(session);
+    await this.commandBus.execute(
+      new UpdateDeviceCommand(
+        session,
+        command.user,
+        command.clientInfo,
+        tokenPayload.exp,
+      ),
+    );
 
     return { accessToken, refreshToken };
   }

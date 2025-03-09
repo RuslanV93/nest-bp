@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepository } from '../../users/infrastructure/repositories/users.repository';
 import { CryptoService } from './crypto.service';
-import { TokenService } from './jwt.service';
+import { UsersSqlRepository } from '../../users/infrastructure/repositories/users.sql.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly cryptoService: CryptoService,
-    private readonly tokenService: TokenService,
   ) {}
   async validateUser(loginOrEmail: string, password: string) {
-    const user =
+    const user: any =
       await this.usersRepository.findByEmailAndLoginField(loginOrEmail);
 
     if (!user) {
@@ -19,7 +17,7 @@ export class AuthService {
     }
     const passwordIsMatch = await this.cryptoService.comparePassword(
       password,
-      user.passwordInfo.passwordHash,
+      user.passwordHash,
     );
     if (!passwordIsMatch) {
       return null;

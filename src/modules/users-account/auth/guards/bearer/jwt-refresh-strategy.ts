@@ -17,6 +17,7 @@ import {
 import { DevicesRepository } from '../../../devices/infrastructure/repositories/devices.repository';
 import { ObjectId } from 'mongodb';
 import { Reflector } from '@nestjs/core';
+import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
 
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -44,7 +45,7 @@ export class SoftRefreshStrategy implements CanActivate {
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
     @Inject(forwardRef(() => DevicesRepository))
-    private readonly devicesRepository: DevicesRepository,
+    private readonly devicesRepository: DevicesSqlRepository,
     private readonly reflector: Reflector,
   ) {}
 

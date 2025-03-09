@@ -41,7 +41,7 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 }
 
 /** Users endpoint controller. Response to /users uri path. Have @get, @post, @delete methods. */
-@Controller('users')
+@Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(

@@ -7,9 +7,7 @@ import { MeViewDto } from '../../users/interfaces/dto/userViewDto';
 export class AuthQueryRepository {
   constructor(private readonly usersRepository: UsersRepository) {}
   async getMe(userId: ObjectId) {
-    const user = await this.usersRepository.findOrNotFoundException(
-      new ObjectId(userId),
-    );
+    const user = await this.usersRepository.findOrNotFoundException(userId);
     return MeViewDto.mapToView(user);
   }
 }

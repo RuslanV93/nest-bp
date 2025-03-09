@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { DevicesRepository } from '../../infrastructure/repositories/devices.repository';
 import { DeviceDocument } from '../../domain/devices.model';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
+import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
 
 export abstract class DeleteDeviceCommand {
   constructor(public readonly userId: ObjectId) {}
@@ -28,16 +29,16 @@ export class DeleteOtherDevicesCommand extends DeleteDeviceCommand {
 export class DeleteOtherDevicesUseCase
   implements ICommandHandler<DeleteOtherDevicesCommand>
 {
-  constructor(private readonly devicesRepository: DevicesRepository) {}
+  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
   async execute(command: DeleteOtherDevicesCommand) {
     const devices: DeviceDocument[] = await this.devicesRepository.findAll(
       command.userId,
       command.deviceId,
     );
     for (const device of devices) {
-      device.deleteDevice();
-      await this.devicesRepository.save(device);
+      device.deletedAt = new Date();
     }
+    await this.devicesRepository.deleteDevice(devices);
   }
 }
 
@@ -45,14 +46,14 @@ export class DeleteOtherDevicesUseCase
 export class DeleteSpecifiedDeviceUseCase
   implements ICommandHandler<DeleteSpecifiedDeviceCommand>
 {
-  constructor(private readonly devicesRepository: DevicesRepository) {}
+  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
   async execute(command: DeleteSpecifiedDeviceCommand) {
     const device: DeviceDocument =
       await this.devicesRepository.findOrNotFoundException(command.deviceId);
     if (device.userId.toString() !== command.userId.toString()) {
       throw ForbiddenDomainException.create();
     }
-    device.deleteDevice();
-    await this.devicesRepository.save(device);
+    device.deletedAt = new Date();
+    await this.devicesRepository.deleteDevice(device);
   }
 }

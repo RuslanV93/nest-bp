@@ -8,7 +8,7 @@ import {
 import { DeviceDomainDto } from '../../domain/dto/device.domain-dto';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
-import { DevicesRepository } from '../../infrastructure/repositories/devices.repository';
+import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
 
 export class CreateDeviceCommand {
   constructor(
@@ -25,7 +25,7 @@ export class CreateDeviceUseCase
 {
   constructor(
     @InjectModel(Device.name) private DeviceModel: DeviceModelType,
-    private readonly devicesRepository: DevicesRepository,
+    private readonly devicesRepository: DevicesSqlRepository,
   ) {}
   async execute(command: CreateDeviceCommand) {
     const title = `Device: ${command.clientInfo.device || 'other'},
@@ -39,6 +39,6 @@ export class CreateDeviceUseCase
     };
     const newDevice: DeviceDocument =
       this.DeviceModel.createInstance(newDeviceDto);
-    return this.devicesRepository.save(newDevice);
+    return this.devicesRepository.createDevice(newDevice);
   }
 }

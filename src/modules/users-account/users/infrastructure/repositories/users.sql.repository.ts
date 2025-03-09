@@ -93,19 +93,18 @@ export class UsersSqlRepository {
 
     return users[0];
   }
-  async findByEmailAndLoginField(
-    loginOrEmail: string,
-  ): Promise<UserDocument | null> {
+  async findByEmailAndLoginField(loginOrEmail: string) {
     const query = `
-    SELECT u.*
-    FROM "USERS" u
-    WHERE u."deletedAt" IS NULL
-    AND (
-      u.email = $1
-      OR u.login = $1
-    )
-    LIMIT 1;
-  `;
+        SELECT u.*, p."passwordHash"
+        FROM "USERS" u
+                 LEFT JOIN "PASSWORD_INFO" p ON p."userId" = u."_id"
+        WHERE u."deletedAt" IS NULL
+          AND (
+            u.email = $1
+                OR u.login = $1
+            )
+            LIMIT 1;
+    `;
 
     const users: UserDocument[] = await this.dataSource.query(query, [
       loginOrEmail.toLowerCase(),
@@ -175,7 +174,6 @@ export class UsersSqlRepository {
   }
   async deleteUser(user: UserDocument) {
     try {
-      console.log(user);
       await this.dataSource.query(
         `
     UPDATE "USERS" 
@@ -188,4 +186,6 @@ export class UsersSqlRepository {
       console.log(error);
     }
   }
+
+  async registrationConfirm();
 }

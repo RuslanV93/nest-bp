@@ -41,6 +41,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { UsersSqlQueryRepository } from './users/infrastructure/repositories/users.sql.query.repository';
 import { UsersSqlRepository } from './users/infrastructure/repositories/users.sql.repository';
+import { AuthSqlQueryRepository } from './auth/infrastructure/auth.sql.query-repository';
+import { DevicesSqlQueryRepository } from './devices/infrastructure/repositories/devices.sql.query-repository';
+import { DevicesSqlRepository } from './devices/infrastructure/repositories/devices.sql.repository';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -86,6 +89,9 @@ const authUseCases = [
     UsersQueryRepository,
     UsersSqlQueryRepository,
     UsersSqlRepository,
+    AuthSqlQueryRepository,
+    DevicesSqlQueryRepository,
+    DevicesSqlRepository,
     AuthQueryRepository,
     AuthService,
     TokenService,

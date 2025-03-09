@@ -1,6 +1,6 @@
 import { UserDocument } from '../../domain/users.model';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { UserDomainDto } from '../../domain/dto/user.domain-dto';
+import { MeType } from '../../../auth/infrastructure/auth.sql.query-repository';
 
 export type UserFromSql = {
   _id: string;
@@ -45,7 +45,7 @@ export class MeViewDto extends OmitType(UserViewDto, [
 ] as const) {
   userId: string;
 
-  static mapToView(user: UserDocument): MeViewDto {
+  static mapToView(user: UserDocument | MeType): MeViewDto {
     const dto = new MeViewDto();
 
     dto.email = user.email;

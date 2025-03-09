@@ -10,13 +10,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UserInputDto } from '../../users/interfaces/dto/userInputDto';
-import { UsersQueryRepository } from '../../users/infrastructure/repositories/users.query.repository';
 import { ConfirmCodeViewDto, EmailResendingDto } from './dto/confirm-code.dto';
 import {
   PasswordUpdateInputDto,
   PasswordRecoveryInputDto,
 } from './dto/password.dto';
-import { AuthService } from '../application/auth.service';
 import { LocalAuthGuard } from '../guards/local/local.auth.guard';
 import { ExtractUserFromRequest } from '../guards/decorators/extract-user-from-request-decorator';
 import {
@@ -24,7 +22,6 @@ import {
   UserRefreshContextDto,
 } from '../guards/dto/user-context.dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt-auth-guard';
-import { AuthQueryRepository } from '../infrastructure/auth.query-repository';
 import { ResultObject } from '../../../../shared/types/serviceResultObjectType';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MeViewDto } from '../../users/interfaces/dto/userViewDto';
@@ -49,14 +46,15 @@ import { ClientInfoDto } from '../../devices/types/client-info.dto';
 import { SoftRefreshStrategy } from '../guards/bearer/jwt-refresh-strategy';
 import { LogoutCommand } from '../application/auth-use-cases/logout.use-case';
 import { LogoutInterceptor } from '../../../../core/interceptors/logout.interceptor';
+import { AuthSqlQueryRepository } from '../infrastructure/auth.sql.query-repository';
+import { UsersSqlQueryRepository } from '../../users/infrastructure/repositories/users.sql.query.repository';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly authService: AuthService,
-    private readonly authQueryRepository: AuthQueryRepository,
+    private readonly usersQueryRepository: UsersSqlQueryRepository,
+    private readonly authQueryRepository: AuthSqlQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -82,23 +80,28 @@ export class AuthController {
     @ExtractUserFromRequest() user: UserContextDto,
     @ClientInfo() clientInfo: ClientInfoDto,
   ) {
-    const { accessToken, refreshToken }: Tokens = await this.commandBus.execute(
-      new LoginCommand(user.id, clientInfo),
-    );
-    return new TokensResponseDto(accessToken, refreshToken);
+    try {
+      const { accessToken, refreshToken }: Tokens =
+        await this.commandBus.execute(new LoginCommand(user.id, clientInfo));
+      return new TokensResponseDto(accessToken, refreshToken);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   @Post('registration')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'User registration' })
   /** User registration endpoint */
   async registration(@Body() body: UserInputDto) {
-    const createUserResult: ResultObject<ObjectId> =
-      await this.commandBus.execute(new RegistrationCommand(body));
+    const createUserResult: ResultObject<{
+      newUserId: ObjectId;
+      emailConfirmCode: string;
+    }> = await this.commandBus.execute(new RegistrationCommand(body));
 
     const newUser = await this.usersQueryRepository.getUserById(
-      createUserResult.data,
+      createUserResult.data.newUserId,
     );
     if (!newUser) {
       throw new InternalServerErrorException();
@@ -107,7 +110,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Confirm registration' })
   async registrationConfirm(@Body() body: ConfirmCodeViewDto) {
@@ -116,7 +119,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Email confirmation code send' })
   async registrationEmailResending(@Body() body: EmailResendingDto) {
@@ -125,7 +128,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Password recovery code send' })
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto) {
@@ -135,7 +138,7 @@ export class AuthController {
   }
 
   @Post('new-password')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Set new password' })
   async newPassword(@Body() body: PasswordUpdateInputDto) {
@@ -146,7 +149,7 @@ export class AuthController {
 
   /** Refresh and access token sending*/
   @Post('refresh-token')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 10000 } })
   @UseInterceptors(CookieInterceptor)
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)
