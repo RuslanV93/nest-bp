@@ -1,9 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from '../../../../config/jwt.config';
 import { Injectable } from '@nestjs/common';
-import { JwtPayloadType } from '../types/jwt.type';
-import { UnauthorizedDomainException } from '../../../../core/exceptions/domain-exception';
-import { ObjectId } from 'mongodb';
 
 export interface Tokens {
   accessToken: string;

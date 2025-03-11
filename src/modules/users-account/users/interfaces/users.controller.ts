@@ -78,18 +78,20 @@ export class UsersController {
   })
   @ApiBasicAuth()
   async createNewUser(@Body() body: UserInputDto) {
-    const userCreateResult: ResultObject<ObjectId | null> =
+    const userCreateResult: ResultObject<{ newUserId: ObjectId } | null> =
       await this.commandBus.execute(new CreateUserCommand(body));
     if (!isSuccess(userCreateResult)) {
       throw new InternalServerErrorException(userCreateResult.extensions);
     }
 
     const newUser = await this.usersQueryRepository.getUserById(
-      userCreateResult.data,
+      userCreateResult.data.newUserId,
     );
+
     if (!newUser) {
       throw new InternalServerErrorException(userCreateResult.extensions);
     }
+
     return newUser;
   }
 

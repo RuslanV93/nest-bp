@@ -34,7 +34,7 @@ export class Device {
 
   static createInstance(this: DeviceModelType, newDevice: DeviceDomainDto) {
     const device = new this();
-    device.userId = newDevice.userId;
+    device.userId = new ObjectId(newDevice.userId);
     device.ip = newDevice.ip;
     device.title = newDevice.title;
     device.tokenVersion = newDevice.tokenVersion;

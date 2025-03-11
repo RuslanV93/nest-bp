@@ -27,20 +27,46 @@ export class UsersSqlQueryRepository {
     return UserViewDto.sqlMapToView(user);
   }
   async getUsers(query: GetUsersQueryParams) {
+    const totalCountResult = await this.dataSource.query(
+      `
+    SELECT COUNT(*) as total
+    FROM "USERS" u
+    WHERE u."deletedAt" IS NULL
+    AND (
+         (COALESCE($1, '') = '' OR u.login ILIKE '%' || $1 || '%')
+         OR (COALESCE($2, '') = '' OR u.email ILIKE '%' || $2 || '%')
+       )
+    `,
+      [query.searchLoginTerm, query.searchEmailTerm],
+    );
+
+    const totalCount = parseInt(totalCountResult[0].total, 10);
     const validSortDirection =
       query.sortDirection === 'asc' || query.sortDirection === 'desc'
         ? query.sortDirection
         : 'desc';
+
+    const sortField =
+      query.sortBy === 'login'
+        ? 'login'
+        : query.sortBy === 'email'
+          ? 'email'
+          : 'createdAt';
+
     const users: UserFromSql[] = await this.dataSource.query(
       `
           SELECT u._id, u.login, u.email, u."createdAt"
-          FROM public."USERS" u
+          FROM "USERS" u
           WHERE u."deletedAt" IS NULL
             AND (
               (COALESCE($1, '') = '' OR u.login ILIKE '%' || $1 || '%')
-            AND (COALESCE($2, '') = '' OR u.email ILIKE '%' || $2 || '%')
+            OR (COALESCE($2, '') = '' OR u.email ILIKE '%' || $2 || '%')
               )
-          ORDER BY u."createdAt" ${validSortDirection}
+              ${
+                sortField === 'login' || sortField === 'email'
+                  ? `ORDER BY u."${sortField}" COLLATE "C" ${validSortDirection}`
+                  : `ORDER BY u."${sortField}" ${validSortDirection}`
+              }
     LIMIT $3 OFFSET $4;
       `,
       [
@@ -51,7 +77,6 @@ export class UsersSqlQueryRepository {
       ],
     );
     const items = users.map(UserViewDto.sqlMapToView);
-    const totalCount = items.length;
     return PaginatedViewDto.mapToView({
       items,
       page: query.pageNumber,

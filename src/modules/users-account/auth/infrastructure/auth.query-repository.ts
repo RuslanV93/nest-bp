@@ -8,6 +8,6 @@ export class AuthQueryRepository {
   constructor(private readonly usersRepository: UsersRepository) {}
   async getMe(userId: ObjectId) {
     const user = await this.usersRepository.findOrNotFoundException(userId);
-    return MeViewDto.mapToView(user);
+    // return MeViewDto.mapToView(user);
   }
 }

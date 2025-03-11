@@ -8,6 +8,7 @@ import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
 import { UserDocument } from '../../domain/users.model';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
+import { SqlDomainUser, UserEntityType } from '../../domain/users.sql.domain';
 
 @Injectable()
 export class UsersSqlRepository {
@@ -28,7 +29,7 @@ export class UsersSqlRepository {
     return users[0];
   }
   async findExistingUserByLoginOrEmail(login: string, email: string) {
-    const users: UserDocument[] = await this.dataSource.query(
+    const users: UserEntityType[] = await this.dataSource.query(
       `
           SELECT u.*,
                  CASE
@@ -45,18 +46,18 @@ export class UsersSqlRepository {
     if (!users.length) {
       return null;
     }
-    const user = users[0];
+    const user = SqlDomainUser.fromSqlResult(users[0]);
     return user.login === login
       ? { user, field: 'login' }
       : { user, field: 'email' };
   }
   async findByEmailConfirmCode(confirmCode: string) {
-    const users: UserDocument[] = await this.dataSource.query(
+    const users: UserEntityType[] = await this.dataSource.query(
       `
     SELECT u.*, e.*, p.*
     FROM "USERS" u
-            LEFT JOIN "EMAIL_CONFIRMATION_INFO" e ON u.id = e."userId"
-            LEFT JOIN "PASSWORD_INFO" p ON u.id = p."userId"
+            LEFT JOIN "EMAIL_CONFIRMATION_INFO" e ON u._id = e."userId"
+            LEFT JOIN "PASSWORD_INFO" p ON u._id = p."userId"
     WHERE u."deletedAt" IS NULL AND e."confirmCode" = $1
     `,
       [confirmCode],
@@ -67,16 +68,16 @@ export class UsersSqlRepository {
         'code',
       );
     }
-    return users[0];
+    return SqlDomainUser.fromSqlResult(users[0]);
   }
 
   async findByPasswordConfirmCode(passwordConfirmCode: string) {
-    const users: UserDocument[] = await this.dataSource.query(
+    const users: UserEntityType[] = await this.dataSource.query(
       `
-          SELECT u.*
+          SELECT u.*, e.*, p.*
           FROM "USERS" u
-                   LEFT JOIN "EMAIL_CONFIRMATION_INFO" e ON u.id = e."userId"
-                   LEFT JOIN "PASSWORD_INFO" p ON u.id = p."userId"
+                   LEFT JOIN "EMAIL_CONFIRMATION_INFO" e ON u._id = e."userId"
+                   LEFT JOIN "PASSWORD_INFO" p ON u._id = p."userId"
           WHERE u."deletedAt" IS NULL
             AND p."passwordRecoveryCode" = $1
               LIMIT 1;
@@ -91,26 +92,27 @@ export class UsersSqlRepository {
       );
     }
 
-    return users[0];
+    return SqlDomainUser.fromSqlResult(users[0]);
   }
   async findByEmailAndLoginField(loginOrEmail: string) {
     const query = `
-        SELECT u.*, p."passwordHash"
+        SELECT u.*, p.*, e.*
         FROM "USERS" u
                  LEFT JOIN "PASSWORD_INFO" p ON p."userId" = u."_id"
+                 LEFT JOIN "EMAIL_CONFIRMATION_INFO" e ON e."userId" = u."_id"
         WHERE u."deletedAt" IS NULL
           AND (
-            u.email = $1
+            LOWER(u.email) = LOWER($1)
                 OR u.login = $1
             )
             LIMIT 1;
     `;
 
-    const users: UserDocument[] = await this.dataSource.query(query, [
-      loginOrEmail.toLowerCase(),
+    const users: UserEntityType[] = await this.dataSource.query(query, [
+      loginOrEmail,
     ]);
 
-    return users.length > 0 ? users[0] : null;
+    return users.length > 0 ? SqlDomainUser.fromSqlResult(users[0]) : null;
   }
   async findOrNotFoundException(id: ObjectId): Promise<UserDocument> {
     const user = await this.findById(id);
@@ -121,10 +123,11 @@ export class UsersSqlRepository {
     return user;
   }
 
-  async createUser(user: UserDocument) {
+  /** CREATING NEW USER */
+  async createUser(user: SqlDomainUser) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
-    const id = new ObjectId();
+
     try {
       interface UserInsertResult {
         _id: string;
@@ -135,7 +138,7 @@ export class UsersSqlRepository {
       VALUES ($1, $2, $3)
       RETURNING _id;
       `,
-        [id.toString(), user.login, user.email],
+        [user._id.toString(), user.login, user.email],
       )) as UserInsertResult[];
       const userId = userInsertResult[0]._id;
 
@@ -165,7 +168,8 @@ export class UsersSqlRepository {
       await queryRunner.commitTransaction();
 
       return new ObjectId(userId);
-    } catch {
+    } catch (e) {
+      console.log(e);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('Something went wrong');
     } finally {
@@ -187,5 +191,58 @@ export class UsersSqlRepository {
     }
   }
 
-  async registrationConfirm();
+  async registrationConfirm(user: SqlDomainUser) {
+    await this.dataSource.query(
+      `
+    UPDATE "EMAIL_CONFIRMATION_INFO"
+    SET "isConfirmed" = $1
+    WHERE "userId" = $2
+    `,
+      [user.emailConfirmationInfo.isConfirmed, user._id],
+    );
+  }
+  async updateEmailConfirmationCode(user: SqlDomainUser) {
+    await this.dataSource.query(
+      `
+      UPDATE "EMAIL_CONFIRMATION_INFO"
+      SET "confirmCode" = $1, "emailConfirmationCooldown" = $2, "codeExpirationDate" = $3
+      WHERE "userId" = $4
+      `,
+      [
+        user.emailConfirmationInfo.confirmCode,
+        user.emailConfirmationInfo.emailConfirmationCooldown,
+        user.emailConfirmationInfo.codeExpirationDate,
+        user._id,
+      ],
+    );
+  }
+  async setPasswordRecoveryInfo(user: SqlDomainUser) {
+    await this.dataSource.query(
+      `
+    UPDATE "PASSWORD_INFO"
+    SET "passwordRecoveryCode" = $1, "passwordRecoveryCodeExpirationDate" = $2
+    WHERE "userId" = $3
+    `,
+      [
+        user.passwordInfo.passwordRecoveryCode,
+        user.passwordInfo.passwordRecoveryCodeExpirationDate,
+        user._id,
+      ],
+    );
+  }
+  async setNewPassword(user: SqlDomainUser) {
+    await this.dataSource.query(
+      `
+    UPDATE "PASSWORD_INFO"
+    SET "passwordRecoveryCode" = $1, "passwordRecoveryCodeExpirationDate" = $2, "passwordHash" = $3
+    WHERE "userId" = $4
+    `,
+      [
+        user.passwordInfo.passwordRecoveryCode,
+        user.passwordInfo.passwordRecoveryCodeExpirationDate,
+        user.passwordInfo.passwordHash,
+        user._id,
+      ],
+    );
+  }
 }

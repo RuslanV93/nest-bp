@@ -12,18 +12,49 @@ export class EmailService {
     login: string,
     confirmCode: string,
   ) {
-    await this.mailerService.sendMail({
-      from: `"Bloggers Platform 👻" <${this.notificationConfig.emailSenderAddress}>`,
-      to: emailAddress,
-      subject: 'Email Confirmation',
-      html: `<h1>Hi ${login}! Thanks for your registration</h1>
+    try {
+      await this.mailerService.sendMail({
+        from: `"Bloggers Platform 👻" <${this.notificationConfig.emailSenderAddress}>`,
+        to: emailAddress,
+        subject: 'Email Confirmation',
+        html: `<h1>Hi ${login}! Thanks for your registration</h1>
     <p>To finish registration please follow the link below:
     <a href=${this.notificationConfig.productionUrl}/confirm-registration?code=${confirmCode}>
      Complete registration!</a></p>`,
-      headers: {
-        'Content-Type': 'text/html; charset=UTF-8',
-      },
-    });
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+        },
+      });
+      return true;
+    } catch (e) {
+      console.log(e + 'from nodemailer reg');
+      throw new Error('Failed to send confirmation email');
+    }
+  }
+  async resendConfirmationEmail(
+    emailAddress: string,
+    login: string,
+    confirmCode: string,
+  ) {
+    try {
+      await this.mailerService.sendMail({
+        from: `"Bloggers Platform 👻" <${this.notificationConfig.emailSenderAddress}>`,
+        to: emailAddress,
+        subject: 'Email Confirmation',
+        html: `<h1>Hi ${login}!</h1>
+    <p>To finish registration please follow the link below:
+    ${this.notificationConfig.productionUrl}/confirm-registration?code=${confirmCode}
+    <a href=${this.notificationConfig.productionUrl}/confirm-registration?code=${confirmCode}>
+     Complete registration!</a></p>`,
+        headers: {
+          'Content-Type': 'text/html; charset=UTF-8',
+        },
+      });
+      return true;
+    } catch (e) {
+      console.log(e + 'from nodemailer resend');
+      throw new Error('Failed to send confirmation email');
+    }
   }
   async sendPasswordRecovery(
     emailAddress: string,

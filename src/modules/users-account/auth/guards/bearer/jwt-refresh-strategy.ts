@@ -14,7 +14,6 @@ import {
   HttpStatus,
   Inject,
 } from '@nestjs/common';
-import { DevicesRepository } from '../../../devices/infrastructure/repositories/devices.repository';
 import { ObjectId } from 'mongodb';
 import { Reflector } from '@nestjs/core';
 import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
@@ -44,7 +43,7 @@ export class SoftRefreshStrategy implements CanActivate {
   constructor(
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
-    @Inject(forwardRef(() => DevicesRepository))
+    @Inject(forwardRef(() => DevicesSqlRepository))
     private readonly devicesRepository: DevicesSqlRepository,
     private readonly reflector: Reflector,
   ) {}
@@ -71,8 +70,8 @@ export class SoftRefreshStrategy implements CanActivate {
         return true;
       }
 
-      const session = await this.devicesRepository.findSessionByTokenVersion(
-        tokenPayload.exp,
+      const session = await this.devicesRepository.findSessionByDeviceId(
+        tokenPayload.deviceId,
         new ObjectId(tokenPayload.id),
       );
 

@@ -1,7 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 
-import { UserDomainDto } from './dto/user.domain-dto';
+import {
+  EmailConfirmationInfoType,
+  PasswordInfoType,
+  UserDomainDto,
+} from './dto/user.domain-dto';
 import { Optional } from '@nestjs/common';
 
 @Schema({ _id: false, versionKey: false })
@@ -53,18 +57,8 @@ export class User {
   @Prop({ type: Date, nullable: true })
   deletedAt: Date | null;
 
-  static createInstance(
-    this: UserModelType,
-    userDomainDto: UserDomainDto,
-  ): UserDocument {
-    const user = new this();
-    user.login = userDomainDto.login;
-    user.email = userDomainDto.email;
-    user.emailConfirmationInfo = userDomainDto.emailConfirmationInfo;
-    user.passwordInfo = userDomainDto.passwordInfo;
-    user.deletedAt = null;
-    return user;
-  }
+  static createInstance(this: UserModelType) {}
+
   setPasswordRecoveryInfo(recoveryCode: string) {
     this.passwordInfo.passwordRecoveryCode = recoveryCode;
     this.passwordInfo.passwordRecoveryCodeExpirationDate = new Date(

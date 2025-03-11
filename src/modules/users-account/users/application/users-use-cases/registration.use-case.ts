@@ -2,7 +2,7 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserInputDto } from '../../interfaces/dto/userInputDto';
 import { isSuccess } from '../../../../../shared/utils/isSuccessHelpFunction';
 import { InternalServerErrorException } from '@nestjs/common';
-import { CreateUserCommand, CreateUserUseCase } from './create-user.use-case';
+import { CreateUserCommand } from './create-user.use-case';
 import { EmailService } from '../../../../notification/application/email.service';
 import { ResultObject } from '../../../../../shared/types/serviceResultObjectType';
 import { ObjectId } from 'mongodb';
@@ -16,7 +16,6 @@ export class RegistrationUseCase
   implements ICommandHandler<RegistrationCommand>
 {
   constructor(
-    private readonly createUserUseCase: CreateUserUseCase,
     private readonly usersRepository: UsersSqlRepository,
     private readonly emailService: EmailService,
     private readonly commandBus: CommandBus,
@@ -36,7 +35,7 @@ export class RegistrationUseCase
       registrationResult.data.newUserId,
     );
 
-    this.emailService.sendConfirmationEmail(
+    await this.emailService.sendConfirmationEmail(
       user.email,
       user.login,
       registrationResult.data.emailConfirmCode,

@@ -5,6 +5,7 @@ import { ClientInfoDto } from '../../../devices/types/client-info.dto';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
 import { UpdateDeviceCommand } from '../../../devices/application/use-cases/update-device.use-case';
 import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
+import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
 
 export class RefreshTokenCommand {
   constructor(
@@ -25,14 +26,12 @@ export class RefreshTokenUseCase
   async execute(
     command: RefreshTokenCommand,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const { id, exp } = command.user;
+    const { id, exp, deviceId } = command.user;
     /** getting session */
+    const session: SqlDomainDevice | null =
+      await this.devicesRepository.findSessionByDeviceId(deviceId, id);
 
-    const session = await this.devicesRepository.findSessionByTokenVersion(
-      exp,
-      id,
-    );
-    if (!session) {
+    if (!session || session.tokenVersion !== exp.toString()) {
       throw UnauthorizedDomainException.create('Token is expired');
     }
     /** generate new token pare */

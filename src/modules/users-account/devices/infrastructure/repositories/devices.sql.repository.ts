@@ -5,14 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { DeviceDocument } from '../../domain/devices.model';
 import { ObjectId } from 'mongodb';
+import { DeviceEntityType, SqlDomainDevice } from '../../domain/devices.domain';
 
 @Injectable()
 export class DevicesSqlRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async createDevice(device: DeviceDocument) {
+  async createDevice(device: SqlDomainDevice) {
     const newDeviceId: string = await this.dataSource.query(
       `
     INSERT INTO "DEVICES" 
@@ -36,28 +36,31 @@ export class DevicesSqlRepository {
     return newDeviceId;
   }
 
-  async findOneByDeviceId(deviceId: string): Promise<DeviceDocument> {
-    const device: DeviceDocument[] = await this.dataSource.query(
+  async findOneByDeviceId(deviceId: string): Promise<SqlDomainDevice | null> {
+    const device: DeviceEntityType[] = await this.dataSource.query(
       `
     SELECT * FROM "DEVICES"
         WHERE "deviceId" = $1 AND "deletedAt" IS NULL
     `,
       [deviceId],
     );
-    return device[0];
+    if (!device.length) {
+      return null;
+    }
+    return SqlDomainDevice.fromSqlResult(device[0]);
   }
-  async findSessionByTokenVersion(tokenVersion: string, userId: ObjectId) {
-    const session: DeviceDocument[] = await this.dataSource.query(
+  async findSessionByDeviceId(deviceId: string, userId: ObjectId) {
+    const session: DeviceEntityType[] = await this.dataSource.query(
       `
     SELECT * FROM "DEVICES"
-        WHERE "tokenVersion" = $1
+        WHERE "deviceId" = $1
         AND "userId" = $2
         AND "deletedAt" IS NULL
     `,
-      [tokenVersion, userId],
+      [deviceId, userId.toString()],
     );
     if (!session.length) return null;
-    return session[0];
+    return SqlDomainDevice.fromSqlResult(session[0]);
   }
 
   async findOrNotFoundException(deviceId: string) {
@@ -68,19 +71,19 @@ export class DevicesSqlRepository {
     return device;
   }
   async findAll(userId: ObjectId, deviceId: string) {
-    const devices: DeviceDocument[] = await this.dataSource.query(
+    const devices: DeviceEntityType[] = await this.dataSource.query(
       `
       SELECT * FROM "DEVICES"
-        WHERE "userId" = $1; AND "deviceId" <> $2
+        WHERE "userId" = $1 AND "deviceId" <> $2 AND "deletedAt" IS NULL
     `,
-      [userId, deviceId],
+      [userId.toString(), deviceId],
     );
     if (!devices.length) {
       throw new NotFoundException('Devices not found');
     }
-    return devices;
+    return devices.map((device) => SqlDomainDevice.fromSqlResult(device));
   }
-  async deleteDevice(deviceData: DeviceDocument | DeviceDocument[]) {
+  async deleteDevice(deviceData: SqlDomainDevice | SqlDomainDevice[]) {
     const now = new Date();
     if (Array.isArray(deviceData)) {
       const deviceMap = deviceData.map((device) => device.deviceId);
@@ -96,12 +99,28 @@ export class DevicesSqlRepository {
     } else {
       await this.dataSource.query(
         `
-      UPDATE  "DEVICES"
+      UPDATE "DEVICES"
       SET "deletedAt" = $1
       WHERE "deviceId" = $2
       `,
         [now, deviceData.deviceId],
       );
     }
+  }
+  async updateSession(device: SqlDomainDevice) {
+    await this.dataSource.query(
+      `
+    UPDATE "DEVICES"
+    SET "ip" = $1, "title" = $2, "tokenVersion" = $3, "lastActivity" = $4
+    WHERE "deviceId" = $5
+    `,
+      [
+        device.ip,
+        device.title,
+        device.tokenVersion,
+        device.lastActivity,
+        device.deviceId,
+      ],
+    );
   }
 }

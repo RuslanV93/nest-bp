@@ -9,6 +9,7 @@ import { DeviceDomainDto } from '../../domain/dto/device.domain-dto';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
 import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
+import { SqlDomainDevice } from '../../domain/devices.domain';
 
 export class CreateDeviceCommand {
   constructor(
@@ -32,13 +33,13 @@ export class CreateDeviceUseCase
      Platform: ${command.clientInfo.os || 'other'}, Browser: ${command.clientInfo.browser || 'other'}`;
     const newDeviceDto: DeviceDomainDto = {
       title: title,
-      userId: command.userId,
+      userId: command.userId.toString(),
       tokenVersion: command.tokenVersion,
       ip: command.clientInfo.ip,
       deviceId: command.deviceId,
     };
-    const newDevice: DeviceDocument =
-      this.DeviceModel.createInstance(newDeviceDto);
+    const newDevice: SqlDomainDevice =
+      SqlDomainDevice.createInstance(newDeviceDto);
     return this.devicesRepository.createDevice(newDevice);
   }
 }

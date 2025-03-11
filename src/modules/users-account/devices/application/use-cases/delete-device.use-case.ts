@@ -1,9 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ObjectId } from 'mongodb';
-import { DevicesRepository } from '../../infrastructure/repositories/devices.repository';
-import { DeviceDocument } from '../../domain/devices.model';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
 import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
+import { SqlDomainDevice } from '../../domain/devices.domain';
 
 export abstract class DeleteDeviceCommand {
   constructor(public readonly userId: ObjectId) {}
@@ -31,13 +30,11 @@ export class DeleteOtherDevicesUseCase
 {
   constructor(private readonly devicesRepository: DevicesSqlRepository) {}
   async execute(command: DeleteOtherDevicesCommand) {
-    const devices: DeviceDocument[] = await this.devicesRepository.findAll(
+    const devices: SqlDomainDevice[] = await this.devicesRepository.findAll(
       command.userId,
       command.deviceId,
     );
-    for (const device of devices) {
-      device.deletedAt = new Date();
-    }
+
     await this.devicesRepository.deleteDevice(devices);
   }
 }
@@ -48,12 +45,12 @@ export class DeleteSpecifiedDeviceUseCase
 {
   constructor(private readonly devicesRepository: DevicesSqlRepository) {}
   async execute(command: DeleteSpecifiedDeviceCommand) {
-    const device: DeviceDocument =
+    const device: SqlDomainDevice =
       await this.devicesRepository.findOrNotFoundException(command.deviceId);
+
     if (device.userId.toString() !== command.userId.toString()) {
       throw ForbiddenDomainException.create();
     }
-    device.deletedAt = new Date();
     await this.devicesRepository.deleteDevice(device);
   }
 }

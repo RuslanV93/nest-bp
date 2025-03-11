@@ -1,11 +1,11 @@
 import { EmailResendingDto } from '../../../auth/interfaces/dto/confirm-code.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserDocument } from '../../domain/users.model';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
 import { randomUUID } from 'node:crypto';
 import { ServiceResultObjectFactory } from '../../../../../shared/utils/serviceResultObject';
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { EmailService } from '../../../../notification/application/email.service';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users.sql.repository';
+import { SqlDomainUser } from '../../domain/users.sql.domain';
 
 export class EmailResendCommand {
   constructor(public emailResendingDto: EmailResendingDto) {}
@@ -14,11 +14,11 @@ export class EmailResendCommand {
 @CommandHandler(EmailResendCommand)
 export class EmailResendUseCase implements ICommandHandler<EmailResendCommand> {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly emailService: EmailService,
   ) {}
   async execute(command: EmailResendCommand) {
-    const user: UserDocument | null =
+    const user: SqlDomainUser | null =
       await this.usersRepository.findByEmailAndLoginField(
         command.emailResendingDto.email,
       );
@@ -33,12 +33,13 @@ export class EmailResendUseCase implements ICommandHandler<EmailResendCommand> {
     }
     const emailConfirmCode = randomUUID();
     user.setEmailConfirmationCode(emailConfirmCode);
-    this.emailService.sendConfirmationEmail(
+
+    await this.emailService.resendConfirmationEmail(
       user.email,
       user.login,
       emailConfirmCode,
     );
-    await this.usersRepository.save(user);
+    await this.usersRepository.updateEmailConfirmationCode(user);
     return ServiceResultObjectFactory.successResultObject();
   }
 }

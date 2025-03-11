@@ -45,12 +45,12 @@ export class MeViewDto extends OmitType(UserViewDto, [
 ] as const) {
   userId: string;
 
-  static mapToView(user: UserDocument | MeType): MeViewDto {
+  static mapToView(user: MeType): MeViewDto {
     const dto = new MeViewDto();
 
     dto.email = user.email;
     dto.login = user.login;
-    dto.userId = user._id.toString();
+    dto.userId = user._id;
 
     return dto;
   }

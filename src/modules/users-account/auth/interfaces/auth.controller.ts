@@ -64,11 +64,11 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.OK, type: MeViewDto })
   @ApiOperation({ summary: 'Get info about current user' })
   async getMe(@ExtractUserFromRequest() user: UserContextDto) {
-    return this.authQueryRepository.getMe(user.id);
+    return await this.authQueryRepository.getMe(user.id);
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @UseInterceptors(CookieInterceptor)
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -80,17 +80,14 @@ export class AuthController {
     @ExtractUserFromRequest() user: UserContextDto,
     @ClientInfo() clientInfo: ClientInfoDto,
   ) {
-    try {
-      const { accessToken, refreshToken }: Tokens =
-        await this.commandBus.execute(new LoginCommand(user.id, clientInfo));
-      return new TokensResponseDto(accessToken, refreshToken);
-    } catch (e) {
-      console.log(e);
-    }
+    const { accessToken, refreshToken }: Tokens = await this.commandBus.execute(
+      new LoginCommand(user.id, clientInfo),
+    );
+    return new TokensResponseDto(accessToken, refreshToken);
   }
 
   @Post('registration')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'User registration' })
   /** User registration endpoint */
@@ -110,7 +107,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Confirm registration' })
   async registrationConfirm(@Body() body: ConfirmCodeViewDto) {
@@ -119,7 +116,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Email confirmation code send' })
   async registrationEmailResending(@Body() body: EmailResendingDto) {
@@ -128,17 +125,17 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Password recovery code send' })
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto) {
     await this.commandBus.execute(new PasswordRecoveryCommand(body));
 
-    return true;
+    return;
   }
 
   @Post('new-password')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Set new password' })
   async newPassword(@Body() body: PasswordUpdateInputDto) {
@@ -149,7 +146,7 @@ export class AuthController {
 
   /** Refresh and access token sending*/
   @Post('refresh-token')
-  // @Throttle({ default: { limit: 5, ttl: 10000 } })
+  // @Throttle({ default: { limit: 5, ttl: 9000 } })
   @UseInterceptors(CookieInterceptor)
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)

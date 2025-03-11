@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PasswordUpdateInputDto } from '../../../auth/interfaces/dto/password.dto';
-import { DomainUser } from '../../domain/users.domain';
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { CryptoService } from '../../../auth/application/crypto.service';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users.sql.repository';
+import { SqlDomainUser } from '../../domain/users.sql.domain';
 
 export class PasswordUpdateCommand {
   constructor(public passwordUpdateDto: PasswordUpdateInputDto) {}
@@ -13,7 +13,7 @@ export class PasswordUpdateUseCase
   implements ICommandHandler<PasswordUpdateCommand>
 {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly cryptoService: CryptoService,
   ) {}
 
@@ -21,7 +21,7 @@ export class PasswordUpdateUseCase
     const user = await this.usersRepository.findByPasswordConfirmCode(
       command.passwordUpdateDto.recoveryCode,
     );
-    await DomainUser.validatePassword(
+    await SqlDomainUser.validatePassword(
       user.passwordInfo.passwordHash,
       command.passwordUpdateDto.newPassword,
       this.cryptoService,
@@ -30,7 +30,7 @@ export class PasswordUpdateUseCase
       command.passwordUpdateDto.newPassword,
     );
     user.updatePassword(newPasswordHash);
-    await this.usersRepository.save(user);
+    await this.usersRepository.setNewPassword(user);
     return user;
   }
 }

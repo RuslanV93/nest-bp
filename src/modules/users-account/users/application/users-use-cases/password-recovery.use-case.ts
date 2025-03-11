@@ -1,9 +1,9 @@
 import { PasswordRecoveryInputDto } from '../../../auth/interfaces/dto/password.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserDocument } from '../../domain/users.model';
 import { randomUUID } from 'node:crypto';
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { EmailService } from '../../../../notification/application/email.service';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users.sql.repository';
+import { SqlDomainUser } from '../../domain/users.sql.domain';
 
 export class PasswordRecoveryCommand {
   constructor(public passwordRecoveryDto: PasswordRecoveryInputDto) {}
@@ -14,11 +14,11 @@ export class PasswordRecoveryUseCase
   implements ICommandHandler<PasswordRecoveryCommand>
 {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly emailService: EmailService,
   ) {}
   async execute(command: PasswordRecoveryCommand) {
-    const user: UserDocument | null =
+    const user: SqlDomainUser | null =
       await this.usersRepository.findByEmailAndLoginField(
         command.passwordRecoveryDto.email,
       );
@@ -32,7 +32,7 @@ export class PasswordRecoveryUseCase
       recoveryCode,
     );
     user.setPasswordRecoveryInfo(recoveryCode);
-    await this.usersRepository.save(user);
+    await this.usersRepository.setPasswordRecoveryInfo(user);
     return user;
   }
 }
