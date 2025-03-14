@@ -13,7 +13,7 @@ export type PasswordInfoType = {
   passwordRecoveryCode: string | null;
   passwordRecoveryCodeExpirationDate?: Date | null;
 };
-export type UserEntityType = {
+export type UserSqlEntityType = {
   _id: string;
   login: string;
   email: string;
@@ -67,7 +67,7 @@ export class SqlDomainUser {
   updatedAt: Date | null;
   deletedAt: Date | null;
 
-  constructor(data: UserEntityType) {
+  constructor(data: UserSqlEntityType) {
     this._id = data._id;
     this.login = data.login;
     this.email = data.email;
@@ -80,7 +80,7 @@ export class SqlDomainUser {
   }
 
   // Статический метод для преобразования результата SQL запроса в объект User
-  static fromSqlResult(sqlRow: UserEntityType): SqlDomainUser {
+  static fromSqlResult(sqlRow: UserSqlEntityType): SqlDomainUser {
     return new SqlDomainUser(sqlRow);
   }
   static createInstance(

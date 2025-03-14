@@ -7,19 +7,26 @@ export class DropSqlRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
   async deleteAllData() {
     await this.dataSource.query(`
-    
-    SET session_replication_role = 'replica';
+    BEGIN;
 
-    TRUNCATE TABLE "DEVICES" CASCADE;
-    TRUNCATE TABLE "PASSWORD_INFO" CASCADE;
-    TRUNCATE TABLE "EMAIL_CONFIRMATION_INFO" CASCADE;
-    TRUNCATE TABLE "USERS" CASCADE;
+      SET session_replication_role = 'replica';
 
+      TRUNCATE TABLE "POST_LIKES" CASCADE;
+      TRUNCATE TABLE "POSTS" CASCADE;
+      TRUNCATE TABLE "BLOGS" CASCADE;
 
-    ALTER SEQUENCE "EMAIL_CONFIRMATION_INFO_id_seq" RESTART WITH 1;
-    ALTER SEQUENCE "PASSWORD_INFO_id_seq" RESTART WITH 1;
+      
+      TRUNCATE TABLE "DEVICES" CASCADE;
+      TRUNCATE TABLE "PASSWORD_INFO" CASCADE;
+      TRUNCATE TABLE "EMAIL_CONFIRMATION_INFO" CASCADE;
+      TRUNCATE TABLE "USERS" CASCADE;
 
-    SET session_replication_role = 'origin';
+      ALTER SEQUENCE "EMAIL_CONFIRMATION_INFO_id_seq" RESTART WITH 1;
+      ALTER SEQUENCE "PASSWORD_INFO_id_seq" RESTART WITH 1;
+
+      COMMIT;
+
+      SET session_replication_role = 'origin';
     `);
   }
 }

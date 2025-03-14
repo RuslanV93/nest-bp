@@ -4,6 +4,7 @@ import {
 } from 'class-validator';
 import { ObjectId } from 'mongodb';
 import { BlogsRepository } from '../infrastructure/repositories/blogs.repository';
+import { BlogsSqlRepository } from '../infrastructure/repositories/blogs.sql.repository';
 
 export const blogNameConstraints = {
   minLength: 3,
@@ -24,7 +25,7 @@ export const blogWebsiteUrlConstraints = {
 
 @ValidatorConstraint({ async: true })
 export class BlogExistsValidator implements ValidatorConstraintInterface {
-  constructor(private readonly blogsRepository: BlogsRepository) {}
+  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
 
   async validate(blogId: ObjectId) {
     try {

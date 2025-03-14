@@ -1,22 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { Post, PostDocument, PostModelType } from '../domain/posts.model';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Post, PostModelType } from '../domain/posts.model';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   PostInputDto,
   PostInputDtoWithoutBlogId,
 } from '../interface/dto/post.input-dto';
-import { BlogsRepository } from '../../blogs/infrastructure/repositories/blogs.repository';
-import { DomainPost } from '../domain/posts.domain';
-import { PostsRepository } from '../infrastructure/repositories/posts.repository';
-import { ServiceResultObjectFactory } from '../../../../shared/utils/serviceResultObject';
 import { ObjectId } from 'mongodb';
+import { SqlDomainPost } from '../domain/posts.sql.domain';
+import { PostsSqlRepository } from '../infrastructure/repositories/posts.sql.repository';
+import { BlogsSqlRepository } from '../../blogs/infrastructure/repositories/blogs.sql.repository';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name) private readonly postModel: PostModelType,
-    private readonly postsRepository: PostsRepository,
-    private readonly blogRepository: BlogsRepository,
+    private readonly postsRepository: PostsSqlRepository,
+    private readonly blogRepository: BlogsSqlRepository,
   ) {}
   /** Creates new Post. Returns new post id. */
   async createPost(
@@ -25,51 +28,31 @@ export class PostsService {
   ) {
     const existingBlog =
       await this.blogRepository.findOneOrNotFoundException(blogId);
-
-    // To domainDto
-    const postEntity = DomainPost.create(
-      newPostDto.title,
-      newPostDto.shortDescription,
-      newPostDto.content,
-      blogId,
-      existingBlog.name,
-    );
-
-    // Getting ready to save post
-    const post: PostDocument = this.postModel.createInstance(
-      postEntity.toSchema(),
-    );
-
-    const newPostId = await this.postsRepository.save(post);
-
-    if (!newPostId) {
-      return ServiceResultObjectFactory.internalErrorResultObject();
+    if (!existingBlog) {
+      throw new NotFoundException('Blog does not exist');
     }
 
-    return ServiceResultObjectFactory.successResultObject(newPostId);
+    const post = SqlDomainPost.createInstance(newPostDto, blogId);
+    const newPostId = await this.postsRepository.createPost(post);
+
+    if (!newPostId) {
+      throw new InternalServerErrorException('Something went wrong');
+    }
+
+    return newPostId;
   }
 
   /** Update existing post fields */
   async updatePost(id: ObjectId, updatePostDto: PostInputDto) {
-    const post: PostDocument =
-      await this.postsRepository.findOneAndNotFoundException(id);
-
-    const newPostEntity = DomainPost.update(post, updatePostDto);
-    post.updatePost(newPostEntity.toSchema());
-    const postId = await this.postsRepository.save(post);
-    return ServiceResultObjectFactory.successResultObject(postId);
+    const post: SqlDomainPost =
+      await this.postsRepository.findOneOrNotFoundException(id);
+    post.updatePost(updatePostDto);
+    await this.postsRepository.updatePost(post);
   }
   /** Delete post by post id */
   async deletePost(id: ObjectId) {
-    const post = await this.postsRepository.findOneAndNotFoundException(id);
-    try {
-      const deleteDate = post.deletePost();
-      await this.postsRepository.save(post);
-      return ServiceResultObjectFactory.successResultObject(deleteDate);
-    } catch (error) {
-      return ServiceResultObjectFactory.notFoundResultObject({
-        message: error instanceof Error ? error.message : 'Blog not found',
-      });
-    }
+    const post = await this.postsRepository.findOneOrNotFoundException(id);
+    post.deletePost();
+    await this.postsRepository.deletePost(post);
   }
 }

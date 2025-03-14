@@ -14,7 +14,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service';
-import { PostsQueryRepository } from '../infrastructure/repositories/posts.query.repository';
 import { CommentsQueryRepository } from '../../comments/infrastructure/repositories/comments.query.repository';
 import { GetPostsQueryParams } from './dto/get-posts.query-params.input.dto';
 import { PostInputDto } from './dto/post.input-dto';
@@ -43,10 +42,11 @@ import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth
 import { CommentInputDto } from '../../comments/interface/dto/comment.input-dto';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.use-case';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
+import { PostsSqlQueryRepository } from '../infrastructure/repositories/posts.sql.query.repository';
+import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
+import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
+import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 
-function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
-  return result.status === DomainStatusCode.Success && result.data !== null;
-}
 /**
  * Posts Controller
  * Handles CRUD operations for blogs.
@@ -55,8 +55,7 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsService: PostsService,
-    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly postsQueryRepository: PostsSqlQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
@@ -115,20 +114,17 @@ export class PostsController {
     @ExtractUserFromRequest()
     user: Nullable<UserContextDto>,
   ) {
-    const postCreateResult = await this.postsService.createPost(
-      body.blogId,
-      body,
+    const postId: ObjectId = await this.commandBus.execute(
+      new CreatePostCommand(body.blogId, body),
     );
-    if (!isSuccess(postCreateResult)) {
-      throw new InternalServerErrorException(postCreateResult.extensions);
-    }
+
     const newPost = await this.postsQueryRepository.getPostById(
-      postCreateResult.data,
+      postId,
       user.id,
     );
 
     if (!newPost) {
-      throw new InternalServerErrorException(postCreateResult.extensions);
+      throw new InternalServerErrorException();
     }
     return newPost;
   }
@@ -142,7 +138,7 @@ export class PostsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(@Param('id') id: ObjectId, @Body() body: PostInputDto) {
-    await this.postsService.updatePost(id, body);
+    await this.commandBus.execute(new UpdatePostCommand(id, body.blogId, body));
   }
 
   /** Update Like Status. Update posts like counters */
@@ -171,11 +167,10 @@ export class PostsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('id') id: ObjectId) {
-    const deleteResult = await this.postsService.deletePost(id);
-    if (deleteResult.status !== DomainStatusCode.Success) {
-      throw new InternalServerErrorException(deleteResult.extensions);
-    }
-    return deleteResult.status;
+    const post = await this.postsQueryRepository.getPostById(id);
+    await this.commandBus.execute(
+      new DeletePostCommand(id, new ObjectId(post?.blogId)),
+    );
   }
 
   /** Get comments belongs to a post by post id*/
