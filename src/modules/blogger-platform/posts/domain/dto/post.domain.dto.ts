@@ -16,6 +16,7 @@ export class PostDomainDto<T = ObjectId> {
 
 export class PostUpdateDomainDto extends PostDomainDto<ObjectId> {}
 
+/** SQL TYPES */
 export type NewestLikeType = {
   addedAt: Date | string;
   userId: string;

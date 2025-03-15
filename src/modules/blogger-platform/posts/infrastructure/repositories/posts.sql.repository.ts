@@ -2,17 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
-import {
-  PostsSqlEntityType,
-  SqlDomainPost,
-} from '../../domain/posts.sql.domain';
+import { PostSqlDtoType, SqlDomainPost } from '../../domain/posts.sql.domain';
 
 @Injectable()
 export class PostsSqlRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async findOne(id: ObjectId) {
-    const posts: PostsSqlEntityType[] = await this.dataSource.query(
+    const posts: PostSqlDtoType[] = await this.dataSource.query(
       `
     SELECT * FROM "POSTS"
     WHERE "_id" = $1 AND "deletedAt" IS NULL 

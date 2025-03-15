@@ -1,11 +1,3 @@
-import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-} from 'class-validator';
-import { ObjectId } from 'mongodb';
-import { BlogsRepository } from '../infrastructure/repositories/blogs.repository';
-import { BlogsSqlRepository } from '../infrastructure/repositories/blogs.sql.repository';
-
 export const blogNameConstraints = {
   minLength: 3,
   maxLength: 15,
@@ -22,22 +14,3 @@ export const blogWebsiteUrlConstraints = {
   pattern:
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
 };
-
-@ValidatorConstraint({ async: true })
-export class BlogExistsValidator implements ValidatorConstraintInterface {
-  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
-
-  async validate(blogId: ObjectId) {
-    try {
-      const user = await this.blogsRepository.findOne(new ObjectId(blogId));
-
-      return !!user;
-    } catch {
-      return false;
-    }
-  }
-
-  defaultMessage() {
-    return "Blog doesn't exist";
-  }
-}

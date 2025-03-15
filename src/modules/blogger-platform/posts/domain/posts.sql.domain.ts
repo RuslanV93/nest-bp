@@ -4,7 +4,7 @@ import {
 } from '../interface/dto/post.input-dto';
 import { ObjectId } from 'mongodb';
 
-export type PostsSqlEntityType = {
+export type PostSqlDtoType = {
   _id: string;
   title: string;
   shortDescription: string;
@@ -23,7 +23,7 @@ export class SqlDomainPost {
   createdAt: Date | null;
   updatedAt: Date | null;
   deletedAt: Date | null;
-  constructor(data: PostsSqlEntityType) {
+  constructor(data: PostSqlDtoType) {
     this._id = data._id;
     this.title = data.title;
     this.shortDescription = data.shortDescription;
@@ -33,7 +33,7 @@ export class SqlDomainPost {
     this.updatedAt = data.updatedAt;
     this.deletedAt = data.deletedAt;
   }
-  static fromSqlResult(sqlRow: PostsSqlEntityType) {
+  static fromSqlResult(sqlRow: PostSqlDtoType) {
     return new SqlDomainPost(sqlRow);
   }
   static createInstance(

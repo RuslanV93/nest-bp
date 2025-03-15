@@ -13,14 +13,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PostsService } from '../application/posts.service';
 import { CommentsQueryRepository } from '../../comments/infrastructure/repositories/comments.query.repository';
 import { GetPostsQueryParams } from './dto/get-posts.query-params.input.dto';
 import { PostInputDto } from './dto/post.input-dto';
-import {
-  DomainStatusCode,
-  ResultObject,
-} from '../../../../shared/types/serviceResultObjectType';
+
 import { GetCommentsQueryParams } from '../../comments/interface/dto/get-comments.query-params.input.dto';
 import {
   ApiPaginatedResponse,
@@ -46,6 +42,7 @@ import { PostsSqlQueryRepository } from '../infrastructure/repositories/posts.sq
 import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
+import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
 
 /**
  * Posts Controller
@@ -182,7 +179,7 @@ export class PostsController {
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
-    @Param('id') id: ObjectId,
+    @Param('id', PostExistsPipe) id: ObjectId,
     @Query() query: GetCommentsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {

@@ -29,7 +29,6 @@ import { UpdateCommentUseCase } from './comments/application/use-cases/update-co
 import { UpdateCommentLikeStatusUseCase } from './likes/application/use-cases/update.comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './likes/application/use-cases/update.post-like-status.use-case';
 import { UsersAccountModule } from '../users-account/users-account.module';
-import { BlogExistsValidator } from './blogs/constants/blogs-constants';
 import { BlogsSqlRepository } from './blogs/infrastructure/repositories/blogs.sql.repository';
 import { BlogsSqlQueryRepository } from './blogs/infrastructure/repositories/blogs.sql.query-repository';
 import { PostsSqlRepository } from './posts/infrastructure/repositories/posts.sql.repository';
@@ -41,6 +40,8 @@ import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use
 import { DeletePostUseCase } from './posts/application/use-cases/delete-post.use-case';
 import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use-case';
 import { PublicBlogsController } from './blogs/interface/public.blogs.controller';
+import { BlogExistsValidator } from '../../core/decorators/validation/blog-exists.validator';
+import { PostExistsPipe } from './comments/infrastructure/pipes/post.exists.pipe';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -87,6 +88,7 @@ const likesUseCases = [
     LikesService,
     LikesQueryRepository,
     LikesRepository,
+    PostExistsPipe,
     {
       provide: BlogExistsValidator,
 
