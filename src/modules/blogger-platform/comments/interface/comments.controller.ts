@@ -10,7 +10,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepository } from '../infrastructure/repositories/comments.query.repository';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from './dto/comment.view-dto';
 import { ObjectId } from 'mongodb';
@@ -23,6 +22,7 @@ import { UserContextDto } from '../../../users-account/auth/guards/dto/user-cont
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case';
 import { UpdateCommentLikeStatusCommand } from '../../likes/application/use-cases/update.comment-like-status.use-case';
 import { LikeInputDto } from './dto/like.input-dto';
+import { CommentsSqlQueryRepository } from '../infrastructure/repositories/comments.sql.query.repository';
 
 /**
  * Comments Controller
@@ -32,7 +32,7 @@ import { LikeInputDto } from './dto/like.input-dto';
 @Controller('comments')
 export class CommentsController {
   constructor(
-    private readonly postsQueryRepository: CommentsQueryRepository,
+    private readonly postsQueryRepository: CommentsSqlQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 

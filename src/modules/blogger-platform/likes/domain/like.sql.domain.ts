@@ -38,7 +38,7 @@ export class SqlDomainLike {
     return new SqlDomainLike(sqlRow, parentType);
   }
   static createInstance(
-    likeInputDto: LikeInputDto,
+    likeStatus: LikeStatus,
     parentId: ObjectId,
     userId: ObjectId,
     parentType: ParentType,
@@ -47,7 +47,7 @@ export class SqlDomainLike {
     const like = new SqlDomainLike(
       {
         _id: id.toString(),
-        status: likeInputDto.likeStatus,
+        status: likeStatus,
         parentId: parentId.toString(),
         userId: userId.toString(),
         createdAt: null,
@@ -57,7 +57,7 @@ export class SqlDomainLike {
     );
     return like;
   }
-  updateStatus(likeInputDto: LikeInputDto) {
-    this.status = likeInputDto.likeStatus;
+  updateStatus(newStatus: LikeStatus) {
+    this.status = newStatus;
   }
 }

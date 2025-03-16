@@ -13,7 +13,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsQueryRepository } from '../../comments/infrastructure/repositories/comments.query.repository';
 import { GetPostsQueryParams } from './dto/get-posts.query-params.input.dto';
 import { PostInputDto } from './dto/post.input-dto';
 
@@ -43,6 +42,7 @@ import { CreatePostCommand } from '../application/use-cases/create-post.use-case
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
+import { CommentsSqlQueryRepository } from '../../comments/infrastructure/repositories/comments.sql.query.repository';
 
 /**
  * Posts Controller
@@ -53,7 +53,7 @@ import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.
 export class PostsController {
   constructor(
     private readonly postsQueryRepository: PostsSqlQueryRepository,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commentsQueryRepository: CommentsSqlQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 

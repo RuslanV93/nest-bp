@@ -17,6 +17,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { Reflector } from '@nestjs/core';
 import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
+import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
 
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -70,20 +71,28 @@ export class SoftRefreshStrategy implements CanActivate {
         return true;
       }
 
-      const session = await this.devicesRepository.findSessionByDeviceId(
-        tokenPayload.deviceId,
-        new ObjectId(tokenPayload.id),
-      );
+      const session: SqlDomainDevice | null =
+        await this.devicesRepository.findSessionByDeviceId(
+          tokenPayload.deviceId,
+          new ObjectId(tokenPayload.id),
+        );
 
       if (session) {
-        throw new HttpException(
-          'User already has active session',
-          HttpStatus.BAD_REQUEST,
-        );
+        // Правильно получаем время истечения из сессии
+        const sessionExpTimeUnix = Number(session.tokenVersion);
+        const sessionExpDate = new Date(sessionExpTimeUnix * 1000);
+        const now = new Date();
+
+        if (sessionExpDate > now) {
+          throw new BadRequestException('User already has active session');
+        } else {
+          await this.devicesRepository.deleteDevice(session);
+        }
       }
 
       return true;
     } catch (error) {
+      console.log(error);
       if (error instanceof HttpException) {
         throw new BadRequestException('User already has active session');
       }

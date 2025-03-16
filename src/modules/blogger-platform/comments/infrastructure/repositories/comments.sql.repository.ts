@@ -35,15 +35,19 @@ export class CommentsSqlRepository {
 
   /** Create new commentary*/
   async createComment(comment: SqlDomainComment) {
-    const commentId: string[] = await this.dataSource.query(
+    const commentId: { _id: string }[] = await this.dataSource.query(
       `
-    INSERT INTO "COMMENTS" ("_id", "content", "postId", "commentatorId")
+    INSERT INTO "COMMENTS" ("_id", "content", "postId", "userId")
     VALUES ($1, $2, $3, $4)
     RETURNING "_id"
     `,
-      [comment._id, comment.content, comment.postId, comment.commentatorId],
+      [comment._id, comment.content, comment.postId, comment.userId],
     );
-    return new ObjectId(commentId[0]);
+    try {
+      return new ObjectId(commentId[0]._id);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /** Update comments content */

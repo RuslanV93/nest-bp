@@ -14,16 +14,11 @@ export class CreateBlogCommand {
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsSqlRepository) {}
   async execute(command: CreateBlogCommand) {
-    try {
-      const blog = SqlDomainBlog.createInstance(command.blogDto);
-      const newBlogId: ObjectId = await this.blogsRepository.createBlog(blog);
-      if (!newBlogId) {
-        throw new InternalServerErrorException();
-      }
-      return newBlogId;
-    } catch (e) {
-      console.error(e);
+    const blog = SqlDomainBlog.createInstance(command.blogDto);
+    const newBlogId: ObjectId = await this.blogsRepository.createBlog(blog);
+    if (!newBlogId) {
       throw new InternalServerErrorException();
     }
+    return newBlogId;
   }
 }

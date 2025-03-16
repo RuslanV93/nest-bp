@@ -32,32 +32,28 @@ export class PostViewDto {
   extendedLikesInfo: ExtendedLikesInfoViewDto;
 
   public static fromSqlMapToView(this: void, post: PostQueryResult) {
-    try {
-      const dto = new PostViewDto();
-      dto.id = post.id;
-      dto.title = post.title;
-      dto.shortDescription = post.shortDescription;
-      dto.content = post.content;
-      dto.blogId = post.blogId;
-      dto.blogName = post.blogName;
-      dto.createdAt = post.createdAt.toISOString();
-      dto.extendedLikesInfo = {
-        likesCount: parseInt(post.likesCount),
-        dislikesCount: parseInt(post.dislikesCount),
-        myStatus: post.myStatus,
-        newestLikes: post.newestLikes.map((like: NewestLikeType) => ({
-          addedAt:
-            typeof like.addedAt === 'string'
-              ? like.addedAt
-              : like.addedAt.toISOString(),
-          userId: like.userId,
-          login: like.login,
-        })),
-      };
-      return dto;
-    } catch (e) {
-      console.log(e);
-    }
+    const dto = new PostViewDto();
+    dto.id = post.id;
+    dto.title = post.title;
+    dto.shortDescription = post.shortDescription;
+    dto.content = post.content;
+    dto.blogId = post.blogId;
+    dto.blogName = post.blogName;
+    dto.createdAt = post.createdAt.toISOString();
+    dto.extendedLikesInfo = {
+      likesCount: parseInt(post.likesCount),
+      dislikesCount: parseInt(post.dislikesCount),
+      myStatus: post.myStatus,
+      newestLikes: post.newestLikes.map((like: NewestLikeType) => ({
+        addedAt:
+          typeof like.addedAt === 'string'
+            ? like.addedAt
+            : like.addedAt.toISOString(),
+        userId: like.userId,
+        login: like.login,
+      })),
+    };
+    return dto;
   }
   public static mapToView(
     this: void,

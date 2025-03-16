@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { LikeStatus } from '../../../likes/domain/dto/like.domain.dto';
 
 export class CommentatorInfo<T = ObjectId> {
   userId: T;
@@ -11,3 +12,15 @@ export class CommentDomainDto<T = ObjectId> {
 }
 
 export class CommentUpdateDomainDto extends CommentDomainDto<ObjectId> {}
+
+export type CommentQueryResult = {
+  totalCount: string;
+  _id: string;
+  content: string;
+  userId: string;
+  userLogin: string;
+  createdAt: Date;
+  likesCount: string;
+  dislikesCount: string;
+  myStatus: LikeStatus;
+};

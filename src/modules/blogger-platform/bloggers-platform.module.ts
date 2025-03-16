@@ -42,6 +42,9 @@ import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use
 import { PublicBlogsController } from './blogs/interface/public.blogs.controller';
 import { BlogExistsValidator } from '../../core/decorators/validation/blog-exists.validator';
 import { PostExistsPipe } from './comments/infrastructure/pipes/post.exists.pipe';
+import { CommentsSqlQueryRepository } from './comments/infrastructure/repositories/comments.sql.query.repository';
+import { CommentsSqlRepository } from './comments/infrastructure/repositories/comments.sql.repository';
+import { LikesSqlRepository } from './likes/infrastructure/repositories/likes.sql.repository';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -85,8 +88,11 @@ const likesUseCases = [
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,
+    CommentsSqlQueryRepository,
+    CommentsSqlRepository,
     LikesService,
     LikesQueryRepository,
+    LikesSqlRepository,
     LikesRepository,
     PostExistsPipe,
     {

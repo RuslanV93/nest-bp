@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentDocument } from '../../domain/comments.model';
-import { CommentsRepository } from '../../infrastructure/repositories/comments.repository';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
+import { CommentsSqlRepository } from '../../infrastructure/repositories/comments.sql.repository';
+import { SqlDomainComment } from '../../domain/comments.sql.domain';
 
 export class UpdateCommentCommand {
   constructor(
@@ -16,19 +16,17 @@ export class UpdateCommentCommand {
 export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand>
 {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(private readonly commentsRepository: CommentsSqlRepository) {}
   async execute(command: UpdateCommentCommand) {
-    const comment: CommentDocument =
+    const comment: SqlDomainComment =
       await this.commentsRepository.findOneAndNotFoundException(command.id);
 
-    if (
-      comment.commentatorInfo.userId.toString() !== command.userId.toString()
-    ) {
+    if (comment.userId !== command.userId.toString()) {
       throw ForbiddenDomainException.create(
         'A comment can only be updated by its owner.',
       );
     }
     comment.updateComment(command.content);
-    await this.commentsRepository.save(comment);
+    await this.commentsRepository.updateComment(comment);
   }
 }

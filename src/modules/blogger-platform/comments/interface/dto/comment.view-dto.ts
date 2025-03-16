@@ -2,6 +2,7 @@ import { CommentDocument } from '../../domain/comments.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommentLikeDocument } from '../../../likes/domain/comments.likes.model';
 import { LikeStatus } from '../../../likes/domain/dto/like.domain.dto';
+import { CommentQueryResult } from '../../domain/dto/comment.domain.dto';
 
 export class LikesInfo {
   @ApiProperty() likesCount: number;
@@ -18,6 +19,26 @@ export class CommentViewDto {
   @ApiProperty({ type: CommentatorInfo }) commentatorInfo: CommentatorInfo;
   @ApiProperty() createdAt: string;
   @ApiProperty({ type: LikesInfo }) likesInfo: LikesInfo;
+
+  public static fromSqlMapToView(this: void, comment: CommentQueryResult) {
+    const dto = new CommentViewDto();
+    dto.id = comment._id;
+    dto.content = comment.content;
+    dto.createdAt = comment.createdAt.toISOString();
+
+    dto.commentatorInfo = {
+      userId: comment.userId,
+      userLogin: comment.userLogin,
+    };
+
+    dto.likesInfo = {
+      likesCount: parseInt(comment.likesCount),
+      dislikesCount: parseInt(comment.dislikesCount),
+      myStatus: comment.myStatus,
+    };
+
+    return dto;
+  }
   public static mapToView(
     this: void,
     comment: CommentDocument,

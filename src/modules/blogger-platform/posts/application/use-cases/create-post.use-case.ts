@@ -5,10 +5,7 @@ import {
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsSqlRepository } from '../../infrastructure/repositories/posts.sql.repository';
 import { ObjectId } from 'mongodb';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { SqlDomainPost } from '../../domain/posts.sql.domain';
 import { BlogsSqlRepository } from '../../../blogs/infrastructure/repositories/blogs.sql.repository';
 
