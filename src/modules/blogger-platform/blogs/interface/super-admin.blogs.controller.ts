@@ -14,21 +14,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
-import { BlogsQueryRepository } from '../infrastructure/repositories/blogs.query-repository';
 import { BlogInputDto } from './dto/blog.input-dto';
-import {
-  DomainStatusCode,
-  ResultObject,
-} from '../../../../shared/types/serviceResultObjectType';
 import { ObjectId } from 'mongodb';
-import { BlogsService } from '../application/blogs.service';
-import { PostsQueryRepository } from '../../posts/infrastructure/repositories/posts.query.repository';
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
 import {
   PostInputDto,
   PostInputDtoWithoutBlogId,
 } from '../../posts/interface/dto/post.input-dto';
-import { PostsService } from '../../posts/application/posts.service';
 import { BlogViewDto } from './dto/blog.view-dto';
 import {
   ApiPaginatedResponse,
@@ -39,28 +31,32 @@ import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
-
-function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
-  return result.status === DomainStatusCode.Success && result.data !== null;
-}
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case';
+import { PostsSqlQueryRepository } from '../../posts/infrastructure/repositories/posts.sql.query.repository';
+import { BlogsSqlQueryRepository } from '../infrastructure/repositories/blogs.sql.query-repository';
+import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
+import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case';
+import { UpdatePostCommand } from '../../posts/application/use-cases/update-post.use-case';
+import { DeletePostCommand } from '../../posts/application/use-cases/delete-post.use-case';
+import { CreatePostCommand } from '../../posts/application/use-cases/create-post.use-case';
 
 /**
  * Blogs Controller
  * Handles CRUD operations for blogs.
  * Supports fetching, creating, updating, and deleting blogs.
  */
-@Controller('blogs')
-export class BlogsController {
+@Controller('sa/blogs')
+export class SuperAdminBlogsController {
   constructor(
-    private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly blogsService: BlogsService,
-    private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly postsService: PostsService,
-    private readonly postQueryRepository: PostsQueryRepository,
+    private readonly commandBus: CommandBus,
+    private readonly postsQueryRepository: PostsSqlQueryRepository,
+    private readonly blogsQueryRepository: BlogsSqlQueryRepository,
   ) {}
 
   /** Getting all blogs. Using pagination and search terms (blog name search term). */
   @Get()
+  @UseGuards(BasicAuthGuard)
   @ApiPaginatedResponse(BlogViewDto)
   @ApiPaginationQueries('blogs')
   @ApiOperation({
@@ -78,6 +74,7 @@ export class BlogsController {
 
   /** Returns one blog by id */
   @Get(':id')
+  @UseGuards(BasicAuthGuard)
   @ApiResponse({ type: BlogViewDto })
   @ApiOperation({
     summary: 'Get 1 blog by id.',
@@ -100,17 +97,12 @@ export class BlogsController {
     summary: 'Creates new blog. Returns new created blog',
   })
   async createNewBlog(@Body() body: BlogInputDto) {
-    const blogCreateResult: ResultObject<ObjectId | null> =
-      await this.blogsService.createBlog(body);
-
-    if (!isSuccess(blogCreateResult)) {
-      throw new InternalServerErrorException(blogCreateResult.extensions);
-    }
-    const newUser = await this.blogsQueryRepository.getBlogById(
-      blogCreateResult.data,
+    const newBlogId: ObjectId = await this.commandBus.execute(
+      new CreateBlogCommand(body),
     );
+    const newUser = await this.blogsQueryRepository.getBlogById(newBlogId);
     if (!newUser) {
-      throw new InternalServerErrorException(blogCreateResult.extensions);
+      throw new InternalServerErrorException('Something went wrong');
     }
     return newUser;
   }
@@ -125,7 +117,7 @@ export class BlogsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(@Param('id') id: ObjectId, @Body() body: BlogInputDto) {
-    await this.blogsService.updateBlog(id, body);
+    await this.commandBus.execute(new UpdateBlogCommand(id, body));
   }
 
   /** Delete blog by id. */
@@ -136,15 +128,12 @@ export class BlogsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlog(@Param('id') id: ObjectId) {
-    const deleteResult = await this.blogsService.deleteBlog(id);
-    if (deleteResult.status !== DomainStatusCode.Success) {
-      throw new NotFoundException(deleteResult.extensions);
-    }
-    return deleteResult.status;
+    await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   /** Getting all posts by blog id. */
   @Get(':id/posts')
+  @UseGuards(BasicAuthGuard)
   @ApiPaginatedResponse(PostViewDto)
   @ApiOperation({
     summary: 'Get posts belonging to the blog by the blog ID.',
@@ -179,16 +168,44 @@ export class BlogsController {
     @Param('id') id: ObjectId,
     @Body() body: PostInputDtoWithoutBlogId,
   ) {
-    const postCreateResult = await this.postsService.createPost(id, body);
-    if (!isSuccess(postCreateResult)) {
-      throw new NotFoundException(postCreateResult.extensions);
-    }
-    const newPost = await this.postQueryRepository.getPostById(
-      postCreateResult.data,
+    const postId: ObjectId = await this.commandBus.execute(
+      new CreatePostCommand(id, body),
     );
+
+    const newPost = await this.postsQueryRepository.getPostById(postId);
     if (!newPost) {
-      throw new InternalServerErrorException(postCreateResult.extensions);
+      throw new InternalServerErrorException();
     }
     return newPost;
+  }
+
+  /** Update posts fields using blogs endpoint */
+  @Put(':blogId/posts/:postId')
+  @UseGuards(BasicAuthGuard)
+  @ApiBody({ type: PostInputDtoWithoutBlogId })
+  @ApiOperation({
+    summary: 'Update existing post fields by blog ID',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostByBlogId(
+    @Param('blogId') blogId: ObjectId,
+    @Param('postId') postId: ObjectId,
+    @Body() body: PostInputDtoWithoutBlogId,
+  ) {
+    await this.commandBus.execute(new UpdatePostCommand(postId, blogId, body));
+  }
+
+  /** Delete existing post using blogs endpoint*/
+  @Delete(':blogId/posts/:id')
+  @UseGuards(BasicAuthGuard)
+  @ApiOperation({
+    summary: 'Delete post by id.',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePostByBlogId(
+    @Param('id') id: ObjectId,
+    @Param('blogId') blogId: ObjectId,
+  ) {
+    await this.commandBus.execute(new DeletePostCommand(id, blogId));
   }
 }

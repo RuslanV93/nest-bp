@@ -8,7 +8,10 @@ import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
 import { UserDocument } from '../../domain/users.model';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
-import { SqlDomainUser, UserEntityType } from '../../domain/users.sql.domain';
+import {
+  SqlDomainUser,
+  UserSqlEntityType,
+} from '../../domain/users.sql.domain';
 
 @Injectable()
 export class UsersSqlRepository {
@@ -29,7 +32,7 @@ export class UsersSqlRepository {
     return users[0];
   }
   async findExistingUserByLoginOrEmail(login: string, email: string) {
-    const users: UserEntityType[] = await this.dataSource.query(
+    const users: UserSqlEntityType[] = await this.dataSource.query(
       `
           SELECT u.*,
                  CASE
@@ -52,7 +55,7 @@ export class UsersSqlRepository {
       : { user, field: 'email' };
   }
   async findByEmailConfirmCode(confirmCode: string) {
-    const users: UserEntityType[] = await this.dataSource.query(
+    const users: UserSqlEntityType[] = await this.dataSource.query(
       `
     SELECT u.*, e.*, p.*
     FROM "USERS" u
@@ -72,7 +75,7 @@ export class UsersSqlRepository {
   }
 
   async findByPasswordConfirmCode(passwordConfirmCode: string) {
-    const users: UserEntityType[] = await this.dataSource.query(
+    const users: UserSqlEntityType[] = await this.dataSource.query(
       `
           SELECT u.*, e.*, p.*
           FROM "USERS" u
@@ -108,7 +111,7 @@ export class UsersSqlRepository {
             LIMIT 1;
     `;
 
-    const users: UserEntityType[] = await this.dataSource.query(query, [
+    const users: UserSqlEntityType[] = await this.dataSource.query(query, [
       loginOrEmail,
     ]);
 
@@ -132,14 +135,14 @@ export class UsersSqlRepository {
       interface UserInsertResult {
         _id: string;
       }
-      const userInsertResult = (await queryRunner.query(
+      const userInsertResult: UserInsertResult[] = await queryRunner.query(
         `
       INSERT INTO "USERS" (_id, login, email )
       VALUES ($1, $2, $3)
       RETURNING _id;
       `,
         [user._id.toString(), user.login, user.email],
-      )) as UserInsertResult[];
+      );
       const userId = userInsertResult[0]._id;
 
       await queryRunner.query(

@@ -3,6 +3,7 @@ import { BaseSortDirectionParam } from '../../../../../core/dto/base.query-param
 export enum PostsSortBy {
   createdAt = 'createdAt',
   title = 'title',
+  blogName = 'blogName',
   shortDescription = 'shortDescription',
 }
 

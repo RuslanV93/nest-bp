@@ -461,10 +461,10 @@ window.onload = function() {
           ]
         }
       },
-      "/api/blogs": {
+      "/api/sa/blogs": {
         "get": {
           "description": "Fetches all blogs with optional query parameters for search, sorting, and pagination.",
-          "operationId": "BlogsController_getBlogs",
+          "operationId": "SuperAdminBlogsController_getBlogs",
           "parameters": [
             {
               "name": "searchNameTerm",
@@ -554,11 +554,11 @@ window.onload = function() {
           },
           "summary": "Get a list of blogs",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         },
         "post": {
-          "operationId": "BlogsController_createNewBlog",
+          "operationId": "SuperAdminBlogsController_createNewBlog",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -584,13 +584,13 @@ window.onload = function() {
           },
           "summary": "Creates new blog. Returns new created blog",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         }
       },
-      "/api/blogs/{id}": {
+      "/api/sa/blogs/{id}": {
         "get": {
-          "operationId": "BlogsController_getBlogById",
+          "operationId": "SuperAdminBlogsController_getBlogById",
           "parameters": [
             {
               "name": "id",
@@ -615,11 +615,11 @@ window.onload = function() {
           },
           "summary": "Get 1 blog by id.",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         },
         "put": {
-          "operationId": "BlogsController_updateBlog",
+          "operationId": "SuperAdminBlogsController_updateBlog",
           "parameters": [
             {
               "name": "id",
@@ -647,11 +647,11 @@ window.onload = function() {
           },
           "summary": "Update blog fields.",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         },
         "delete": {
-          "operationId": "BlogsController_deleteBlog",
+          "operationId": "SuperAdminBlogsController_deleteBlog",
           "parameters": [
             {
               "name": "id",
@@ -669,14 +669,14 @@ window.onload = function() {
           },
           "summary": "Delete one blog by id.",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         }
       },
-      "/api/blogs/{id}/posts": {
+      "/api/sa/blogs/{id}/posts": {
         "get": {
           "description": "Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.",
-          "operationId": "BlogsController_getPostsByBlogId",
+          "operationId": "SuperAdminBlogsController_getPostsByBlogId",
           "parameters": [
             {
               "name": "id",
@@ -721,12 +721,12 @@ window.onload = function() {
           },
           "summary": "Get posts belonging to the blog by the blog ID.",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
           ]
         },
         "post": {
           "description": "Create and return one post to existing blog. Using blogs uri parameter. ",
-          "operationId": "BlogsController_createPostByBlogId",
+          "operationId": "SuperAdminBlogsController_createPostByBlogId",
           "parameters": [
             {
               "name": "id",
@@ -761,7 +761,261 @@ window.onload = function() {
           },
           "summary": "Create post using blogs uri",
           "tags": [
-            "Blogs"
+            "SuperAdminBlogs"
+          ]
+        }
+      },
+      "/api/sa/blogs/{blogId}/posts/{postId}": {
+        "put": {
+          "operationId": "SuperAdminBlogsController_updatePostByBlogId",
+          "parameters": [
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            },
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostInputDtoWithoutBlogId"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update existing post fields by blog ID",
+          "tags": [
+            "SuperAdminBlogs"
+          ]
+        }
+      },
+      "/api/sa/blogs/{blogId}/posts/{id}": {
+        "delete": {
+          "operationId": "SuperAdminBlogsController_deletePostByBlogId",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            },
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Delete post by id.",
+          "tags": [
+            "SuperAdminBlogs"
+          ]
+        }
+      },
+      "/api/blogs": {
+        "get": {
+          "description": "Fetches all blogs with optional query parameters for search, sorting, and pagination.",
+          "operationId": "PublicBlogsController_getBlogs",
+          "parameters": [
+            {
+              "name": "searchNameTerm",
+              "required": false,
+              "in": "query",
+              "description": "Search term for blog name",
+              "schema": {
+                "default": null,
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "description": "Field to sort by",
+              "schema": {
+                "default": "createdAt",
+                "example": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "pageNumber",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "example": 10,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/BlogViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Get a list of blogs",
+          "tags": [
+            "PublicBlogs"
+          ]
+        }
+      },
+      "/api/blogs/{id}": {
+        "get": {
+          "operationId": "PublicBlogsController_getBlogById",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BlogViewDto"
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Get 1 blog by id.",
+          "tags": [
+            "PublicBlogs"
+          ]
+        }
+      },
+      "/api/blogs/{id}/posts": {
+        "get": {
+          "description": "Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.",
+          "operationId": "PublicBlogsController_getPostsByBlogId",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/PostViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Get posts belonging to the blog by the blog ID.",
+          "tags": [
+            "PublicBlogs"
           ]
         }
       },
@@ -1618,6 +1872,25 @@ window.onload = function() {
             "shortDescription",
             "content",
             "blogId"
+          ]
+        },
+        "PostInputDtoWithoutBlogId": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "shortDescription": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "shortDescription",
+            "content"
           ]
         },
         "LikeInputDto": {

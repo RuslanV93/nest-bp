@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blogs.model';
-import { BlogsController } from './blogs/interface/blogs.controller';
+import { SuperAdminBlogsController } from './blogs/interface/super-admin.blogs.controller';
 import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
@@ -29,8 +29,25 @@ import { UpdateCommentUseCase } from './comments/application/use-cases/update-co
 import { UpdateCommentLikeStatusUseCase } from './likes/application/use-cases/update.comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './likes/application/use-cases/update.post-like-status.use-case';
 import { UsersAccountModule } from '../users-account/users-account.module';
-import { BlogExistsValidator } from './blogs/constants/blogs-constants';
+import { BlogsSqlRepository } from './blogs/infrastructure/repositories/blogs.sql.repository';
+import { BlogsSqlQueryRepository } from './blogs/infrastructure/repositories/blogs.sql.query-repository';
+import { PostsSqlRepository } from './posts/infrastructure/repositories/posts.sql.repository';
+import { PostsSqlQueryRepository } from './posts/infrastructure/repositories/posts.sql.query.repository';
+import { CreatePostUseCase } from './posts/application/use-cases/create-post.use-case';
+import { CreateBlogUseCase } from './blogs/application/use-cases/create-blog.use-case';
+import { UpdateBlogUseCase } from './blogs/application/use-cases/update-blog.use-case';
+import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use-case';
+import { DeletePostUseCase } from './posts/application/use-cases/delete-post.use-case';
+import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use-case';
+import { PublicBlogsController } from './blogs/interface/public.blogs.controller';
+import { BlogExistsValidator } from '../../core/decorators/validation/blog-exists.validator';
+import { PostExistsPipe } from './comments/infrastructure/pipes/post.exists.pipe';
+import { CommentsSqlQueryRepository } from './comments/infrastructure/repositories/comments.sql.query.repository';
+import { CommentsSqlRepository } from './comments/infrastructure/repositories/comments.sql.repository';
+import { LikesSqlRepository } from './likes/infrastructure/repositories/likes.sql.repository';
 
+const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
+const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
 const commentsUseCases = [
   CreateCommentUseCase,
   DeleteCommentUseCase,
@@ -51,25 +68,40 @@ const likesUseCases = [
     ]),
     UsersAccountModule,
   ],
-  controllers: [BlogsController, PostsController, CommentsController],
+  controllers: [
+    SuperAdminBlogsController,
+    PublicBlogsController,
+    PostsController,
+    CommentsController,
+  ],
   providers: [
     BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
+    BlogsSqlRepository,
+    BlogsSqlQueryRepository,
     PostsService,
     PostsRepository,
     PostsQueryRepository,
+    PostsSqlRepository,
+    PostsSqlQueryRepository,
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,
+    CommentsSqlQueryRepository,
+    CommentsSqlRepository,
     LikesService,
     LikesQueryRepository,
+    LikesSqlRepository,
     LikesRepository,
+    PostExistsPipe,
     {
       provide: BlogExistsValidator,
 
       useClass: BlogExistsValidator,
     },
+    ...postsUseCases,
+    ...blogsUseCases,
     ...commentsUseCases,
     ...likesUseCases,
   ],

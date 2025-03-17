@@ -7,9 +7,9 @@ import {
 } from '../../constants/posts-constants';
 import { Transform } from 'class-transformer';
 import { ObjectId } from 'mongodb';
-import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
-import { BlogExistsValidator } from '../../../blogs/constants/blogs-constants';
+import { IsNotEmpty, IsString, Validate } from 'class-validator';
 import { IsObjectId } from '../../../../../core/decorators/validation/isObjectId';
+import { BlogExistsValidator } from '../../../../../core/decorators/validation/blog-exists.validator';
 
 export class PostInputDto {
   @ApiProperty()

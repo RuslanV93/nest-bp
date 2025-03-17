@@ -15,22 +15,33 @@ export class ObjectIdValidationInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const path = request.route.path;
 
-    if (!request.params?.id) {
-      return next.handle();
-    }
-
     if (path === '/api/security/devices/:id') {
       return next.handle();
     }
 
-    const id = request.params.id;
-    if (!isValidObjectId(id)) {
-      throw new BadRequestException([
-        { message: `Id is not a valid ObjectId.`, field: 'id' },
-      ]);
+    if (request.params?.blogId && request.params?.postId) {
+      if (
+        !isValidObjectId(request.params?.blogId) ||
+        !isValidObjectId(request.params?.postId)
+      ) {
+        throw new BadRequestException([
+          { message: `Id is not a valid ObjectId.`, field: 'id' },
+        ]);
+      }
+      request.params.blogId = new ObjectId(request.params?.blogId);
+      request.params.postId = new ObjectId(request.params.postId);
+      return next.handle();
     }
 
-    request.params.id = new ObjectId(id);
+    if (request.params?.id) {
+      const id = request.params.id;
+      if (!isValidObjectId(id)) {
+        throw new BadRequestException([
+          { message: `Id is not a valid ObjectId.`, field: 'id' },
+        ]);
+      }
+      request.params.id = new ObjectId(id);
+    }
 
     return next.handle();
   }
