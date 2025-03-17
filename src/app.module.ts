@@ -41,11 +41,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: postgresDbName,
       autoLoadEntities: false,
       synchronize: false,
-      // extra: {
-      //   ssl: {
-      //     rejectUnauthorized: false,
-      //   },
-      // },
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      },
     }),
     MongooseModule.forRoot(mongoUrl),
     UsersAccountModule,
