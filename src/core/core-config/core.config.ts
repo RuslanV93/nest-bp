@@ -1,7 +1,7 @@
-import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { IsBoolean, IsEnum, IsNotEmpty } from 'class-validator';
-import { configValidationUtility } from './shared/utils/config-validation-utility';
+import { configValidationUtility } from '../../shared/utils/config-validation-utility';
+import { ConfigService } from '@nestjs/config';
 
 enum EnvTypes {
   TESTING = 'testing',
@@ -9,7 +9,7 @@ enum EnvTypes {
   PRODUCTION = 'production',
 }
 @Injectable()
-export class AppConfig {
+export class CoreConfig {
   @IsEnum(EnvTypes)
   env: string = this.configService.getOrThrow('NODE_ENV');
   port: number = Number(this.configService.getOrThrow('PORT'));
@@ -43,34 +43,12 @@ export class AppConfig {
   isSwaggerEnabled: boolean = configValidationUtility.convertToBoolean(
     this.configService.get('IS_SWAGGER_ENABLED'),
   );
+  emailSenderAddress: string = this.configService.getOrThrow(
+    'EMAIL_SENDER_ADDRESS',
+  );
+  emailPassCode: string = this.configService.getOrThrow('EMAIL_PASS_CODE');
+  productionUrl: string = this.configService.getOrThrow('WEBSITE_URL');
   constructor(private readonly configService: ConfigService) {
     configValidationUtility.validateConfig(this);
   }
 }
-
-export class ConfigurationService {
-  private static instance: ConfigurationService;
-  private config: AppConfig;
-
-  private constructor() {
-    const configService = new ConfigService();
-    this.config = new AppConfig(configService);
-  }
-
-  public static getInstance(): ConfigurationService {
-    if (!ConfigurationService.instance) {
-      ConfigurationService.instance = new ConfigurationService();
-    }
-    return ConfigurationService.instance;
-  }
-
-  getConfig(): AppConfig {
-    return this.config;
-  }
-}
-
-/**
- * Retrieves an instance of the application configuration
- * to access configuration values.
- */
-// export const appConfig = ConfigurationService.getInstance().getConfig();

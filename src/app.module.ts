@@ -6,23 +6,22 @@ import { BloggersPlatformModule } from './modules/blogger-platform/bloggers-plat
 import { DropCollectionModule } from './modules/drop-collections/drop-collection.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {
-  mongoUrl,
-  postgresDbName,
-  postgresLogin,
-  postgresPassword,
-  postgresPort,
-  postgresUrl,
-} from './config/database.config';
+
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CoreConfig } from './core/core-config/core.config';
+import { CoreModule } from './core/core-config/core.module';
+import { SwaggerConfigService } from './config/swagger.setup';
 
 @Module({
   imports: [
+    configModule,
+
+    CoreModule,
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -32,17 +31,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       ],
     }),
     CqrsModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: postgresUrl,
-      port: postgresPort,
-      username: postgresLogin,
-      password: postgresPassword,
-      database: postgresDbName,
-      autoLoadEntities: false,
-      synchronize: false,
+    TypeOrmModule.forRootAsync({
+      useFactory: (coreConfig: CoreConfig) => ({
+        type: 'postgres',
+        host: coreConfig.postgresUrl,
+        port: Number(coreConfig.postgresPort),
+        username: coreConfig.postgresLogin,
+        password: coreConfig.postgresPassword,
+        database: coreConfig.postgresDbName,
+        autoLoadEntities: false,
+        synchronize: false,
+      }),
+      inject: [CoreConfig],
     }),
-    MongooseModule.forRoot(mongoUrl),
+    MongooseModule.forRootAsync({
+      useFactory: (coreConfig: CoreConfig) => {
+        const uri = coreConfig.mongoUri;
+
+        return {
+          uri: uri,
+        };
+      },
+      inject: [CoreConfig],
+    }),
     UsersAccountModule,
     BloggersPlatformModule,
     DropCollectionModule,
@@ -51,9 +62,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       rootPath: join(__dirname, '..', 'swagger'),
       serveRoot: '/swagger',
     }),
-    configModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [CoreConfig, AppService, SwaggerConfigService],
 })
 export class AppModule {}

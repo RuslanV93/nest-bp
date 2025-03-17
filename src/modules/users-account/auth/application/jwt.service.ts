@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '../../../../config/jwt.config';
 import { Injectable } from '@nestjs/common';
+import { CoreConfig } from '../../../../core/core-config/core.config';
 
 export interface Tokens {
   accessToken: string;
@@ -14,7 +14,10 @@ export interface AccessTokenType {
 }
 @Injectable()
 export class TokenService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly coreConfig: CoreConfig,
+  ) {}
   generateTokens(userId: string, deviceId: string): Tokens {
     const { accessToken } = this.generateAccessToken(userId);
     const { refreshToken } = this.generateRefreshToken(userId, deviceId);
@@ -24,8 +27,8 @@ export class TokenService {
     const accessToken = this.jwtService.sign(
       { id: userId },
       {
-        secret: jwtConfig.access.secret,
-        expiresIn: jwtConfig.access.expiresIn,
+        secret: this.coreConfig.jwtAccessSecret,
+        expiresIn: this.coreConfig.jwtAccessExpires,
       },
     );
     return { accessToken };
@@ -34,8 +37,8 @@ export class TokenService {
     const refreshToken = this.jwtService.sign(
       { id: userId, deviceId: deviceId },
       {
-        secret: jwtConfig.refresh.secret,
-        expiresIn: jwtConfig.refresh.expiresIn,
+        secret: this.coreConfig.jwtRefreshSecret,
+        expiresIn: this.coreConfig.jwtRefreshExpires,
       },
     );
     return { refreshToken };

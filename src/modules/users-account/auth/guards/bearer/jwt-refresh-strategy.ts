@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
-import { appConfig } from '../../../../../app.config';
+
 import { UserContextDto } from '../dto/user-context.dto';
 import { Request } from 'express';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
@@ -11,23 +11,26 @@ import {
   ExecutionContext,
   forwardRef,
   HttpException,
-  HttpStatus,
   Inject,
 } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { Reflector } from '@nestjs/core';
 import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
 import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
+import { CoreConfig } from '../../../../../core/core-config/core.config';
 
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private readonly tokenService: TokenService) {
+  constructor(
+    private readonly tokenService: TokenService,
+    private readonly coreConfig: CoreConfig,
+  ) {
     super({
       jwtFromRequest: (req: Request) => req?.cookies?.refreshToken,
       ignoreExpiration: false,
-      secretOrKey: appConfig.jwtRefreshSecret,
+      secretOrKey: coreConfig.jwtRefreshSecret,
       passReqToCallback: true,
     });
   }

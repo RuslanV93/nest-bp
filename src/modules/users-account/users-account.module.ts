@@ -45,6 +45,7 @@ import { AuthSqlQueryRepository } from './auth/infrastructure/auth.sql.query-rep
 import { DevicesSqlQueryRepository } from './devices/infrastructure/repositories/devices.sql.query-repository';
 import { DevicesSqlRepository } from './devices/infrastructure/repositories/devices.sql.repository';
 import { UpdateDeviceUseCase } from './devices/application/use-cases/update-device.use-case';
+import { CoreConfig } from '../../core/core-config/core.config';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -77,6 +78,8 @@ const authUseCases = [
   ],
   controllers: [UsersController, AuthController, DevicesController],
   providers: [
+    CoreConfig,
+
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
@@ -87,6 +90,13 @@ const authUseCases = [
     JwtStrategy,
     SoftJwtStrategy,
     JwtRefreshStrategy,
+    {
+      provide: JwtRefreshStrategy,
+      useFactory: (coreConfig: CoreConfig, tokenService: TokenService) => {
+        return new JwtRefreshStrategy(tokenService, coreConfig);
+      },
+      inject: [CoreConfig, TokenService],
+    },
     UsersRepository,
     UsersQueryRepository,
     UsersSqlQueryRepository,

@@ -1,8 +1,30 @@
-import { appConfig } from '../app.config';
+// config.constants.ts
+import { CoreConfig } from '../core/core-config/core.config';
 
-export const mongoUrl: string = appConfig.mongoUri;
-export const postgresUrl: string = appConfig.postgresUrl;
-export const postgresLogin: string = appConfig.postgresLogin;
-export const postgresPassword: string = appConfig.postgresPassword;
-export const postgresPort: number = +appConfig.postgresPort;
-export const postgresDbName: string = appConfig.postgresDbName;
+export class DatabaseConfigService {
+  constructor(private readonly coreConfig: CoreConfig) {}
+
+  get mongoUrl(): string {
+    return this.coreConfig.mongoUri;
+  }
+
+  get postgresUrl(): string {
+    return this.coreConfig.postgresUrl;
+  }
+
+  get postgresLogin(): string {
+    return this.coreConfig.postgresLogin;
+  }
+
+  get postgresPassword(): string {
+    return this.coreConfig.postgresPassword;
+  }
+
+  get postgresPort(): number {
+    return +this.coreConfig.postgresPort; // Преобразуем в число
+  }
+
+  get postgresDbName(): string {
+    return this.coreConfig.postgresDbName;
+  }
+}

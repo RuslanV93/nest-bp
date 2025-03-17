@@ -4,6 +4,9 @@ import { configValidationUtility } from '../../shared/utils/config-validation-ut
 
 @Injectable()
 export class NotificationConfig {
+  // emailSenderAddress: string = this.coreConfig.emailSenderAddress
+  // emailPassCode: string = this.coreConfig.emailPassCode
+  // productionUrl: string = this.coreConfig.productionUrl
   emailSenderAddress: string = this.configService.getOrThrow(
     'EMAIL_SENDER_ADDRESS',
   );
