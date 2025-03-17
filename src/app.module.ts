@@ -27,7 +27,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       throttlers: [
         {
           ttl: 10000,
-          limit: 30,
+          limit: 100,
         },
       ],
     }),
@@ -41,6 +41,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database: postgresDbName,
       autoLoadEntities: false,
       synchronize: false,
+      // extra: {
+      //   ssl: {
+      //     rejectUnauthorized: false,
+      //   },
+      // },
     }),
     MongooseModule.forRoot(mongoUrl),
     UsersAccountModule,
