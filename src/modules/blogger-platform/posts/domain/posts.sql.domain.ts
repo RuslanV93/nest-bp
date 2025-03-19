@@ -41,15 +41,18 @@ export class SqlDomainPost {
     blogId?: ObjectId,
   ) {
     const id = new ObjectId().toString();
+    let existingBlogId: ObjectId;
+    if (!blogId && 'blogId' in postInputDto) {
+      existingBlogId = postInputDto.blogId;
+    } else {
+      existingBlogId = blogId!;
+    }
     const post = new SqlDomainPost({
       _id: id,
       title: postInputDto.title,
       shortDescription: postInputDto.shortDescription,
       content: postInputDto.content,
-      blogId:
-        'blogId' in postInputDto
-          ? postInputDto.blogId?.toString()
-          : blogId!.toString(),
+      blogId: existingBlogId.toString(),
       createdAt: null,
       updatedAt: null,
       deletedAt: null,

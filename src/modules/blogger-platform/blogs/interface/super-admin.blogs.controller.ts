@@ -40,6 +40,8 @@ import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case
 import { UpdatePostCommand } from '../../posts/application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../../posts/application/use-cases/delete-post.use-case';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.use-case';
+import { BlogExistsValidator } from '../../../../core/decorators/validation/blog-exists.validator';
+import { BlogExistsPipe } from '../../posts/infrastructure/pipes/blog.exists.pipe';
 
 /**
  * Blogs Controller

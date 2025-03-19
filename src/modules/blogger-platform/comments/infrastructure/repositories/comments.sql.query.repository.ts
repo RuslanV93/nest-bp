@@ -87,7 +87,6 @@ export class CommentsSqlQueryRepository {
   async getCommentById(id: ObjectId, userId?: ObjectId) {
     const commentIdStr = id.toString();
     const userIdStr = userId?.toString() || '';
-    console.log(id, userId);
 
     const sqlQuery = `
         WITH filtered_comments AS (

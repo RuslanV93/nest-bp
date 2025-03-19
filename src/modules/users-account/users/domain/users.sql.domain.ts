@@ -58,7 +58,6 @@ class PasswordInfo {
 // Основной класс пользователя
 export class SqlDomainUser {
   _id: string;
-  userId: string;
   login: string;
   email: string;
   emailConfirmationInfo: EmailConfirmationInfo;
@@ -179,5 +178,8 @@ export class SqlDomainUser {
     this.passwordInfo.passwordRecoveryCode = null;
     this.passwordInfo.passwordRecoveryCodeExpirationDate = null;
     return this;
+  }
+  deleteUser() {
+    this.deletedAt = new Date();
   }
 }

@@ -17,8 +17,8 @@ import {
 export class UsersSqlRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findById(id: ObjectId): Promise<UserDocument | null> {
-    const users: UserDocument[] = await this.dataSource.query(
+  async findById(id: ObjectId): Promise<SqlDomainUser | null> {
+    const users: UserSqlEntityType[] = await this.dataSource.query(
       `
           SELECT u.*, e.*, p.*
           FROM public."USERS" u
@@ -28,8 +28,10 @@ export class UsersSqlRepository {
     `,
       [id.toString()],
     );
-
-    return users[0];
+    if (!users.length) {
+      return null;
+    }
+    return SqlDomainUser.fromSqlResult(users[0]);
   }
   async findExistingUserByLoginOrEmail(login: string, email: string) {
     const users: UserSqlEntityType[] = await this.dataSource.query(
@@ -117,7 +119,7 @@ export class UsersSqlRepository {
 
     return users.length > 0 ? SqlDomainUser.fromSqlResult(users[0]) : null;
   }
-  async findOrNotFoundException(id: ObjectId): Promise<UserDocument> {
+  async findOrNotFoundException(id: ObjectId): Promise<SqlDomainUser> {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException('User not Found');
@@ -172,14 +174,13 @@ export class UsersSqlRepository {
 
       return new ObjectId(userId);
     } catch (e) {
-      console.log(e);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException('Something went wrong');
     } finally {
       await queryRunner.release();
     }
   }
-  async deleteUser(user: UserDocument) {
+  async deleteUser(user: SqlDomainUser) {
     try {
       await this.dataSource.query(
         `

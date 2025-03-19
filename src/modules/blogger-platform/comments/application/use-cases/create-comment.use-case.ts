@@ -3,11 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CommentModelType } from '../../domain/comments.model';
 import { ObjectId } from 'mongodb';
 import { Comment } from '../../domain/comments.model';
-import { ImATeapotException } from '@nestjs/common';
 import { UsersSqlRepository } from '../../../../users-account/users/infrastructure/repositories/users.sql.repository';
 import { CommentsSqlRepository } from '../../infrastructure/repositories/comments.sql.repository';
 import { PostsSqlRepository } from '../../../posts/infrastructure/repositories/posts.sql.repository';
 import { SqlDomainComment } from '../../domain/comments.sql.domain';
+import { SqlDomainUser } from '../../../../users-account/users/domain/users.sql.domain';
 
 export class CreateCommentCommand {
   constructor(
@@ -28,9 +28,7 @@ export class CreateCommentUseCase
     private readonly postsRepository: PostsSqlRepository,
   ) {}
   async execute(command: CreateCommentCommand) {
-    const user = await this.usersRepository.findOrNotFoundException(
-      command.userId,
-    );
+    await this.usersRepository.findOrNotFoundException(command.userId);
 
     await this.postsRepository.findOneOrNotFoundException(command.postId);
 
@@ -40,9 +38,6 @@ export class CreateCommentUseCase
       command.postId,
     );
 
-    if (!comment) {
-      throw new ImATeapotException();
-    }
     const newComment = await this.commentsRepository.createComment(comment);
     return newComment?._id;
   }

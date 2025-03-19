@@ -7,9 +7,8 @@ import {
 } from '../../constants/posts-constants';
 import { Transform } from 'class-transformer';
 import { ObjectId } from 'mongodb';
-import { IsNotEmpty, IsString, Validate } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { IsObjectId } from '../../../../../core/decorators/validation/isObjectId';
-import { BlogExistsValidator } from '../../../../../core/decorators/validation/blog-exists.validator';
 
 export class PostInputDto {
   @ApiProperty()
@@ -44,7 +43,6 @@ export class PostInputDto {
     },
     { toClassOnly: true },
   )
-  @Validate(BlogExistsValidator)
   @IsObjectId()
   @IsString()
   @IsNotEmpty()

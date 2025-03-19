@@ -22,12 +22,13 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     private readonly postsRepository: PostsSqlRepository,
     private readonly blogsRepository: BlogsSqlRepository,
   ) {}
-  async execute(command: CreatePostCommand): Promise<ObjectId> {
+  async execute(command: CreatePostCommand) {
     await this.blogsRepository.findOneOrNotFoundException(command.blogId);
     const post = SqlDomainPost.createInstance(
       command.newPostDto,
       command.blogId,
     );
+
     const newPostId = await this.postsRepository.createPost(post);
 
     if (!newPostId) {

@@ -41,6 +41,11 @@ import { SwaggerConfigService } from './config/swagger.setup';
         database: coreConfig.postgresDbName,
         autoLoadEntities: false,
         synchronize: false,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       }),
       inject: [CoreConfig],
     }),

@@ -9,7 +9,7 @@ export class DropSqlRepository {
     await this.dataSource.query(`
     BEGIN;
 
-      SET session_replication_role = 'replica';
+     
 
       TRUNCATE TABLE "POST_LIKES" CASCADE;
       TRUNCATE TABLE "POSTS" CASCADE;
@@ -26,7 +26,7 @@ export class DropSqlRepository {
 
       COMMIT;
 
-      SET session_replication_role = 'origin';
+      
     `);
   }
 }

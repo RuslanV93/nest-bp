@@ -95,11 +95,6 @@ const likesUseCases = [
     LikesSqlRepository,
     LikesRepository,
     PostExistsPipe,
-    {
-      provide: BlogExistsValidator,
-
-      useClass: BlogExistsValidator,
-    },
     ...postsUseCases,
     ...blogsUseCases,
     ...commentsUseCases,

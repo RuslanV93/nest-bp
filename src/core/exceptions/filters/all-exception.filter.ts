@@ -11,7 +11,6 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-
     if (status === 400) {
       const responseMessage: ErrorMessage = (exception as any).response.message;
       response.status(status).json({

@@ -3,6 +3,7 @@ import { LikeStatus } from '../../domain/dto/like.domain.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikesSqlRepository } from '../../infrastructure/repositories/likes.sql.repository';
 import { ParentType, SqlDomainLike } from '../../domain/like.sql.domain';
+import { CommentsSqlRepository } from '../../../comments/infrastructure/repositories/comments.sql.repository';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -16,8 +17,14 @@ export class UpdateCommentLikeStatusCommand {
 export class UpdateCommentLikeStatusUseCase
   implements ICommandHandler<UpdateCommentLikeStatusCommand>
 {
-  constructor(private readonly likesRepository: LikesSqlRepository) {}
+  constructor(
+    private readonly likesRepository: LikesSqlRepository,
+    private readonly commentsRepository: CommentsSqlRepository,
+  ) {}
   async execute(command: UpdateCommentLikeStatusCommand) {
+    await this.commentsRepository.findOneAndNotFoundException(
+      command.commentId,
+    );
     const existingLike = await this.likesRepository.findLike(
       command.userId,
       command.commentId,

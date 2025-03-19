@@ -33,6 +33,7 @@ export class PostsSqlRepository {
     interface PostInsertResult {
       _id: string;
     }
+    console.log(post.blogId);
     const postInsertResult: PostInsertResult[] = await this.dataSource.query(
       `
       INSERT INTO "POSTS"
