@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { UsersController } from './users/interfaces/users.controller';
 import { UsersRepository } from './users/infrastructure/repositories/users.repository';
 import { UsersQueryRepository } from './users/infrastructure/repositories/users.query.repository';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './users/domain/users.model';
 import { CryptoService } from './auth/application/crypto.service';
 import { NotificationModule } from '../notification/notification.module';
 import { EmailService } from '../notification/application/email.service';
@@ -46,6 +44,13 @@ import { DevicesSqlQueryRepository } from './devices/infrastructure/repositories
 import { DevicesSqlRepository } from './devices/infrastructure/repositories/devices.sql.repository';
 import { UpdateDeviceUseCase } from './devices/application/use-cases/update-device.use-case';
 import { CoreConfig } from '../../core/core-config/core.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/domain/users.orm.domain';
+import { EmailInfo } from './users/domain/email-info.orm.domain';
+import { PasswordInfo } from './users/domain/password-info.orm.domain';
+import { UsersOrmRepository } from './users/infrastructure/repositories/users.orm.repository';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserSchema, User as UserMongoose } from './users/domain/users.model';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -72,8 +77,11 @@ const authUseCases = [
   imports: [
     PassportModule,
     JwtModule.register({}),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: UserMongoose.name, schema: UserSchema },
+    ]),
     MongooseModule.forFeature([{ name: Device.name, schema: DeviceSchema }]),
+    TypeOrmModule.forFeature([User, EmailInfo, PasswordInfo]),
     NotificationModule,
   ],
   controllers: [UsersController, AuthController, DevicesController],
@@ -101,6 +109,7 @@ const authUseCases = [
     UsersQueryRepository,
     UsersSqlQueryRepository,
     UsersSqlRepository,
+    UsersOrmRepository,
     AuthSqlQueryRepository,
     DevicesSqlQueryRepository,
     DevicesSqlRepository,

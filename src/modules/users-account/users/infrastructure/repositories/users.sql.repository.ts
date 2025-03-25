@@ -6,12 +6,9 @@ import {
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
-import { UserDocument } from '../../domain/users.model';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
-import {
-  SqlDomainUser,
-  UserSqlEntityType,
-} from '../../domain/users.sql.domain';
+import { SqlDomainUser } from '../../domain/users.sql.domain';
+import { UserSqlEntityType } from '../../types/user.types';
 
 @Injectable()
 export class UsersSqlRepository {

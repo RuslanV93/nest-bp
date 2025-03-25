@@ -39,8 +39,8 @@ import { SwaggerConfigService } from './config/swagger.setup';
         username: coreConfig.postgresLogin,
         password: coreConfig.postgresPassword,
         database: coreConfig.postgresDbName,
-        autoLoadEntities: false,
-        synchronize: false,
+        autoLoadEntities: true,
+        synchronize: true,
         extra: {
           ssl: {
             rejectUnauthorized: false,
