@@ -31,6 +31,7 @@ export class PasswordRecoveryUseCase
       user.login,
       recoveryCode,
     );
+
     user.setPasswordRecoveryInfo(recoveryCode);
     await this.usersRepository.setPasswordRecoveryInfo(user);
     return user;

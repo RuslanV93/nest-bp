@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../shared/types/base.entity.type';
 import { EmailInfo } from './email-info.orm.domain';
 import { PasswordInfo } from './password-info.orm.domain';
@@ -13,15 +13,15 @@ export class User extends BaseEntity {
   @Column()
   email: string;
 
-  @OneToOne(() => EmailInfo, { cascade: true, eager: true })
-  @JoinColumn()
+  @OneToOne(() => EmailInfo, (e) => e.user, { cascade: true, eager: true })
+  // @JoinColumn()
   emailConfirmationInfo: EmailInfo;
 
-  @OneToOne(() => PasswordInfo, {
+  @OneToOne(() => PasswordInfo, (p) => p.user, {
     cascade: true,
     eager: true,
   })
-  @JoinColumn()
+  // @JoinColumn()
   passwordInfo: PasswordInfo;
 
   static createInstance(

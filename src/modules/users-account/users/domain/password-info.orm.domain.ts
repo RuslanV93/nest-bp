@@ -13,7 +13,7 @@ export class PasswordInfo extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   passwordRecoveryCodeExpirationDate: Date | null;
 
-  @OneToOne(() => User, (u) => u.passwordInfo)
-  @JoinColumn()
+  @OneToOne(() => User, (u) => u.passwordInfo, { nullable: false })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }
