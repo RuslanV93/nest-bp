@@ -1,6 +1,7 @@
 import { UserDocument } from '../../domain/users.model';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { MeType } from '../../../auth/infrastructure/auth.sql.query-repository';
+import { User } from '../../domain/users.orm.domain';
 
 export type UserFromSql = {
   _id: string;
@@ -16,7 +17,7 @@ export class UserViewDto {
   @ApiProperty() email: string;
   @ApiProperty() createdAt: string;
 
-  public static mapToView(this: void, user: UserDocument) {
+  public static mapToView(this: void, user: UserDocument | User) {
     const dto = new UserViewDto();
 
     dto.id = user._id.toString();

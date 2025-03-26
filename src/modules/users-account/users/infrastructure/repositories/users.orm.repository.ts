@@ -8,11 +8,12 @@ import { BadRequestDomainException } from '../../../../../core/exceptions/domain
 
 export class UsersOrmRepository {
   constructor(
-    @InjectRepository(User) private readonly user: Repository<User>,
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
   async findById(id: ObjectId) {
-    return this.user.findOne({
+    return this.userRepository.findOne({
       where: { _id: id.toString(), deletedAt: IsNull() },
+      relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
   }
 
@@ -24,13 +25,13 @@ export class UsersOrmRepository {
     return user;
   }
   async findByEmailConfirmCode(confirmCode: string) {
-    const user = await this.user.findOne({
+    const user = await this.userRepository.findOne({
       where: {
         emailConfirmationInfo: {
           confirmCode: confirmCode,
         },
       },
-      relations: ['emailConfirmationInfo'],
+      relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
 
     if (!user) {
@@ -40,5 +41,69 @@ export class UsersOrmRepository {
       );
     }
     return user;
+  }
+  async findExistingUserByLoginOrEmail(login: string, email: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: [{ login: login }, { email: email }],
+        relations: ['emailConfirmationInfo', 'passwordInfo'],
+      });
+      if (!user) {
+        return null;
+      }
+      console.log('sadaddas', user);
+      return user.login === login
+        ? { user, field: 'login' }
+        : { user, field: 'email' };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async findByPasswordRecoveryCode(recoveryCode: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        passwordInfo: {
+          passwordRecoveryCode: recoveryCode,
+        },
+      },
+      relations: ['emailConfirmationInfo', 'passwordInfo'],
+    });
+    if (!user) {
+      throw BadRequestDomainException.create(
+        'User does not exist',
+        'recoveryCode',
+      );
+    }
+    return user;
+  }
+
+  async findByEmailAndLoginField(loginOrEmail: string) {
+    const user = await this.userRepository.findOne({
+      where: [{ login: loginOrEmail, email: loginOrEmail }],
+      relations: ['emailConfirmationInfo', 'passwordInfo'],
+    });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
+  async save(userToSave: User) {
+    return this.userRepository.save(userToSave);
+  }
+
+  async createUser(newUser: User) {
+    try {
+      const user = this.userRepository.create(newUser);
+      const savedUser = await this.userRepository.save(user);
+      return new ObjectId(savedUser._id);
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  }
+
+  async deleteUser(userToDelete: User) {
+    await this.userRepository.softRemove(userToDelete);
   }
 }

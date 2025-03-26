@@ -18,7 +18,7 @@ export class PasswordUpdateUseCase
   ) {}
 
   async execute(command: PasswordUpdateCommand) {
-    const user = await this.usersRepository.findByPasswordConfirmCode(
+    const user = await this.usersRepository.findByPasswordRecoveryCode(
       command.passwordUpdateDto.recoveryCode,
     );
     await SqlDomainUser.validatePassword(

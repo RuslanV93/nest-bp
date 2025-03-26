@@ -51,6 +51,7 @@ import { PasswordInfo } from './users/domain/password-info.orm.domain';
 import { UsersOrmRepository } from './users/infrastructure/repositories/users.orm.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema, User as UserMongoose } from './users/domain/users.model';
+import { UsersOrmQueryRepository } from './users/infrastructure/repositories/users.orm.query.repository';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -110,6 +111,7 @@ const authUseCases = [
     UsersSqlQueryRepository,
     UsersSqlRepository,
     UsersOrmRepository,
+    UsersOrmQueryRepository,
     AuthSqlQueryRepository,
     DevicesSqlQueryRepository,
     DevicesSqlRepository,

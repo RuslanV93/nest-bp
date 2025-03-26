@@ -73,7 +73,7 @@ export class UsersSqlRepository {
     return SqlDomainUser.fromSqlResult(users[0]);
   }
 
-  async findByPasswordConfirmCode(passwordConfirmCode: string) {
+  async findByPasswordRecoveryCode(passwordRecoveryCode: string) {
     const users: UserSqlEntityType[] = await this.dataSource.query(
       `
           SELECT u.*, e.*, p.*
@@ -84,7 +84,7 @@ export class UsersSqlRepository {
             AND p."passwordRecoveryCode" = $1
               LIMIT 1;
       `,
-      [passwordConfirmCode],
+      [passwordRecoveryCode],
     );
 
     if (!users.length) {

@@ -34,7 +34,7 @@ import { BasicAuthGuard } from '../../auth/guards/basic/basic-strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/users-use-cases/create-user.use-case';
 import { DeleteUserCommand } from '../application/users-use-cases/delete-user.use-case';
-import { UsersSqlQueryRepository } from '../infrastructure/repositories/users.sql.query.repository';
+import { UsersOrmQueryRepository } from '../infrastructure/repositories/users.orm.query.repository';
 
 function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
   return result.status === DomainStatusCode.Success && result.data !== null;
@@ -45,7 +45,7 @@ function isSuccess(result: ResultObject<any>): result is ResultObject<string> {
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
-    private readonly usersQueryRepository: UsersSqlQueryRepository,
+    private readonly usersQueryRepository: UsersOrmQueryRepository,
 
     private readonly commandBus: CommandBus,
   ) {}

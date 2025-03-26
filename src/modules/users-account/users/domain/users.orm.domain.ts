@@ -1,7 +1,9 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../shared/types/base.entity.type';
 import { EmailInfo } from './email-info.orm.domain';
 import { PasswordInfo } from './password-info.orm.domain';
+import { ObjectId } from 'mongodb';
+import { randomUUID } from 'node:crypto';
 
 @Entity()
 export class User extends BaseEntity {
@@ -11,10 +13,15 @@ export class User extends BaseEntity {
   @Column()
   email: string;
 
-  @OneToOne(() => EmailInfo, { cascade: true })
+  @OneToOne(() => EmailInfo, { cascade: true, eager: true })
+  @JoinColumn()
   emailConfirmationInfo: EmailInfo;
 
-  @OneToOne(() => PasswordInfo, { cascade: true })
+  @OneToOne(() => PasswordInfo, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn()
   passwordInfo: PasswordInfo;
 
   static createInstance(
@@ -24,13 +31,16 @@ export class User extends BaseEntity {
     emailConfirmCode: string,
   ) {
     const now = new Date();
+    const id = new ObjectId();
     const user = new this();
     const emailInfo = new EmailInfo();
     const passwordInfo = new PasswordInfo();
+    user._id = id.toString();
     user.login = login;
     user.email = email;
 
     /// Email confirmation info
+    emailInfo._id = randomUUID();
     emailInfo.confirmCode = emailConfirmCode;
     emailInfo.codeExpirationDate = new Date(
       now.getTime() + 24 * 60 * 60 * 1000,
@@ -41,6 +51,7 @@ export class User extends BaseEntity {
     );
 
     /// Password info
+    passwordInfo._id = randomUUID();
     passwordInfo.passwordHash = password;
     passwordInfo.passwordRecoveryCode = null;
 
