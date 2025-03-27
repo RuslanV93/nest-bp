@@ -1,10 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ClientInfoDto } from '../../types/client-info.dto';
-import {
-  Device,
-  DeviceDocument,
-  DeviceModelType,
-} from '../../domain/devices.model';
+import { Device, DeviceModelType } from '../../domain/devices.model';
 import { DeviceDomainDto } from '../../domain/dto/device.domain-dto';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';

@@ -1,9 +1,10 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../shared/types/base.entity.type';
 import { EmailInfo } from './email-info.orm.domain';
 import { PasswordInfo } from './password-info.orm.domain';
 import { ObjectId } from 'mongodb';
 import { randomUUID } from 'node:crypto';
+import { Device } from '../../devices/domain/devices.orm.domain';
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,6 +24,9 @@ export class User extends BaseEntity {
   })
   // @JoinColumn()
   passwordInfo: PasswordInfo;
+
+  @OneToMany(() => Device, (device) => device.user)
+  devices: Device[];
 
   static createInstance(
     login: string,

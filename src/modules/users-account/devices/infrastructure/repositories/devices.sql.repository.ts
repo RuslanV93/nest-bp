@@ -6,7 +6,8 @@ import {
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
-import { DeviceEntityType, SqlDomainDevice } from '../../domain/devices.domain';
+import { SqlDomainDevice } from '../../domain/devices.domain';
+import { DeviceEntityType } from '../../types/device.types';
 
 @Injectable()
 export class DevicesSqlRepository {
