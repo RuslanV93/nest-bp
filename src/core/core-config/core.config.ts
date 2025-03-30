@@ -41,11 +41,7 @@ export class CoreConfig {
   isSwaggerEnabled: boolean = configValidationUtility.convertToBoolean(
     this.configService.get('IS_SWAGGER_ENABLED'),
   );
-  emailSenderAddress: string = this.configService.getOrThrow(
-    'EMAIL_SENDER_ADDRESS',
-  );
-  emailPassCode: string = this.configService.getOrThrow('EMAIL_PASS_CODE');
-  productionUrl: string = this.configService.getOrThrow('WEBSITE_URL');
+
   constructor(private readonly configService: ConfigService) {
     configValidationUtility.validateConfig(this);
   }

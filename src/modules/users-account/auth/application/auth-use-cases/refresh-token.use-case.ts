@@ -4,8 +4,8 @@ import { TokenService } from '../jwt.service';
 import { ClientInfoDto } from '../../../devices/types/client-info.dto';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
 import { UpdateDeviceCommand } from '../../../devices/application/use-cases/update-device.use-case';
-import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
-import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
+import { DevicesOrmRepository } from '../../../devices/infrastructure/repositories/devices.orm.repository';
+import { Device } from '../../../devices/domain/devices.orm.domain';
 
 export class RefreshTokenCommand {
   constructor(
@@ -20,7 +20,7 @@ export class RefreshTokenUseCase
 {
   constructor(
     private readonly tokenService: TokenService,
-    private readonly devicesRepository: DevicesSqlRepository,
+    private readonly devicesRepository: DevicesOrmRepository,
     private readonly commandBus: CommandBus,
   ) {}
   async execute(
@@ -28,8 +28,8 @@ export class RefreshTokenUseCase
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { id, exp, deviceId } = command.user;
     /** getting session */
-    const session: SqlDomainDevice | null =
-      await this.devicesRepository.findSessionByDeviceId(deviceId, id);
+    const session: Device | null =
+      await this.devicesRepository.findSessionByDeviceIdAndUserId(deviceId, id);
 
     if (!session || session.tokenVersion !== exp.toString()) {
       throw UnauthorizedDomainException.create('Token is expired');

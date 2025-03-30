@@ -6,6 +6,7 @@ import {
   PasswordInfoType,
   UserSqlEntityType,
 } from '../types/user.types';
+import { User } from './users.orm.domain';
 
 class EmailConfirmationInfo {
   confirmCode: string | null;
@@ -99,7 +100,7 @@ export class SqlDomainUser {
 
     return user;
   }
-  static validateEmailConfirmation(user: SqlDomainUser, confirmCode: string) {
+  static validateEmailConfirmation(user: User, confirmCode: string) {
     if (user.emailConfirmationInfo.isConfirmed) {
       throw BadRequestDomainException.create(
         'Email is already confirmed',

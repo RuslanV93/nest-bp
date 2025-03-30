@@ -40,7 +40,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       passwordHash,
       emailConfirmCode,
     );
-    console.log(user);
     const newUserId: ObjectId | null =
       await this.usersRepository.createUser(user);
 

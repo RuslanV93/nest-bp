@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../../domain/devices.orm.domain';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class DevicesOrmQueryRepository {
@@ -9,4 +10,14 @@ export class DevicesOrmQueryRepository {
     @InjectRepository(Device)
     private readonly devicesQueryRepository: Repository<Device>,
   ) {}
+
+  async getDevices(userId: ObjectId) {
+    const devices = await this.devicesQueryRepository.find({
+      where: { userId: userId.toString(), deletedAt: IsNull() },
+    });
+    if (!devices) {
+      throw new NotFoundException('Devices not found.');
+    }
+    return devices;
+  }
 }

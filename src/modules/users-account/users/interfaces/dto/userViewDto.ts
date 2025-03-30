@@ -1,7 +1,7 @@
 import { UserDocument } from '../../domain/users.model';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { MeType } from '../../../auth/infrastructure/auth.sql.query-repository';
 import { User } from '../../domain/users.orm.domain';
+import { MeType } from '../../../auth/types/me.type';
 
 export type UserFromSql = {
   _id: string;

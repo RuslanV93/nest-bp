@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserContextDto } from '../dto/user-context.dto';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class SoftJwtStrategy extends PassportStrategy(Strategy, 'soft-jwt') {

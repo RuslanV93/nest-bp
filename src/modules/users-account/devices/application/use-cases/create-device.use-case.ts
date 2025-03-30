@@ -1,11 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ClientInfoDto } from '../../types/client-info.dto';
-import { Device, DeviceModelType } from '../../domain/devices.model';
+
 import { DeviceDomainDto } from '../../domain/dto/device.domain-dto';
 import { ObjectId } from 'mongodb';
-import { InjectModel } from '@nestjs/mongoose';
-import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
-import { SqlDomainDevice } from '../../domain/devices.domain';
+import { DevicesOrmRepository } from '../../infrastructure/repositories/devices.orm.repository';
+import { Device } from '../../domain/devices.orm.domain';
 
 export class CreateDeviceCommand {
   constructor(
@@ -20,10 +19,7 @@ export class CreateDeviceCommand {
 export class CreateDeviceUseCase
   implements ICommandHandler<CreateDeviceCommand>
 {
-  constructor(
-    @InjectModel(Device.name) private DeviceModel: DeviceModelType,
-    private readonly devicesRepository: DevicesSqlRepository,
-  ) {}
+  constructor(private readonly devicesRepository: DevicesOrmRepository) {}
   async execute(command: CreateDeviceCommand) {
     const title = `Device: ${command.clientInfo.device || 'other'},
      Platform: ${command.clientInfo.os || 'other'}, Browser: ${command.clientInfo.browser || 'other'}`;
@@ -34,8 +30,7 @@ export class CreateDeviceUseCase
       ip: command.clientInfo.ip,
       deviceId: command.deviceId,
     };
-    const newDevice: SqlDomainDevice =
-      SqlDomainDevice.createInstance(newDeviceDto);
+    const newDevice: Device = Device.createInstance(newDeviceDto);
     return this.devicesRepository.createDevice(newDevice);
   }
 }

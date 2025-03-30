@@ -4,8 +4,8 @@ import { BadRequestDomainException } from '../../../../../core/exceptions/domain
 import { randomUUID } from 'node:crypto';
 import { ServiceResultObjectFactory } from '../../../../../shared/utils/serviceResultObject';
 import { EmailService } from '../../../../notification/application/email.service';
-import { UsersSqlRepository } from '../../infrastructure/repositories/users.sql.repository';
-import { SqlDomainUser } from '../../domain/users.sql.domain';
+import { UsersOrmRepository } from '../../infrastructure/repositories/users.orm.repository';
+import { User } from '../../domain/users.orm.domain';
 
 export class EmailResendCommand {
   constructor(public emailResendingDto: EmailResendingDto) {}
@@ -14,11 +14,11 @@ export class EmailResendCommand {
 @CommandHandler(EmailResendCommand)
 export class EmailResendUseCase implements ICommandHandler<EmailResendCommand> {
   constructor(
-    private readonly usersRepository: UsersSqlRepository,
+    private readonly usersRepository: UsersOrmRepository,
     private readonly emailService: EmailService,
   ) {}
   async execute(command: EmailResendCommand) {
-    const user: SqlDomainUser | null =
+    const user: User | null =
       await this.usersRepository.findByEmailAndLoginField(
         command.emailResendingDto.email,
       );
@@ -34,12 +34,12 @@ export class EmailResendUseCase implements ICommandHandler<EmailResendCommand> {
     const emailConfirmCode = randomUUID();
     user.setEmailConfirmationCode(emailConfirmCode);
 
-    await this.emailService.resendConfirmationEmail(
+    this.emailService.resendConfirmationEmail(
       user.email,
       user.login,
       emailConfirmCode,
     );
-    await this.usersRepository.updateEmailConfirmationCode(user);
+    await this.usersRepository.save(user);
     return ServiceResultObjectFactory.successResultObject();
   }
 }

@@ -1,8 +1,8 @@
 import { UserRefreshContextDto } from '../../guards/dto/user-context.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UnauthorizedDomainException } from '../../../../../core/exceptions/domain-exception';
-import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
-import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
+import { DevicesOrmRepository } from '../../../devices/infrastructure/repositories/devices.orm.repository';
+import { Device } from '../../../devices/domain/devices.orm.domain';
 
 export class LogoutCommand {
   constructor(public user: UserRefreshContextDto) {}
@@ -10,10 +10,10 @@ export class LogoutCommand {
 
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
-  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
+  constructor(private readonly devicesRepository: DevicesOrmRepository) {}
   async execute(command: LogoutCommand) {
-    const session: SqlDomainDevice | null =
-      await this.devicesRepository.findSessionByDeviceId(
+    const session: Device | null =
+      await this.devicesRepository.findSessionByDeviceIdAndUserId(
         command.user.deviceId,
         command.user.id,
       );

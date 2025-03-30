@@ -30,28 +30,29 @@ export class UsersOrmRepository {
         emailConfirmationInfo: {
           confirmCode: confirmCode,
         },
+        deletedAt: IsNull(),
       },
       relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
 
     if (!user) {
-      throw BadRequestDomainException.create(
-        'User does not exist',
-        'recoveryCode',
-      );
+      throw BadRequestDomainException.create('User does not exist', 'code');
     }
     return user;
   }
   async findExistingUserByLoginOrEmail(login: string, email: string) {
     try {
       const user = await this.userRepository.findOne({
-        where: [{ login: login }, { email: email }],
+        where: [
+          { login: login, deletedAt: IsNull() },
+          { email: email, deletedAt: IsNull() },
+        ],
         relations: ['emailConfirmationInfo', 'passwordInfo'],
       });
       if (!user) {
         return null;
       }
-      console.log('sadaddas', user);
+      console.log('sadaddas');
       return user.login === login
         ? { user, field: 'login' }
         : { user, field: 'email' };
@@ -65,6 +66,7 @@ export class UsersOrmRepository {
         passwordInfo: {
           passwordRecoveryCode: recoveryCode,
         },
+        deletedAt: IsNull(),
       },
       relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
@@ -79,7 +81,10 @@ export class UsersOrmRepository {
 
   async findByEmailAndLoginField(loginOrEmail: string) {
     const user = await this.userRepository.findOne({
-      where: [{ login: loginOrEmail, email: loginOrEmail }],
+      where: [
+        { login: loginOrEmail, deletedAt: IsNull() },
+        { email: loginOrEmail, deletedAt: IsNull() },
+      ],
       relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
     if (!user) {

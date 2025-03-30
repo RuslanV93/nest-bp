@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CryptoService } from './crypto.service';
-import { UsersSqlRepository } from '../../users/infrastructure/repositories/users.sql.repository';
-import { SqlDomainUser } from '../../users/domain/users.sql.domain';
+import { UsersOrmRepository } from '../../users/infrastructure/repositories/users.orm.repository';
+import { User } from '../../users/domain/users.orm.domain';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersRepository: UsersSqlRepository,
+    private readonly usersRepository: UsersOrmRepository,
     private readonly cryptoService: CryptoService,
   ) {}
   async validateUser(loginOrEmail: string, password: string) {
-    const user: SqlDomainUser | null =
+    const user: User | null =
       await this.usersRepository.findByEmailAndLoginField(loginOrEmail);
     if (!user) {
       return null;
@@ -22,6 +22,6 @@ export class AuthService {
     if (!passwordIsMatch) {
       return null;
     }
-    return { id: user._id.toString() };
+    return { id: user._id };
   }
 }

@@ -20,6 +20,26 @@ import { configModule } from '../../config-module';
       },
       inject: [NotificationConfig],
     }),
+    // MailerModule.forRootAsync({
+    //   useFactory: (notificationConfig: NotificationConfig) => {
+    //     return {
+    //       transport: {
+    //         host: 'smtp.yandex.ru',
+    //         port: 465,
+    //         secure: true,
+    //         pool: true,
+    //         auth: {
+    //           user: notificationConfig.emailSenderAddress,
+    //           pass: notificationConfig.emailPassCode,
+    //         },
+    //       },
+    //       defaults: {
+    //         from: `"Bloggers Platform 👻" <${notificationConfig.emailSenderAddress}>`,
+    //       },
+    //     };
+    //   },
+    //   inject: [NotificationConfig],
+    // }),
   ],
   providers: [EmailService, NotificationConfig],
   exports: [EmailService, NotificationConfig],

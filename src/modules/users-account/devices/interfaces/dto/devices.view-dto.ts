@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DeviceDocument } from '../../domain/devices.model';
+import { Device } from '../../domain/devices.orm.domain';
 
 export class DeviceViewDto {
   @ApiProperty()
@@ -10,7 +11,7 @@ export class DeviceViewDto {
   lastActiveDate: string;
   @ApiProperty()
   deviceId: string;
-  public static mapToView(this: void, device: DeviceDocument) {
+  public static mapToView(this: void, device: DeviceDocument | Device) {
     return {
       ip: device.ip,
       title: device.title,

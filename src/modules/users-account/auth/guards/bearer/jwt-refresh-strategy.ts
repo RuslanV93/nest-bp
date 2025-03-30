@@ -18,6 +18,8 @@ import { Reflector } from '@nestjs/core';
 import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
 import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
 import { CoreConfig } from '../../../../../core/core-config/core.config';
+import { DevicesOrmRepository } from '../../../devices/infrastructure/repositories/devices.orm.repository';
+import { Device } from '../../../devices/domain/devices.orm.domain';
 
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
@@ -48,7 +50,7 @@ export class SoftRefreshStrategy implements CanActivate {
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
     @Inject(forwardRef(() => DevicesSqlRepository))
-    private readonly devicesRepository: DevicesSqlRepository,
+    private readonly devicesRepository: DevicesOrmRepository,
     private readonly reflector: Reflector,
   ) {}
 
@@ -74,8 +76,8 @@ export class SoftRefreshStrategy implements CanActivate {
         return true;
       }
 
-      const session: SqlDomainDevice | null =
-        await this.devicesRepository.findSessionByDeviceId(
+      const session: Device | null =
+        await this.devicesRepository.findSessionByDeviceIdAndUserId(
           tokenPayload.deviceId,
           new ObjectId(tokenPayload.id),
         );

@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ObjectId } from 'mongodb';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
-import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
-import { SqlDomainDevice } from '../../domain/devices.domain';
+import { DevicesOrmRepository } from '../../infrastructure/repositories/devices.orm.repository';
+import { Device } from '../../domain/devices.orm.domain';
 
 export abstract class DeleteDeviceCommand {
-  constructor(public readonly userId: ObjectId) {}
+  protected constructor(public readonly userId: ObjectId) {}
 }
 export class DeleteSpecifiedDeviceCommand extends DeleteDeviceCommand {
   constructor(
@@ -28,9 +28,9 @@ export class DeleteOtherDevicesCommand extends DeleteDeviceCommand {
 export class DeleteOtherDevicesUseCase
   implements ICommandHandler<DeleteOtherDevicesCommand>
 {
-  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
+  constructor(private readonly devicesRepository: DevicesOrmRepository) {}
   async execute(command: DeleteOtherDevicesCommand) {
-    const devices: SqlDomainDevice[] = await this.devicesRepository.findAll(
+    const devices: Device[] = await this.devicesRepository.findAll(
       command.userId,
       command.deviceId,
     );
@@ -43,10 +43,11 @@ export class DeleteOtherDevicesUseCase
 export class DeleteSpecifiedDeviceUseCase
   implements ICommandHandler<DeleteSpecifiedDeviceCommand>
 {
-  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
+  constructor(private readonly devicesRepository: DevicesOrmRepository) {}
   async execute(command: DeleteSpecifiedDeviceCommand) {
-    const device: SqlDomainDevice =
-      await this.devicesRepository.findOrNotFoundException(command.deviceId);
+    const device: Device = await this.devicesRepository.findOrNotFoundException(
+      command.deviceId,
+    );
 
     if (device.userId.toString() !== command.userId.toString()) {
       throw ForbiddenDomainException.create();

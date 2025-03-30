@@ -31,7 +31,10 @@ import {
 } from './devices/application/use-cases/delete-device.use-case';
 import { DevicesRepository } from './devices/infrastructure/repositories/devices.repository';
 import { DevicesQueryRepository } from './devices/infrastructure/repositories/devices.query-repository';
-import { Device, DeviceSchema } from './devices/domain/devices.model';
+import {
+  Device as DeviceMongo,
+  DeviceSchema,
+} from './devices/domain/devices.model';
 import { DevicesController } from './devices/interfaces/devices.controller';
 import { GetDevicesHandler } from './devices/application/use-cases/get-devices.query-handler';
 import { LogoutUseCase } from './auth/application/auth-use-cases/logout.use-case';
@@ -52,6 +55,10 @@ import { UsersOrmRepository } from './users/infrastructure/repositories/users.or
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema, User as UserMongoose } from './users/domain/users.model';
 import { UsersOrmQueryRepository } from './users/infrastructure/repositories/users.orm.query.repository';
+import { Device } from './devices/domain/devices.orm.domain';
+import { DevicesOrmQueryRepository } from './devices/infrastructure/repositories/devices.orm.query-repository';
+import { DevicesOrmRepository } from './devices/infrastructure/repositories/devices.orm.repository';
+import { AuthOrmQueryRepository } from './auth/infrastructure/auth.orm.query-repository';
 
 const usersUseCases = [
   RegistrationUseCase,
@@ -81,8 +88,10 @@ const authUseCases = [
     MongooseModule.forFeature([
       { name: UserMongoose.name, schema: UserSchema },
     ]),
-    MongooseModule.forFeature([{ name: Device.name, schema: DeviceSchema }]),
-    TypeOrmModule.forFeature([User, EmailInfo, PasswordInfo]),
+    MongooseModule.forFeature([
+      { name: DeviceMongo.name, schema: DeviceSchema },
+    ]),
+    TypeOrmModule.forFeature([User, EmailInfo, PasswordInfo, Device]),
     NotificationModule,
   ],
   controllers: [UsersController, AuthController, DevicesController],
@@ -115,6 +124,9 @@ const authUseCases = [
     AuthSqlQueryRepository,
     DevicesSqlQueryRepository,
     DevicesSqlRepository,
+    DevicesOrmQueryRepository,
+    DevicesOrmRepository,
+    AuthOrmQueryRepository,
     AuthQueryRepository,
     AuthService,
     TokenService,

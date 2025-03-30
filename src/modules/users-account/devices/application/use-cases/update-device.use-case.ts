@@ -2,12 +2,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRefreshContextDto } from '../../../auth/guards/dto/user-context.dto';
 import { ClientInfoDto } from '../../types/client-info.dto';
 import { DeviceDomainDto } from '../../domain/dto/device.domain-dto';
-import { SqlDomainDevice } from '../../domain/devices.domain';
-import { DevicesSqlRepository } from '../../infrastructure/repositories/devices.sql.repository';
+import { Device } from '../../domain/devices.orm.domain';
+import { DevicesOrmRepository } from '../../infrastructure/repositories/devices.orm.repository';
 
 export class UpdateDeviceCommand {
   constructor(
-    public session: SqlDomainDevice,
+    public session: Device,
     public user: UserRefreshContextDto,
     public clientInfo: ClientInfoDto,
     public sessionVersion: string,
@@ -18,7 +18,7 @@ export class UpdateDeviceCommand {
 export class UpdateDeviceUseCase
   implements ICommandHandler<UpdateDeviceCommand>
 {
-  constructor(private readonly devicesRepository: DevicesSqlRepository) {}
+  constructor(private readonly devicesRepository: DevicesOrmRepository) {}
   async execute(command: UpdateDeviceCommand) {
     const title = `Device: ${command.clientInfo.device || 'other'},
      Platform: ${command.clientInfo.os || 'other'}, Browser: ${command.clientInfo.browser || 'other'}`;
@@ -30,6 +30,6 @@ export class UpdateDeviceUseCase
       deviceId: command.user.deviceId,
     };
     command.session.updateSession(updateDto);
-    await this.devicesRepository.updateSession(command.session);
+    await this.devicesRepository.save(command.session);
   }
 }

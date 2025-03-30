@@ -46,15 +46,15 @@ import { ClientInfoDto } from '../../devices/types/client-info.dto';
 import { SoftRefreshStrategy } from '../guards/bearer/jwt-refresh-strategy';
 import { LogoutCommand } from '../application/auth-use-cases/logout.use-case';
 import { LogoutInterceptor } from '../../../../core/interceptors/logout.interceptor';
-import { AuthSqlQueryRepository } from '../infrastructure/auth.sql.query-repository';
-import { UsersSqlQueryRepository } from '../../users/infrastructure/repositories/users.sql.query.repository';
+import { UsersOrmQueryRepository } from '../../users/infrastructure/repositories/users.orm.query.repository';
+import { AuthOrmQueryRepository } from '../infrastructure/auth.orm.query-repository';
 import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly usersQueryRepository: UsersSqlQueryRepository,
-    private readonly authQueryRepository: AuthSqlQueryRepository,
+    private readonly usersQueryRepository: UsersOrmQueryRepository,
+    private readonly authQueryRepository: AuthOrmQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 

@@ -3,12 +3,8 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
 import { MeViewDto } from '../../users/interfaces/dto/userViewDto';
+import { MeType } from '../types/me.type';
 
-export type MeType = {
-  _id: string;
-  email: string;
-  login: string;
-};
 @Injectable()
 export class AuthSqlQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
