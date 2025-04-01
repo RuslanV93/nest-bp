@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Blog, BlogSchema } from './blogs/domain/blogs.model';
+import { Blog as BlogMongo, BlogSchema } from './blogs/domain/blogs.model';
 import { SuperAdminBlogsController } from './blogs/interface/super-admin.blogs.controller';
 import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
@@ -45,6 +45,8 @@ import { PostExistsPipe } from './comments/infrastructure/pipes/post.exists.pipe
 import { CommentsSqlQueryRepository } from './comments/infrastructure/repositories/comments.sql.query.repository';
 import { CommentsSqlRepository } from './comments/infrastructure/repositories/comments.sql.repository';
 import { LikesSqlRepository } from './likes/infrastructure/repositories/likes.sql.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Blog } from './blogs/domain/blogs.orm.domain';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -59,8 +61,9 @@ const likesUseCases = [
 ];
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Blog]),
     MongooseModule.forFeature([
-      { name: Blog.name, schema: BlogSchema },
+      { name: BlogMongo.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: CommentLike.name, schema: CommentLikeSchema },
