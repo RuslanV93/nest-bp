@@ -1,8 +1,8 @@
 import { ObjectId } from 'mongodb';
 import { BlogInputDto } from '../../interface/dto/blog.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsSqlRepository } from '../../infrastructure/repositories/blogs.sql.repository';
-import { SqlDomainBlog } from '../../domain/blogs.sql.domain';
+import { BlogsOrmRepository } from '../../infrastructure/repositories/blogs.orm.repository';
+import { Blog } from '../../domain/blogs.orm.domain';
 
 export class UpdateBlogCommand {
   constructor(
@@ -12,10 +12,11 @@ export class UpdateBlogCommand {
 }
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
-  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
+  constructor(private readonly blogsRepository: BlogsOrmRepository) {}
   async execute(command: UpdateBlogCommand) {
-    const blog: SqlDomainBlog =
-      await this.blogsRepository.findOneOrNotFoundException(command.id);
+    const blog: Blog = await this.blogsRepository.findOneOrNotFoundException(
+      command.id,
+    );
     blog.updateBlog(command.updateBlogDto);
     await this.blogsRepository.updateBlog(blog);
   }

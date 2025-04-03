@@ -9,7 +9,7 @@ import { PostsController } from './posts/interface/posts.controller';
 import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infrastructure/repositories/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/repositories/posts.query.repository';
-import { Post, PostSchema } from './posts/domain/posts.model';
+import { Post as PostMongo, PostSchema } from './posts/domain/posts.model';
 import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments.query.repository';
 import { CommentsController } from './comments/interface/comments.controller';
 import { Comment, CommentSchema } from './comments/domain/comments.model';
@@ -40,13 +40,18 @@ import { UpdatePostUseCase } from './posts/application/use-cases/update-post.use
 import { DeletePostUseCase } from './posts/application/use-cases/delete-post.use-case';
 import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use-case';
 import { PublicBlogsController } from './blogs/interface/public.blogs.controller';
-import { BlogExistsValidator } from '../../core/decorators/validation/blog-exists.validator';
 import { PostExistsPipe } from './comments/infrastructure/pipes/post.exists.pipe';
 import { CommentsSqlQueryRepository } from './comments/infrastructure/repositories/comments.sql.query.repository';
 import { CommentsSqlRepository } from './comments/infrastructure/repositories/comments.sql.repository';
 import { LikesSqlRepository } from './likes/infrastructure/repositories/likes.sql.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/blogs.orm.domain';
+import { BlogsOrmQueryRepository } from './blogs/infrastructure/repositories/blogs.orm.query-repository';
+import { BlogsOrmRepository } from './blogs/infrastructure/repositories/blogs.orm.repository';
+import { Post } from './posts/domain/posts.orm.domain';
+import { LikeDislike } from './likes/domain/like.orm.domain';
+import { PostsOrmQueryRepository } from './posts/infrastructure/repositories/posts.orm.query-repository';
+import { PostsOrmRepository } from './posts/infrastructure/repositories/posts.orm.repository';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -61,10 +66,10 @@ const likesUseCases = [
 ];
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog]),
+    TypeOrmModule.forFeature([Blog, Post, LikeDislike]),
     MongooseModule.forFeature([
       { name: BlogMongo.name, schema: BlogSchema },
-      { name: Post.name, schema: PostSchema },
+      { name: PostMongo.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: CommentLike.name, schema: CommentLikeSchema },
       { name: PostLike.name, schema: PostLikeSchema },
@@ -83,11 +88,15 @@ const likesUseCases = [
     BlogsQueryRepository,
     BlogsSqlRepository,
     BlogsSqlQueryRepository,
+    BlogsOrmQueryRepository,
+    BlogsOrmRepository,
     PostsService,
     PostsRepository,
     PostsQueryRepository,
     PostsSqlRepository,
     PostsSqlQueryRepository,
+    PostsOrmQueryRepository,
+    PostsOrmRepository,
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,

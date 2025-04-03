@@ -1,19 +1,7 @@
 import { LikeStatus } from './dto/like.domain.dto';
-import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
 import { ObjectId } from 'mongodb';
+import { LikeSqlDtoType, ParentType } from '../types/like.types';
 
-export type LikeSqlDtoType = {
-  _id: string;
-  status: LikeStatus;
-  parentId: string;
-  userId: string;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-};
-export enum ParentType {
-  POST = 'POST',
-  COMMENT = 'COMMENT',
-}
 export class SqlDomainLike {
   _id: string;
   status: LikeStatus;

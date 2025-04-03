@@ -2,11 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ObjectId } from 'mongodb';
-import {
-  LikeSqlDtoType,
-  ParentType,
-  SqlDomainLike,
-} from '../../domain/like.sql.domain';
+import { SqlDomainLike } from '../../domain/like.sql.domain';
+import { LikeSqlDtoType, ParentType } from '../../types/like.types';
 
 @Injectable()
 export class LikesSqlRepository {

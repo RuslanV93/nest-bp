@@ -2,8 +2,9 @@ import { ObjectId } from 'mongodb';
 import { LikeStatus } from '../../domain/dto/like.domain.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikesSqlRepository } from '../../infrastructure/repositories/likes.sql.repository';
-import { ParentType, SqlDomainLike } from '../../domain/like.sql.domain';
+import { SqlDomainLike } from '../../domain/like.sql.domain';
 import { CommentsSqlRepository } from '../../../comments/infrastructure/repositories/comments.sql.repository';
+import { ParentType } from '../../types/like.types';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(

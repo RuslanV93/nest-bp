@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/users.orm.domain';
-import { ILike, Repository } from 'typeorm';
+import { ILike, IsNull, Repository } from 'typeorm';
 import { ObjectId } from 'mongodb';
 import { UserViewDto } from '../../interfaces/dto/userViewDto';
 import {
@@ -21,7 +21,7 @@ export class UsersOrmQueryRepository {
   async getUserById(id: ObjectId) {
     const stringId = id.toString();
     const user: User | null = await this.userRepository.findOne({
-      where: { _id: stringId },
+      where: { _id: stringId, deletedAt: IsNull() },
     });
     if (!user) {
       throw new NotFoundException('User not Found');
@@ -43,14 +43,15 @@ export class UsersOrmQueryRepository {
 
     const [users, totalCount]: ResultWithTotalCountType<User> =
       await this.userRepository.findAndCount({
-        where:
-          query.searchLoginTerm || query.searchEmailTerm
-            ? [
-                { login: ILike(`%${query.searchLoginTerm}%`) },
-                { email: ILike(`%${query.searchEmailTerm}%`) },
-              ]
-            : {},
-
+        where: {
+          deletedAt: IsNull(), // Добавляем условие на проверку null для deletedAt
+          ...(query.searchLoginTerm && {
+            login: ILike(`%${query.searchLoginTerm}%`),
+          }),
+          ...(query.searchEmailTerm && {
+            email: ILike(`%${query.searchEmailTerm}%`),
+          }),
+        },
         take: query.pageSize,
         skip: query.calculateSkipParam(),
         order: { [validSortField]: validSortDirection },

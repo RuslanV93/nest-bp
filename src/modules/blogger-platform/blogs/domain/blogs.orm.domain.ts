@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../shared/types/base.entity.type';
 import { ObjectId } from 'mongodb';
 import { BlogInputDto } from '../interface/dto/blog.input-dto';
+import { Post } from '../../posts/domain/posts.orm.domain';
 
 @Entity()
 export class Blog extends BaseEntity {
@@ -16,6 +17,9 @@ export class Blog extends BaseEntity {
 
   @Column()
   isMembership: boolean;
+
+  @OneToMany(() => Post, (p) => p.blog)
+  post: Post;
 
   static createInstance(blogDto: BlogInputDto) {
     const blog: Blog = new this();

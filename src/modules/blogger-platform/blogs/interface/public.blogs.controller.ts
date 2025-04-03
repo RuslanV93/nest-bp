@@ -5,9 +5,7 @@ import {
   NotFoundException,
   Param,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { BlogsSqlQueryRepository } from '../infrastructure/repositories/blogs.sql.query-repository';
 import { PostsSqlQueryRepository } from '../../posts/infrastructure/repositories/posts.sql.query.repository';
 import {
   ApiPaginatedResponse,
@@ -16,17 +14,17 @@ import {
 import { BlogViewDto } from './dto/blog.view-dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
-import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { ObjectId } from 'mongodb';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
+import { BlogsOrmQueryRepository } from '../infrastructure/repositories/blogs.orm.query-repository';
 
 @Controller('blogs')
 export class PublicBlogsController {
   constructor(
-    private readonly blogsQueryRepository: BlogsSqlQueryRepository,
+    private readonly blogsQueryRepository: BlogsOrmQueryRepository,
     private readonly postsQueryRepository: PostsSqlQueryRepository,
   ) {}
   @Get()

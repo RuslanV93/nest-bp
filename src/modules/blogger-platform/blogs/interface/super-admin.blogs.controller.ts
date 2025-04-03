@@ -34,14 +34,12 @@ import { UserContextDto } from '../../../users-account/auth/guards/dto/user-cont
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case';
 import { PostsSqlQueryRepository } from '../../posts/infrastructure/repositories/posts.sql.query.repository';
-import { BlogsSqlQueryRepository } from '../infrastructure/repositories/blogs.sql.query-repository';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case';
 import { UpdatePostCommand } from '../../posts/application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../../posts/application/use-cases/delete-post.use-case';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.use-case';
-import { BlogExistsValidator } from '../../../../core/decorators/validation/blog-exists.validator';
-import { BlogExistsPipe } from '../../posts/infrastructure/pipes/blog.exists.pipe';
+import { BlogsOrmQueryRepository } from '../infrastructure/repositories/blogs.orm.query-repository';
 
 /**
  * Blogs Controller
@@ -53,7 +51,7 @@ export class SuperAdminBlogsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsQueryRepository: PostsSqlQueryRepository,
-    private readonly blogsQueryRepository: BlogsSqlQueryRepository,
+    private readonly blogsQueryRepository: BlogsOrmQueryRepository,
   ) {}
 
   /** Getting all blogs. Using pagination and search terms (blog name search term). */

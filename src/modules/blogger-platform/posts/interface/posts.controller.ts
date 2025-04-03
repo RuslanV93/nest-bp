@@ -37,12 +37,12 @@ import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth
 import { CommentInputDto } from '../../comments/interface/dto/comment.input-dto';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.use-case';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
-import { PostsSqlQueryRepository } from '../infrastructure/repositories/posts.sql.query.repository';
 import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
 import { CommentsSqlQueryRepository } from '../../comments/infrastructure/repositories/comments.sql.query.repository';
+import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.orm.query-repository';
 
 /**
  * Posts Controller
@@ -52,7 +52,7 @@ import { CommentsSqlQueryRepository } from '../../comments/infrastructure/reposi
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsQueryRepository: PostsSqlQueryRepository,
+    private readonly postsQueryRepository: PostsOrmQueryRepository,
     private readonly commentsQueryRepository: CommentsSqlQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}

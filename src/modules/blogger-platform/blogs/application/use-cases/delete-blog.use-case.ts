@@ -1,6 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsSqlRepository } from '../../infrastructure/repositories/blogs.sql.repository';
 import { ObjectId } from 'mongodb';
+import { Blog } from '../../domain/blogs.orm.domain';
+import { BlogsOrmRepository } from '../../infrastructure/repositories/blogs.orm.repository';
 
 export class DeleteBlogCommand {
   constructor(public id: ObjectId) {}
@@ -8,12 +10,12 @@ export class DeleteBlogCommand {
 
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
-  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
+  constructor(private readonly blogsRepository: BlogsOrmRepository) {}
   async execute(command: DeleteBlogCommand) {
-    const blog = await this.blogsRepository.findOneOrNotFoundException(
+    const blog: Blog = await this.blogsRepository.findOneOrNotFoundException(
       command.id,
     );
-    blog.deleteBlog();
+
     await this.blogsRepository.deleteBlog(blog);
   }
 }

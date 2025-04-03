@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { Device } from '../../devices/domain/devices.orm.domain';
 import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
 import { CryptoService } from '../../auth/application/crypto.service';
+import { LikeDislike } from '../../../blogger-platform/likes/domain/like.orm.domain';
 
 @Entity()
 export class User extends BaseEntity {
@@ -29,6 +30,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Device[];
+
+  @OneToMany(() => LikeDislike, (like) => like.user)
+  like: LikeDislike[];
 
   static createInstance(
     login: string,
