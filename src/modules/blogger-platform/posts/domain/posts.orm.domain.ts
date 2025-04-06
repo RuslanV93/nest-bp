@@ -13,13 +13,13 @@ export class Post extends BaseEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ name: 'short_description' })
   shortDescription: string;
 
   @Column()
   content: string;
 
-  @Column()
+  @Column({ name: 'blog_id' })
   blogId: string;
 
   @ManyToOne(() => Blog)

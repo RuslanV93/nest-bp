@@ -34,7 +34,7 @@ export class BlogsOrmQueryRepository {
     const [blogs, totalCount]: [Blog[], number] = await this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
-      .where('blog."deletedAt" IS NULL')
+      .where('blog.deletedAt IS NULL')
       .andWhere(
         "COALESCE(:search, '') = '' OR blog.name ILIKE :searchPattern",
         {
@@ -66,7 +66,7 @@ export class BlogsOrmQueryRepository {
     const blog: Blog | null = await this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
-      .where('blog."deletedAt" IS NULL')
+      .where('blog.deletedAt IS NULL')
       .andWhere('blog._id = :id', { id: id.toString() })
       .getOne();
     if (!blog) {

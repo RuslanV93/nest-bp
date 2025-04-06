@@ -12,10 +12,10 @@ export class Blog extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ name: 'website_url' })
   websiteUrl: string;
 
-  @Column()
+  @Column({ name: 'is_membership' })
   isMembership: boolean;
 
   @OneToMany(() => Post, (p) => p.blog)

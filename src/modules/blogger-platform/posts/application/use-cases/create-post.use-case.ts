@@ -30,7 +30,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     const post = Post.createInstance(command.newPostDto);
 
     const newPostId = await this.postsRepository.createPost(post);
-
     if (!newPostId) {
       throw new InternalServerErrorException('Something went wrong');
     }

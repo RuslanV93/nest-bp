@@ -17,7 +17,7 @@ export class BlogsOrmRepository {
     return this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
-      .where('"deletedAt" IS NULL')
+      .where('blog.deletedAt IS NULL')
       .andWhere('_id = :id', { id: id.toString() })
       .getOne();
   }

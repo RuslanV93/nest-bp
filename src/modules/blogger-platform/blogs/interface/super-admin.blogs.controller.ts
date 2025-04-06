@@ -33,13 +33,13 @@ import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decor
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case';
-import { PostsSqlQueryRepository } from '../../posts/infrastructure/repositories/posts.sql.query.repository';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case';
 import { UpdatePostCommand } from '../../posts/application/use-cases/update-post.use-case';
 import { DeletePostCommand } from '../../posts/application/use-cases/delete-post.use-case';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.use-case';
 import { BlogsOrmQueryRepository } from '../infrastructure/repositories/blogs.orm.query-repository';
+import { PostsOrmQueryRepository } from '../../posts/infrastructure/repositories/posts.orm.query-repository';
 
 /**
  * Blogs Controller
@@ -50,7 +50,7 @@ import { BlogsOrmQueryRepository } from '../infrastructure/repositories/blogs.or
 export class SuperAdminBlogsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly postsQueryRepository: PostsSqlQueryRepository,
+    private readonly postsQueryRepository: PostsOrmQueryRepository,
     private readonly blogsQueryRepository: BlogsOrmQueryRepository,
   ) {}
 
@@ -80,11 +80,11 @@ export class SuperAdminBlogsController {
     summary: 'Get 1 blog by id.',
   })
   async getBlogById(@Param('id') id: ObjectId) {
-    const user = await this.blogsQueryRepository.getBlogById(id);
-    if (!user) {
+    const blog = await this.blogsQueryRepository.getBlogById(id);
+    if (!blog) {
       throw new NotFoundException('Blog not found');
     }
-    return user;
+    return blog;
   }
 
   /** Create new blog */
@@ -173,6 +173,7 @@ export class SuperAdminBlogsController {
     );
 
     const newPost = await this.postsQueryRepository.getPostById(postId);
+    console.log(newPost);
     if (!newPost) {
       throw new InternalServerErrorException();
     }

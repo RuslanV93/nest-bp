@@ -16,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreConfig } from './core/core-config/core.config';
 import { CoreModule } from './core/core-config/core.module';
 import { SwaggerConfigService } from './config/swagger.setup';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { SwaggerConfigService } from './config/swagger.setup';
         database: coreConfig.postgresDbName,
         autoLoadEntities: true,
         synchronize: true,
+        namingStrategy: new SnakeNamingStrategy(),
         logging: true,
         extra: {
           ssl: {
