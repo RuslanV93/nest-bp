@@ -4,9 +4,9 @@ import {
   PostInputDto,
   PostInputDtoWithoutBlogId,
 } from '../../interface/dto/post.input-dto';
-import { PostsSqlRepository } from '../../infrastructure/repositories/posts.sql.repository';
-import { SqlDomainPost } from '../../domain/posts.sql.domain';
-import { BlogsSqlRepository } from '../../../blogs/infrastructure/repositories/blogs.sql.repository';
+import { PostsOrmRepository } from '../../infrastructure/repositories/posts.orm.repository';
+import { Post } from '../../domain/posts.orm.domain';
+import { BlogsOrmRepository } from '../../../blogs/infrastructure/repositories/blogs.orm.repository';
 
 export class UpdatePostCommand {
   constructor(
@@ -19,15 +19,16 @@ export class UpdatePostCommand {
 @CommandHandler(UpdatePostCommand)
 export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   constructor(
-    private readonly postsRepository: PostsSqlRepository,
-    private readonly blogsRepository: BlogsSqlRepository,
+    private readonly postsRepository: PostsOrmRepository,
+    private readonly blogsRepository: BlogsOrmRepository,
   ) {}
   async execute(command: UpdatePostCommand) {
     await this.blogsRepository.findOneOrNotFoundException(command.blogId);
 
-    const post: SqlDomainPost =
-      await this.postsRepository.findOneOrNotFoundException(command.id);
+    const post: Post = await this.postsRepository.findOneAndNotFoundException(
+      command.id,
+    );
     post.updatePost(command.updatePostDto);
-    await this.postsRepository.updatePost(post);
+    await this.postsRepository.save(post);
   }
 }

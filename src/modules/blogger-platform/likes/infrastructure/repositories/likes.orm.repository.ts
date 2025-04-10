@@ -11,7 +11,7 @@ export class LikesOrmRepository {
     @InjectRepository(LikeDislike)
     private readonly likeRepository: Repository<LikeDislike>,
   ) {}
-  async findOne(userId: ObjectId, parentId: ObjectId, parentType: ParentType) {
+  async findLike(userId: ObjectId, parentId: ObjectId, parentType: ParentType) {
     const like = await this.likeRepository.findOne({
       where: {
         userId: userId.toString(),

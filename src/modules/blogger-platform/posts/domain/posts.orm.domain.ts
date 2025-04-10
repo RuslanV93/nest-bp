@@ -23,7 +23,7 @@ export class Post extends BaseEntity {
   blogId: string;
 
   @ManyToOne(() => Blog)
-  @JoinColumn({ name: 'blogId' })
+  @JoinColumn({ name: 'blog_id' })
   blog: Blog;
 
   @OneToMany(() => LikeDislike, (like) => like.post)
@@ -50,7 +50,7 @@ export class Post extends BaseEntity {
     return post;
   }
 
-  updatePost(updatePostDto: PostInputDto) {
+  updatePost(updatePostDto: PostInputDtoWithoutBlogId | PostInputDto) {
     this.title = updatePostDto.title;
     this.shortDescription = updatePostDto.shortDescription;
     this.content = updatePostDto.content;

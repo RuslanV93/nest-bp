@@ -39,18 +39,18 @@ import { CreateCommentCommand } from '../../comments/application/use-cases/creat
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
-import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
 import { CommentsSqlQueryRepository } from '../../comments/infrastructure/repositories/comments.sql.query.repository';
 import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.orm.query-repository';
+import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 
 /**
  * Posts Controller
  * Handles CRUD operations for blogs.
  * Supports fetching, creating, updating, and deleting blogs.
  */
-@Controller('posts')
-export class PostsController {
+@Controller('sa/posts')
+export class SuperAdminPostsController {
   constructor(
     private readonly postsQueryRepository: PostsOrmQueryRepository,
     private readonly commentsQueryRepository: CommentsSqlQueryRepository,
@@ -69,15 +69,15 @@ export class PostsController {
     @Query() query: GetPostsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    // const posts = await this.postsQueryRepository.getPosts(
-    //   query,
-    //   undefined,
-    //   user.id,
-    // );
-    // if (!posts) {
-    //   throw new InternalServerErrorException();
-    // }
-    // return posts;
+    const posts = await this.postsQueryRepository.getPosts(
+      query,
+      undefined,
+      user.id,
+    );
+    if (!posts) {
+      throw new InternalServerErrorException();
+    }
+    return posts;
   }
 
   /** Get one post using post id*/
@@ -114,12 +114,10 @@ export class PostsController {
     const postId: ObjectId = await this.commandBus.execute(
       new CreatePostCommand(body.blogId, body),
     );
-    console.log(typeof postId);
     const newPost = await this.postsQueryRepository.getPostById(
       postId,
       user.id,
     );
-    console.log(newPost);
     if (!newPost) {
       throw new InternalServerErrorException();
     }
@@ -164,10 +162,10 @@ export class PostsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('id') id: ObjectId) {
-    // const post = await this.postsQueryRepository.getPostById(id);
-    // await this.commandBus.execute(
-    //   new DeletePostCommand(id, new ObjectId(post?.blogId)),
-    // );
+    const post = await this.postsQueryRepository.getPostById(id);
+    await this.commandBus.execute(
+      new DeletePostCommand(id, new ObjectId(post?.blogId)),
+    );
   }
 
   /** Get comments belongs to a post by post id*/

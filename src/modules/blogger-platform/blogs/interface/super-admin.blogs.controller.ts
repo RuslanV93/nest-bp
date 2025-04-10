@@ -146,7 +146,6 @@ export class SuperAdminBlogsController {
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     await this.blogsQueryRepository.getBlogById(id);
-
     const posts = await this.postsQueryRepository.getPosts(query, id, user.id);
     if (!posts) {
       throw new InternalServerErrorException();
@@ -173,7 +172,6 @@ export class SuperAdminBlogsController {
     );
 
     const newPost = await this.postsQueryRepository.getPostById(postId);
-    console.log(newPost);
     if (!newPost) {
       throw new InternalServerErrorException();
     }

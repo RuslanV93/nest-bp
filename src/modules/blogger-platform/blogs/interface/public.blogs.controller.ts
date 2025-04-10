@@ -6,7 +6,6 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { PostsSqlQueryRepository } from '../../posts/infrastructure/repositories/posts.sql.query.repository';
 import {
   ApiPaginatedResponse,
   ApiPaginationQueries,
@@ -20,12 +19,13 @@ import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-p
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
 import { BlogsOrmQueryRepository } from '../infrastructure/repositories/blogs.orm.query-repository';
+import { PostsOrmQueryRepository } from '../../posts/infrastructure/repositories/posts.orm.query-repository';
 
 @Controller('blogs')
 export class PublicBlogsController {
   constructor(
     private readonly blogsQueryRepository: BlogsOrmQueryRepository,
-    private readonly postsQueryRepository: PostsSqlQueryRepository,
+    private readonly postsQueryRepository: PostsOrmQueryRepository,
   ) {}
   @Get()
   @ApiPaginatedResponse(BlogViewDto)
@@ -68,7 +68,6 @@ export class PublicBlogsController {
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     await this.blogsQueryRepository.getBlogById(id);
-
     const posts = await this.postsQueryRepository.getPosts(query, id, user.id);
     if (!posts) {
       throw new InternalServerErrorException();

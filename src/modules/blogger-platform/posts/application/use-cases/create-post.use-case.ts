@@ -3,11 +3,8 @@ import {
   PostInputDtoWithoutBlogId,
 } from '../../interface/dto/post.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsSqlRepository } from '../../infrastructure/repositories/posts.sql.repository';
 import { ObjectId } from 'mongodb';
 import { InternalServerErrorException } from '@nestjs/common';
-import { SqlDomainPost } from '../../domain/posts.sql.domain';
-import { BlogsSqlRepository } from '../../../blogs/infrastructure/repositories/blogs.sql.repository';
 import { BlogsOrmRepository } from '../../../blogs/infrastructure/repositories/blogs.orm.repository';
 import { PostsOrmRepository } from '../../infrastructure/repositories/posts.orm.repository';
 import { Post } from '../../domain/posts.orm.domain';
@@ -27,7 +24,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   ) {}
   async execute(command: CreatePostCommand) {
     await this.blogsRepository.findOneOrNotFoundException(command.blogId);
-    const post = Post.createInstance(command.newPostDto);
+    const post = Post.createInstance(command.newPostDto, command.blogId);
 
     const newPostId = await this.postsRepository.createPost(post);
     if (!newPostId) {

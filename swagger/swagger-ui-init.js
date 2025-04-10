@@ -839,6 +839,396 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sa/posts": {
+        "get": {
+          "operationId": "SuperAdminPostsController_getPosts",
+          "parameters": [
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "description": "Field to sort by",
+              "schema": {
+                "default": "createdAt",
+                "example": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "pageNumber",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "example": 10,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/PostViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Gets all posts.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        },
+        "post": {
+          "operationId": "SuperAdminPostsController_createNewPost",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PostViewDto"
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Create new post.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        }
+      },
+      "/api/sa/posts/{id}": {
+        "get": {
+          "operationId": "SuperAdminPostsController_getPostById",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PostViewDto"
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Gets post by id.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        },
+        "put": {
+          "operationId": "SuperAdminPostsController_updatePost",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update existing post fields.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        },
+        "delete": {
+          "operationId": "SuperAdminPostsController_deletePost",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Delete post by id.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        }
+      },
+      "/api/sa/posts/{id}/like-status": {
+        "put": {
+          "operationId": "SuperAdminPostsController_updateLikeStatus",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update post like.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        }
+      },
+      "/api/sa/posts/{id}/comments": {
+        "get": {
+          "description": "Returns all comments for the post.",
+          "operationId": "SuperAdminPostsController_getCommentsByPostId",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            },
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "description": "Field to sort by",
+              "schema": {
+                "default": "createdAt",
+                "example": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "pageNumber",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "example": 10,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CommentViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Gets all comments.",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        },
+        "post": {
+          "description": "Create and returns a new comment.",
+          "operationId": "SuperAdminPostsController_createComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CommentViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Create new comment",
+          "tags": [
+            "SuperAdminPosts"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "description": "Fetches all blogs with optional query parameters for search, sorting, and pagination.",
@@ -1021,7 +1411,7 @@ window.onload = function() {
       },
       "/api/posts": {
         "get": {
-          "operationId": "PostsController_getPosts",
+          "operationId": "PublicPostsController_getPosts",
           "parameters": [
             {
               "name": "sortBy",
@@ -1101,12 +1491,21 @@ window.onload = function() {
           },
           "summary": "Gets all posts.",
           "tags": [
-            "Posts"
+            "PublicPosts"
           ]
         },
         "post": {
-          "operationId": "PostsController_createNewPost",
-          "parameters": [],
+          "operationId": "PublicPostsController_getCommentsByPostId",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
           "requestBody": {
             "required": true,
             "content": {
@@ -1131,13 +1530,13 @@ window.onload = function() {
           },
           "summary": "Create new post.",
           "tags": [
-            "Posts"
+            "PublicPosts"
           ]
         }
       },
       "/api/posts/{id}": {
         "get": {
-          "operationId": "PostsController_getPostById",
+          "operationId": "PublicPostsController_getPostById",
           "parameters": [
             {
               "name": "id",
@@ -1162,250 +1561,7 @@ window.onload = function() {
           },
           "summary": "Gets post by id.",
           "tags": [
-            "Posts"
-          ]
-        },
-        "put": {
-          "operationId": "PostsController_updatePost",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "summary": "Update existing post fields.",
-          "tags": [
-            "Posts"
-          ]
-        },
-        "delete": {
-          "operationId": "PostsController_deletePost",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "summary": "Delete post by id.",
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
-      "/api/posts/{id}/like-status": {
-        "put": {
-          "operationId": "PostsController_updateLikeStatus",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LikeInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "summary": "Update post like.",
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
-      "/api/posts/{id}/comments": {
-        "get": {
-          "description": "Returns all comments for the post.",
-          "operationId": "PostsController_getCommentsByPostId",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            },
-            {
-              "name": "sortBy",
-              "required": false,
-              "in": "query",
-              "description": "Field to sort by",
-              "schema": {
-                "default": "createdAt",
-                "example": "createdAt",
-                "type": "string"
-              }
-            },
-            {
-              "name": "sortDirection",
-              "required": false,
-              "in": "query",
-              "schema": {
-                "enum": [
-                  "asc",
-                  "desc"
-                ],
-                "type": "string"
-              }
-            },
-            {
-              "name": "pageNumber",
-              "required": false,
-              "in": "query",
-              "schema": {
-                "default": 1,
-                "example": 1,
-                "type": "number"
-              }
-            },
-            {
-              "name": "pageSize",
-              "required": false,
-              "in": "query",
-              "schema": {
-                "default": 10,
-                "example": 10,
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "totalCount": {
-                        "type": "number"
-                      },
-                      "pagesCount": {
-                        "type": "number"
-                      },
-                      "page": {
-                        "type": "number"
-                      },
-                      "pageSize": {
-                        "type": "number"
-                      },
-                      "items": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/CommentViewDto"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "summary": "Gets all comments.",
-          "tags": [
-            "Posts"
-          ]
-        },
-        "post": {
-          "description": "Create and returns a new comment.",
-          "operationId": "PostsController_createComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CommentInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "totalCount": {
-                        "type": "number"
-                      },
-                      "pagesCount": {
-                        "type": "number"
-                      },
-                      "page": {
-                        "type": "number"
-                      },
-                      "pageSize": {
-                        "type": "number"
-                      },
-                      "items": {
-                        "type": "array",
-                        "items": {
-                          "$ref": "#/components/schemas/CommentViewDto"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "summary": "Create new comment",
-          "tags": [
-            "Posts"
+            "PublicPosts"
           ]
         }
       },
@@ -1774,7 +1930,7 @@ window.onload = function() {
           "type": "object",
           "properties": {
             "addedAt": {
-              "type": "string"
+              "type": "object"
             },
             "userId": {
               "type": "string"

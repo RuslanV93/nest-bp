@@ -1,10 +1,11 @@
 import { ObjectId } from 'mongodb';
 import { LikeStatus } from '../../domain/dto/like.domain.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LikesSqlRepository } from '../../infrastructure/repositories/likes.sql.repository';
-import { SqlDomainLike } from '../../domain/like.sql.domain';
 import { PostsSqlRepository } from '../../../posts/infrastructure/repositories/posts.sql.repository';
 import { ParentType } from '../../types/like.types';
+import { LikesOrmRepository } from '../../infrastructure/repositories/likes.orm.repository';
+import { LikeDislike } from '../../domain/like.orm.domain';
+import { PostsOrmRepository } from '../../../posts/infrastructure/repositories/posts.orm.repository';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -19,18 +20,18 @@ export class UpdatePostLikeStatusUseCase
   implements ICommandHandler<UpdatePostLikeStatusCommand>
 {
   constructor(
-    private readonly likesRepository: LikesSqlRepository,
-    private readonly postsRepository: PostsSqlRepository,
+    private readonly likesRepository: LikesOrmRepository,
+    private readonly postsRepository: PostsOrmRepository,
   ) {}
   async execute(command: UpdatePostLikeStatusCommand) {
-    await this.postsRepository.findOneOrNotFoundException(command.postId);
+    await this.postsRepository.findOneAndNotFoundException(command.postId);
     const existingLike = await this.likesRepository.findLike(
       command.userId,
       command.postId,
       ParentType.POST,
     );
     if (!existingLike) {
-      const like = SqlDomainLike.createInstance(
+      const like: LikeDislike = LikeDislike.createInstance(
         command.status,
         command.postId,
         command.userId,
@@ -43,7 +44,7 @@ export class UpdatePostLikeStatusUseCase
       return;
     }
     existingLike.updateStatus(command.status);
-    await this.likesRepository.updateLike(existingLike);
+    await this.likesRepository.save(existingLike);
     return;
   }
 }

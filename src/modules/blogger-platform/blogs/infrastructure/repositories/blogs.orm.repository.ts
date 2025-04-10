@@ -61,7 +61,6 @@ export class BlogsOrmRepository {
   }
 
   async deleteBlog(blog: Blog) {
-    console.log(blog._id);
     await this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .update()

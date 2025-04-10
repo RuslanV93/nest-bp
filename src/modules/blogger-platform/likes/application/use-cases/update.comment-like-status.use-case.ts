@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { LikeStatus } from '../../domain/dto/like.domain.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { LikesSqlRepository } from '../../infrastructure/repositories/likes.sql.repository';
-import { SqlDomainLike } from '../../domain/like.sql.domain';
 import { CommentsSqlRepository } from '../../../comments/infrastructure/repositories/comments.sql.repository';
 import { ParentType } from '../../types/like.types';
+import { LikesOrmRepository } from '../../infrastructure/repositories/likes.orm.repository';
+import { LikeDislike } from '../../domain/like.orm.domain';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -19,7 +19,7 @@ export class UpdateCommentLikeStatusUseCase
   implements ICommandHandler<UpdateCommentLikeStatusCommand>
 {
   constructor(
-    private readonly likesRepository: LikesSqlRepository,
+    private readonly likesRepository: LikesOrmRepository,
     private readonly commentsRepository: CommentsSqlRepository,
   ) {}
   async execute(command: UpdateCommentLikeStatusCommand) {
@@ -32,7 +32,7 @@ export class UpdateCommentLikeStatusUseCase
       ParentType.COMMENT,
     );
     if (!existingLike) {
-      const like = SqlDomainLike.createInstance(
+      const like: LikeDislike = LikeDislike.createInstance(
         command.status,
         command.commentId,
         command.userId,
@@ -45,7 +45,7 @@ export class UpdateCommentLikeStatusUseCase
       return;
     }
     existingLike.updateStatus(command.status);
-    await this.likesRepository.updateLike(existingLike);
+    await this.likesRepository.save(existingLike);
     return;
   }
 }

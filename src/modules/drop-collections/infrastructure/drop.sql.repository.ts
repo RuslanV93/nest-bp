@@ -11,9 +11,10 @@ export class DropSqlRepository {
 
       --TRUNCATE TABLE "POST_LIKES" CASCADE;
       --TRUNCATE TABLE "POSTS" CASCADE;
-      --TRUNCATE TABLE "BLOGS" CASCADE;
-
       
+      TRUNCATE TABLE "blog" CASCADE;
+      TRUNCATE TABLE "post" CASCADE;
+      TRUNCATE TABLE "like_dislike" CASCADE;
       TRUNCATE TABLE "device" CASCADE;
       TRUNCATE TABLE "password_info" CASCADE;
       TRUNCATE TABLE "email_info" CASCADE;

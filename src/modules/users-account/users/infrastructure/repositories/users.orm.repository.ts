@@ -52,7 +52,6 @@ export class UsersOrmRepository {
       if (!user) {
         return null;
       }
-      console.log('sadaddas');
       return user.login === login
         ? { user, field: 'login' }
         : { user, field: 'email' };

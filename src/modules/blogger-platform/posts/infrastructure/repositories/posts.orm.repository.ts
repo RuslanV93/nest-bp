@@ -22,6 +22,7 @@ export class PostsOrmRepository {
   }
   async findOneAndNotFoundException(id: ObjectId) {
     const post = await this.findOne(id);
+
     if (!post) {
       throw new NotFoundException('Post not Found.');
     }

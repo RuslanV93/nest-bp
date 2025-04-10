@@ -13,7 +13,7 @@ export class LikeDislike extends BaseEntity {
   userId: string;
 
   @ManyToOne(() => User, (user) => user.like)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ type: 'enum', enum: LikeStatus, default: LikeStatus.None })
@@ -29,11 +29,11 @@ export class LikeDislike extends BaseEntity {
     onDelete: 'CASCADE',
     nullable: true,
   })
-  @JoinColumn({ name: 'parentId' })
+  @JoinColumn({ name: 'parent_id' })
   post: Post;
 
   static createInstance(
-    likeDto: LikeInputDto,
+    status: LikeStatus,
     parentId: ObjectId,
     userId: ObjectId,
     parent: ParentType,
@@ -43,7 +43,7 @@ export class LikeDislike extends BaseEntity {
 
     like._id = id.toString();
     like.parent = parent;
-    like.status = likeDto.likeStatus;
+    like.status = status;
     like.userId = userId.toString();
     like.parentId = parentId.toString();
     return like;

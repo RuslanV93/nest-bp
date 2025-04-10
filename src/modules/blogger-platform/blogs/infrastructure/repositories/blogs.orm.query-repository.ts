@@ -31,24 +31,25 @@ export class BlogsOrmQueryRepository {
         ? BlogsSortBy.name
         : BlogsSortBy.createdAt;
 
-    const [blogs, totalCount]: [Blog[], number] = await this.entityManager
+    let queryBuilder = this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
-      .where('blog.deletedAt IS NULL')
-      .andWhere(
-        "COALESCE(:search, '') = '' OR blog.name ILIKE :searchPattern",
-        {
-          search: query.searchNameTerm,
-          searchPattern: `%${query.searchNameTerm}%`,
-        },
-      )
+      .where('blog.deletedAt IS NULL');
+
+    if (query.searchNameTerm) {
+      queryBuilder = queryBuilder.andWhere('blog.name ILIKE :searchPattern', {
+        searchPattern: `%${query.searchNameTerm}%`,
+      });
+    }
+
+    const [blogs, totalCount]: [Blog[], number] = await queryBuilder
       .orderBy(
         sortField === BlogsSortBy.name
           ? `blog.${sortField} COLLATE "C"`
           : `blog.${sortField}`,
         validSortDirection,
       )
-      .take(query.pageSize)
+      .limit(query.pageSize)
       .offset(query.calculateSkipParam())
       .getManyAndCount();
 

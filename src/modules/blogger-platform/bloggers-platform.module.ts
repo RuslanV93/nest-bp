@@ -5,7 +5,7 @@ import { SuperAdminBlogsController } from './blogs/interface/super-admin.blogs.c
 import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
-import { PostsController } from './posts/interface/posts.controller';
+import { PublicPostsController } from './posts/interface/public.posts.controller';
 import { PostsService } from './posts/application/posts.service';
 import { PostsRepository } from './posts/infrastructure/repositories/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/repositories/posts.query.repository';
@@ -52,6 +52,8 @@ import { Post } from './posts/domain/posts.orm.domain';
 import { LikeDislike } from './likes/domain/like.orm.domain';
 import { PostsOrmQueryRepository } from './posts/infrastructure/repositories/posts.orm.query-repository';
 import { PostsOrmRepository } from './posts/infrastructure/repositories/posts.orm.repository';
+import { LikesOrmRepository } from './likes/infrastructure/repositories/likes.orm.repository';
+import { SuperAdminPostsController } from './posts/interface/super-admin.posts.controller';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -78,8 +80,9 @@ const likesUseCases = [
   ],
   controllers: [
     SuperAdminBlogsController,
+    SuperAdminPostsController,
     PublicBlogsController,
-    PostsController,
+    PublicPostsController,
     CommentsController,
   ],
   providers: [
@@ -106,6 +109,7 @@ const likesUseCases = [
     LikesQueryRepository,
     LikesSqlRepository,
     LikesRepository,
+    LikesOrmRepository,
     PostExistsPipe,
     ...postsUseCases,
     ...blogsUseCases,
