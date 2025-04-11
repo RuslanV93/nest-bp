@@ -68,7 +68,7 @@ const likesUseCases = [
 ];
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog, Post, LikeDislike]),
+    TypeOrmModule.forFeature([Blog, Post, LikeDislike, Comment]),
     MongooseModule.forFeature([
       { name: BlogMongo.name, schema: BlogSchema },
       { name: PostMongo.name, schema: PostSchema },

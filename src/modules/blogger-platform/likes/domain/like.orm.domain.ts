@@ -4,8 +4,8 @@ import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { LikeStatus } from './dto/like.domain.dto';
 import { Post } from '../../posts/domain/posts.orm.domain';
 import { ParentType } from '../types/like.types';
-import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
 import { ObjectId } from 'mongodb';
+import { Comment } from '../../comments/domain/comments.orm.domain';
 
 @Entity()
 export class LikeDislike extends BaseEntity {
@@ -19,18 +19,28 @@ export class LikeDislike extends BaseEntity {
   @Column({ type: 'enum', enum: LikeStatus, default: LikeStatus.None })
   status: LikeStatus;
 
-  @Column()
-  parentId: string;
+  @Column({ nullable: true })
+  postId: string | null;
+
+  @Column({ nullable: true })
+  commentId: string | null;
 
   @Column({ type: 'enum', enum: ParentType, nullable: false })
   parent: ParentType;
 
   @ManyToOne(() => Post, (post) => post.likes, {
-    onDelete: 'CASCADE',
     nullable: true,
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'parent_id' })
+  @JoinColumn({ name: 'post_id' })
   post: Post;
+
+  @ManyToOne(() => Comment, (comment) => comment.likes, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'comment_id' })
+  comment: Comment;
 
   static createInstance(
     status: LikeStatus,
@@ -45,7 +55,14 @@ export class LikeDislike extends BaseEntity {
     like.parent = parent;
     like.status = status;
     like.userId = userId.toString();
-    like.parentId = parentId.toString();
+    if (parent === ParentType.POST) {
+      like.postId = parentId.toString();
+      like.commentId = null;
+    } else if (parent === ParentType.COMMENT) {
+      like.commentId = parentId.toString();
+      like.postId = null;
+    }
+
     return like;
   }
 
