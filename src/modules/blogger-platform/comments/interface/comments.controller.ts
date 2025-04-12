@@ -22,7 +22,7 @@ import { UserContextDto } from '../../../users-account/auth/guards/dto/user-cont
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case';
 import { UpdateCommentLikeStatusCommand } from '../../likes/application/use-cases/update.comment-like-status.use-case';
 import { LikeInputDto } from './dto/like.input-dto';
-import { CommentsSqlQueryRepository } from '../infrastructure/repositories/comments.sql.query.repository';
+import { CommentsOrmQueryRepository } from '../infrastructure/repositories/comments.orm.query.repository';
 
 /**
  * Comments Controller
@@ -32,7 +32,7 @@ import { CommentsSqlQueryRepository } from '../infrastructure/repositories/comme
 @Controller('comments')
 export class CommentsController {
   constructor(
-    private readonly postsQueryRepository: CommentsSqlQueryRepository,
+    private readonly postsQueryRepository: CommentsOrmQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 

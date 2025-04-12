@@ -12,7 +12,10 @@ import { PostsQueryRepository } from './posts/infrastructure/repositories/posts.
 import { Post as PostMongo, PostSchema } from './posts/domain/posts.model';
 import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments.query.repository';
 import { CommentsController } from './comments/interface/comments.controller';
-import { Comment, CommentSchema } from './comments/domain/comments.model';
+import {
+  Comment as MongoComment,
+  CommentSchema,
+} from './comments/domain/comments.model';
 import { CommentsService } from './comments/application/comments.service';
 import { CommentsRepository } from './comments/infrastructure/repositories/comments.repository';
 import {
@@ -54,6 +57,9 @@ import { PostsOrmQueryRepository } from './posts/infrastructure/repositories/pos
 import { PostsOrmRepository } from './posts/infrastructure/repositories/posts.orm.repository';
 import { LikesOrmRepository } from './likes/infrastructure/repositories/likes.orm.repository';
 import { SuperAdminPostsController } from './posts/interface/super-admin.posts.controller';
+import { CommentsOrmRepository } from './comments/infrastructure/repositories/comments.orm.repository';
+import { CommentsOrmQueryRepository } from './comments/infrastructure/repositories/comments.orm.query.repository';
+import { Comment } from './comments/domain/comments.orm.domain';
 
 const postsUseCases = [CreatePostUseCase, UpdatePostUseCase, DeletePostUseCase];
 const blogsUseCases = [CreateBlogUseCase, UpdateBlogUseCase, DeleteBlogUseCase];
@@ -68,11 +74,11 @@ const likesUseCases = [
 ];
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog, Post, LikeDislike, Comment]),
+    TypeOrmModule.forFeature([Blog, Post, Comment, LikeDislike]),
     MongooseModule.forFeature([
       { name: BlogMongo.name, schema: BlogSchema },
       { name: PostMongo.name, schema: PostSchema },
-      { name: Comment.name, schema: CommentSchema },
+      { name: MongoComment.name, schema: CommentSchema },
       { name: CommentLike.name, schema: CommentLikeSchema },
       { name: PostLike.name, schema: PostLikeSchema },
     ]),
@@ -105,6 +111,8 @@ const likesUseCases = [
     CommentsQueryRepository,
     CommentsSqlQueryRepository,
     CommentsSqlRepository,
+    CommentsOrmRepository,
+    CommentsOrmQueryRepository,
     LikesService,
     LikesQueryRepository,
     LikesSqlRepository,

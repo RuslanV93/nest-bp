@@ -18,9 +18,10 @@ export class CommentsOrmRepository {
   }
   async findOneAndNotFoundException(id: ObjectId) {
     const comment = await this.findOne(id);
-    if (comment) {
+    if (!comment) {
       throw NotFoundDomainException.create('Comment not found');
     }
+    return comment;
   }
   async save(comment: Comment) {
     return this.commentsRepository.save(comment);
@@ -29,5 +30,8 @@ export class CommentsOrmRepository {
     const newComment = this.commentsRepository.create(comment);
     const createdComment = await this.save(newComment);
     return new ObjectId(createdComment._id);
+  }
+  async deleteComment(comment: Comment) {
+    await this.commentsRepository.softRemove(comment);
   }
 }

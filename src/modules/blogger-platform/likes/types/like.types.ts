@@ -13,3 +13,9 @@ export enum ParentType {
   POST = 'POST',
   COMMENT = 'COMMENT',
 }
+export type LikeWhereType = {
+  userId: string;
+  parent: ParentType;
+  commentId?: string;
+  postId?: string;
+};

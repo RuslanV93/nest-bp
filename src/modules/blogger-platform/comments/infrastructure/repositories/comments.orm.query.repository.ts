@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from '../../domain/comments.orm.domain';
 import { LikeDislike } from '../../../likes/domain/like.orm.domain';
@@ -9,6 +9,9 @@ import {
 } from '../../interface/dto/get-comments.query-params.input.dto';
 import { ObjectId } from 'mongodb';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { CommentViewDto } from '../../interface/dto/comment.view-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
+import { CommentQueryResult } from '../../domain/dto/comment.domain.dto';
 
 @Injectable()
 export class CommentsOrmQueryRepository {
@@ -52,7 +55,7 @@ export class CommentsOrmQueryRepository {
 
     const commentQuery = this.commentsRepository
       .createQueryBuilder('comment')
-      .select('comment._id', 'id')
+      .select('comment._id', '_id')
       .addSelect('comment.content', 'content')
       .addSelect('comment.userId', 'userId')
       .addSelect('user.name', 'login')
@@ -101,5 +104,70 @@ export class CommentsOrmQueryRepository {
       .setParameter('userIdStr', userIdStr);
     commentQuery.orderBy(sortField, validSortDirections);
     commentQuery.limit(query.pageSize).offset(query.calculateSkipParam());
+
+    const comments = await commentQuery.getRawMany();
+
+    const items = comments.map(CommentViewDto.fromSqlMapToView);
+    return PaginatedViewDto.mapToView({
+      items,
+      page: query.pageNumber,
+      size: query.pageSize,
+      totalCount,
+    });
+  }
+  async getCommentById(id: ObjectId, userId?: ObjectId) {
+    const commentIdStr = id.toString();
+    const userIdStr = userId?._id.toString();
+
+    const commentQuery = this.commentsRepository
+      .createQueryBuilder('comment')
+      .select('comment._id', '_id')
+      .addSelect('comment.content', 'content')
+      .addSelect('comment.userId', 'userId')
+      .addSelect('user.name', 'login')
+      .addSelect('comment.createdAt', 'createdAt')
+      .leftJoin('user', 'user', 'comment.userId = user._id')
+      .where('comment._id = :id', { id: commentIdStr });
+
+    commentQuery.addSelect(
+      `
+      (SELECT COUNT(*)
+      FROM "like_dislike" ld
+      WHERE ld.commentId = comment._id
+      AND ld.status = 'Like')`,
+      'likesCount',
+    );
+    commentQuery.addSelect(
+      `
+      (SELECT COUNT(*)
+      FROM "like_dislike" ld
+      WHERE ld.commentId = comment._id
+      AND ld.status = 'Dislike')`,
+      'dislikesCount',
+    );
+
+    commentQuery
+      .addSelect(
+        `
+    CASE 
+    WHEN :userIdStr = '' THEN 'None'
+    ELSE COALESCE(
+    (SELECT ld.status
+    FROM "like_dislike" ld
+    WHERE ld.commentId = comment._id
+    AND ld.userId = :userIdStr
+    LIMIT 1), 'None'
+    )
+    `,
+        'myStatus',
+      )
+      .setParameter('userIdStr', userIdStr);
+    const comment: CommentQueryResult | undefined =
+      await commentQuery.getRawOne();
+
+    if (!comment) {
+      throw new NotFoundException();
+    }
+    return CommentViewDto.fromSqlMapToView(comment);
   }
 }

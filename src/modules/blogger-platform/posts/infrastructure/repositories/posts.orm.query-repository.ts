@@ -89,7 +89,7 @@ export class PostsOrmQueryRepository {
       `
     (SELECT COUNT(*) 
      FROM "like_dislike" ld 
-     WHERE ld.parent_id = post._id 
+     WHERE ld.post_id = post._id 
      AND ld.status = 'Like')`,
       'likesCount',
     );
@@ -98,7 +98,7 @@ export class PostsOrmQueryRepository {
       `
     (SELECT COUNT(*) 
      FROM "like_dislike" ld 
-     WHERE ld.parent_id = post._id 
+     WHERE ld.post_id = post._id 
      AND ld.status = 'Dislike')`,
       'dislikesCount',
     );
@@ -111,7 +111,7 @@ export class PostsOrmQueryRepository {
       ELSE COALESCE(
         (SELECT ld.status 
          FROM "like_dislike" ld 
-         WHERE ld.parent_id = post._id 
+         WHERE ld.post_id = post._id 
          AND ld.user_id = :userIdStr 
          LIMIT 1), 
         'None')
@@ -133,7 +133,7 @@ export class PostsOrmQueryRepository {
        )
        FROM (
          SELECT * FROM "like_dislike" ld2
-         WHERE ld2.parent_id = post._id AND ld2.status = 'Like' 
+         WHERE ld2.post_id = post._id AND ld2.status = 'Like' 
          ORDER BY ld2.created_at DESC 
          LIMIT 3
        ) ld
@@ -176,7 +176,7 @@ export class PostsOrmQueryRepository {
         `
       (SELECT COUNT(*) 
        FROM "like_dislike" ld 
-       WHERE ld.parent_id = post._id 
+       WHERE ld.post_id = post._id 
        AND ld.status = 'Like')`,
         'likesCount',
       )
@@ -185,7 +185,7 @@ export class PostsOrmQueryRepository {
         `
       (SELECT COUNT(*) 
        FROM "like_dislike" ld 
-       WHERE ld.parent_id = post._id 
+       WHERE ld.post_id = post._id 
        AND ld.status = 'Dislike')`,
         'dislikesCount',
       )
@@ -197,7 +197,7 @@ export class PostsOrmQueryRepository {
         ELSE COALESCE(
           (SELECT ld.status 
            FROM "like_dislike" ld 
-           WHERE ld.parent_id = post._id 
+           WHERE ld.post_id = post._id 
            AND ld.user_id = :userIdStr 
            LIMIT 1), 
           'None')
@@ -218,7 +218,7 @@ export class PostsOrmQueryRepository {
          )
          FROM (
            SELECT * FROM "like_dislike" 
-           WHERE parent_id = post._id AND status = 'Like' 
+           WHERE post_id = post._id AND status = 'Like' 
            ORDER BY created_at DESC 
            LIMIT 3
          ) ld

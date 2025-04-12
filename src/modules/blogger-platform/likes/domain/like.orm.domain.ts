@@ -28,14 +28,14 @@ export class LikeDislike extends BaseEntity {
   @Column({ type: 'enum', enum: ParentType, nullable: false })
   parent: ParentType;
 
-  @ManyToOne(() => Post, (post) => post.likes, {
+  @ManyToOne(() => Post, {
     nullable: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'post_id' })
   post: Post;
 
-  @ManyToOne(() => Comment, (comment) => comment.likes, {
+  @ManyToOne(() => Comment, {
     nullable: true,
     onDelete: 'CASCADE',
   })

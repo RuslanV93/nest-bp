@@ -1565,6 +1565,102 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{id}/like-status": {
+        "put": {
+          "operationId": "PublicPostsController_updateLikeStatus",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update post like.",
+          "tags": [
+            "PublicPosts"
+          ]
+        }
+      },
+      "/api/posts/{id}/comments": {
+        "post": {
+          "description": "Create and returns a new comment.",
+          "operationId": "PublicPostsController_createComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CommentViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "summary": "Create new comment",
+          "tags": [
+            "PublicPosts"
+          ]
+        }
+      },
       "/api/comments/{id}": {
         "get": {
           "operationId": "CommentsController_getCommentById",

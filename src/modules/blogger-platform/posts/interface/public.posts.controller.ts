@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -25,24 +24,18 @@ import { PostViewDto } from './dto/post.view-dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
 import { ObjectId } from 'mongodb';
-import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
-import {
-  Nullable,
-  UserContextDto,
-} from '../../../users-account/auth/guards/dto/user-context.dto';
+import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
 import { CommandBus } from '@nestjs/cqrs';
-import { UpdatePostLikeStatusCommand } from '../../likes/application/use-cases/update.post-like-status.use-case';
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
 import { CommentInputDto } from '../../comments/interface/dto/comment.input-dto';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.use-case';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
-import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
-import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
-import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
-import { CommentsSqlQueryRepository } from '../../comments/infrastructure/repositories/comments.sql.query.repository';
 import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.orm.query-repository';
+import { CommentsOrmQueryRepository } from '../../comments/infrastructure/repositories/comments.orm.query.repository';
+import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
+import { UpdatePostLikeStatusCommand } from '../../likes/application/use-cases/update.post-like-status.use-case';
 
 /**
  * Posts Controller
@@ -53,7 +46,7 @@ import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.or
 export class PublicPostsController {
   constructor(
     private readonly postsQueryRepository: PostsOrmQueryRepository,
-    private readonly commentsQueryRepository: CommentsSqlQueryRepository,
+    private readonly commentsQueryRepository: CommentsOrmQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -120,5 +113,45 @@ export class PublicPostsController {
       throw new InternalServerErrorException();
     }
     return comments;
+  }
+
+  /** Update Like Status. Update posts like counters */
+  @Put(':id/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @ApiBody({ type: LikeInputDto })
+  @ApiOperation({
+    summary: 'Update post like.',
+  })
+  async updateLikeStatus(
+    @Param('id') id: ObjectId,
+    @Body() body: LikeInputDto,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    await this.commandBus.execute(
+      new UpdatePostLikeStatusCommand(user.id, id, body.likeStatus),
+    );
+  }
+
+  /** Create new comment to existing post */
+  @Post(':id/comments')
+  @UseGuards(JwtAuthGuard)
+  @ApiPaginatedResponse(CommentViewDto)
+  @ApiOperation({
+    summary: 'Create new comment',
+    description: 'Create and returns a new comment.',
+  })
+  async createComment(
+    @Param('id') id: ObjectId,
+    @Body() body: CommentInputDto,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ) {
+    const newCommentId: ObjectId = await this.commandBus.execute(
+      new CreateCommentCommand(body.content, user.id, id),
+    );
+    return await this.commentsQueryRepository.getCommentById(
+      newCommentId,
+      user.id,
+    );
   }
 }

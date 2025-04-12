@@ -3,6 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
 import { CommentsSqlRepository } from '../../infrastructure/repositories/comments.sql.repository';
 import { SqlDomainComment } from '../../domain/comments.sql.domain';
+import { CommentsOrmRepository } from '../../infrastructure/repositories/comments.orm.repository';
+import { Comment } from '../../domain/comments.orm.domain';
 
 export class UpdateCommentCommand {
   constructor(
@@ -16,9 +18,9 @@ export class UpdateCommentCommand {
 export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand>
 {
-  constructor(private readonly commentsRepository: CommentsSqlRepository) {}
+  constructor(private readonly commentsRepository: CommentsOrmRepository) {}
   async execute(command: UpdateCommentCommand) {
-    const comment: SqlDomainComment =
+    const comment: Comment =
       await this.commentsRepository.findOneAndNotFoundException(command.id);
 
     if (comment.userId !== command.userId.toString()) {
@@ -27,6 +29,6 @@ export class UpdateCommentUseCase
       );
     }
     comment.updateComment(command.content);
-    await this.commentsRepository.updateComment(comment);
+    await this.commentsRepository.save(comment);
   }
 }
