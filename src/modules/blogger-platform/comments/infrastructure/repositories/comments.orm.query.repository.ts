@@ -27,7 +27,7 @@ export class CommentsOrmQueryRepository {
     userId: ObjectId,
   ) {
     const postIdStr = postId.toString();
-    const userIdStr = userId.toString();
+    const userIdStr = userId?.toString();
     const validSortDirections =
       query.sortDirection === SortDirection.desc ||
       query.sortDirection === SortDirection.asc
@@ -36,13 +36,11 @@ export class CommentsOrmQueryRepository {
           : 'DESC'
         : 'DESC';
     const sortField =
-      query.sortBy === CommentsSortBy.login
-        ? CommentsSortBy.login
-        : CommentsSortBy.createdAt;
+      query.sortBy === CommentsSortBy.login ? 'usr.login' : 'comment.createdAt';
 
     const countQuery = this.commentsRepository
       .createQueryBuilder('comment')
-      .leftJoin('user', 'user', 'comment.userId = user.id')
+      .leftJoin('user', 'user', 'comment.userId = user._id')
       .where('comment.deleted_at IS NULL')
       .andWhere('comment.postId = :postId', { postId: postIdStr });
 
@@ -58,13 +56,13 @@ export class CommentsOrmQueryRepository {
       .select('comment._id', '_id')
       .addSelect('comment.content', 'content')
       .addSelect('comment.userId', 'userId')
-      .addSelect('user.name', 'login')
+      .addSelect('usr.login', 'userLogin')
       .addSelect('comment.createdAt', 'createdAt')
-      .leftJoin('user', 'user', 'comment.userId = user._id')
+      .leftJoin('user', 'usr', 'comment.userId = usr._id')
       .where('comment.postId = :postId', { postId: postIdStr });
 
     if (query.searchLoginTerm) {
-      commentQuery.andWhere('user.name ILIKE :search', {
+      commentQuery.andWhere('usr.name ILIKE :search', {
         search: `%${query.searchLoginTerm}%`,
       });
     }
@@ -72,7 +70,7 @@ export class CommentsOrmQueryRepository {
       `
       (SELECT COUNT(*)
       FROM "like_dislike" ld
-      WHERE ld.commentId = comment._id
+      WHERE ld.comment_id = comment._id
       AND ld.status = 'Like')`,
       'likesCount',
     );
@@ -80,7 +78,7 @@ export class CommentsOrmQueryRepository {
       `
       (SELECT COUNT(*)
       FROM "like_dislike" ld
-      WHERE ld.commentId = comment._id
+      WHERE ld.comment_id = comment._id
       AND ld.status = 'Dislike')`,
       'dislikesCount',
     );
@@ -93,8 +91,8 @@ export class CommentsOrmQueryRepository {
       ELSE COALESCE(
       (SELECT ld.status
       FROM "like_dislike" ld
-      WHERE ld.commentId = comment._id
-      AND ld.userId = :userIdStr
+      WHERE ld.comment_id = comment._id
+      AND ld.user_id = :userIdStr
       LIMIT 1),
       'None')
       END
@@ -124,16 +122,16 @@ export class CommentsOrmQueryRepository {
       .select('comment._id', '_id')
       .addSelect('comment.content', 'content')
       .addSelect('comment.userId', 'userId')
-      .addSelect('user.name', 'login')
+      .addSelect('usr.login', 'userLogin')
       .addSelect('comment.createdAt', 'createdAt')
-      .leftJoin('user', 'user', 'comment.userId = user._id')
+      .leftJoin('user', 'usr', 'comment.userId = usr._id')
       .where('comment._id = :id', { id: commentIdStr });
 
     commentQuery.addSelect(
       `
       (SELECT COUNT(*)
       FROM "like_dislike" ld
-      WHERE ld.commentId = comment._id
+      WHERE ld.comment_id = comment._id
       AND ld.status = 'Like')`,
       'likesCount',
     );
@@ -141,7 +139,7 @@ export class CommentsOrmQueryRepository {
       `
       (SELECT COUNT(*)
       FROM "like_dislike" ld
-      WHERE ld.commentId = comment._id
+      WHERE ld.comment_id = comment._id
       AND ld.status = 'Dislike')`,
       'dislikesCount',
     );
@@ -154,10 +152,10 @@ export class CommentsOrmQueryRepository {
     ELSE COALESCE(
     (SELECT ld.status
     FROM "like_dislike" ld
-    WHERE ld.commentId = comment._id
-    AND ld.userId = :userIdStr
+    WHERE ld.comment_id = comment._id
+    AND ld.user_id = :userIdStr
     LIMIT 1), 'None'
-    )
+    ) END
     `,
         'myStatus',
       )

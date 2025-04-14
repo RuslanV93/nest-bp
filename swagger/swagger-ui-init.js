@@ -1493,45 +1493,6 @@ window.onload = function() {
           "tags": [
             "PublicPosts"
           ]
-        },
-        "post": {
-          "operationId": "PublicPostsController_getCommentsByPostId",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "$ref": "#/components/schemas/ObjectId"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "default": {
-              "description": "",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/PostViewDto"
-                  }
-                }
-              }
-            }
-          },
-          "summary": "Create new post.",
-          "tags": [
-            "PublicPosts"
-          ]
         }
       },
       "/api/posts/{id}": {
@@ -1565,9 +1526,10 @@ window.onload = function() {
           ]
         }
       },
-      "/api/posts/{id}/like-status": {
-        "put": {
-          "operationId": "PublicPostsController_updateLikeStatus",
+      "/api/posts/{id}/comments": {
+        "get": {
+          "description": "Returns all comments for the post.",
+          "operationId": "PublicPostsController_getCommentsByPostId",
           "parameters": [
             {
               "name": "id",
@@ -1576,30 +1538,88 @@ window.onload = function() {
               "schema": {
                 "$ref": "#/components/schemas/ObjectId"
               }
+            },
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "description": "Field to sort by",
+              "schema": {
+                "default": "createdAt",
+                "example": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "pageNumber",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "example": 10,
+                "type": "number"
+              }
             }
           ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LikeInputDto"
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CommentViewDto"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
           },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "summary": "Update post like.",
+          "summary": "Gets all comments.",
           "tags": [
             "PublicPosts"
           ]
-        }
-      },
-      "/api/posts/{id}/comments": {
+        },
         "post": {
           "description": "Create and returns a new comment.",
           "operationId": "PublicPostsController_createComment",
@@ -1656,6 +1676,40 @@ window.onload = function() {
             }
           },
           "summary": "Create new comment",
+          "tags": [
+            "PublicPosts"
+          ]
+        }
+      },
+      "/api/posts/{id}/like-status": {
+        "put": {
+          "operationId": "PublicPostsController_updateLikeStatus",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "$ref": "#/components/schemas/ObjectId"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update post like.",
           "tags": [
             "PublicPosts"
           ]

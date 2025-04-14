@@ -9,8 +9,7 @@ export class DropSqlRepository {
     await this.dataSource.query(`
     BEGIN;
 
-      --TRUNCATE TABLE "POST_LIKES" CASCADE;
-      --TRUNCATE TABLE "POSTS" CASCADE;
+   
       
       TRUNCATE TABLE "blog" CASCADE;
       TRUNCATE TABLE "post" CASCADE;
@@ -19,6 +18,7 @@ export class DropSqlRepository {
       TRUNCATE TABLE "password_info" CASCADE;
       TRUNCATE TABLE "email_info" CASCADE;
       TRUNCATE TABLE "user" CASCADE;
+      TRUNCATE TABLE "comment" CASCADE;
 
 
 

@@ -30,7 +30,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
 import { CommentInputDto } from '../../comments/interface/dto/comment.input-dto';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.use-case';
-import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
 import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.orm.query-repository';
 import { CommentsOrmQueryRepository } from '../../comments/infrastructure/repositories/comments.orm.query.repository';
@@ -91,13 +90,13 @@ export class PublicPostsController {
     return post;
   }
 
-  /** Create new Post */
-  @Post()
-  @UseGuards(BasicAuthGuard)
-  @ApiResponse({ type: PostViewDto })
-  @ApiBody({ type: PostInputDto })
+  /** Get comments belongs to a post by post id*/
+  @Get(':id/comments')
+  @ApiPaginatedResponse(CommentViewDto)
+  @ApiPaginationQueries()
   @ApiOperation({
-    summary: 'Create new post.',
+    summary: 'Gets all comments.',
+    description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
     @Param('id', PostExistsPipe) id: ObjectId,
@@ -109,9 +108,7 @@ export class PublicPostsController {
       id,
       user.id,
     );
-    if (!comments) {
-      throw new InternalServerErrorException();
-    }
+
     return comments;
   }
 

@@ -40,10 +40,7 @@ export class Comment {
   createdAt: Date;
   updatedAt: Date;
 
-  static createInstance(
-    this: CommentModelType,
-    commentDomainDto: CommentDomainDto,
-  ) {
+  static createInstance(commentDomainDto: CommentDomainDto) {
     const comment = new this();
     comment.content = commentDomainDto.content;
     comment.postId = commentDomainDto.postId;

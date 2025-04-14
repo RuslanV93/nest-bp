@@ -49,7 +49,7 @@ export class SoftRefreshStrategy implements CanActivate {
   constructor(
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
-    @Inject(forwardRef(() => DevicesSqlRepository))
+    @Inject(forwardRef(() => DevicesOrmRepository))
     private readonly devicesRepository: DevicesOrmRepository,
     private readonly reflector: Reflector,
   ) {}

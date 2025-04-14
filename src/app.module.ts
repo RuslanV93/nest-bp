@@ -41,7 +41,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         password: coreConfig.postgresPassword,
         database: coreConfig.postgresDbName,
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
         logging: true,
         extra: {

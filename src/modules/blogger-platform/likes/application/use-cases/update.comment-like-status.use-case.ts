@@ -5,6 +5,7 @@ import { CommentsSqlRepository } from '../../../comments/infrastructure/reposito
 import { ParentType } from '../../types/like.types';
 import { LikesOrmRepository } from '../../infrastructure/repositories/likes.orm.repository';
 import { LikeDislike } from '../../domain/like.orm.domain';
+import { CommentsOrmRepository } from '../../../comments/infrastructure/repositories/comments.orm.repository';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -20,7 +21,7 @@ export class UpdateCommentLikeStatusUseCase
 {
   constructor(
     private readonly likesRepository: LikesOrmRepository,
-    private readonly commentsRepository: CommentsSqlRepository,
+    private readonly commentsRepository: CommentsOrmRepository,
   ) {}
   async execute(command: UpdateCommentLikeStatusCommand) {
     await this.commentsRepository.findOneAndNotFoundException(

@@ -23,6 +23,7 @@ export class AppConfig {
   postgresDbName: string = this.configService.getOrThrow(
     'POSTGRES_DATABASE_NAME',
   );
+  neonString: string = this.configService.getOrThrow('NEON_STRING');
   jwtRefreshSecret: string =
     this.configService.getOrThrow('JWT_REFRESH_SECRET');
   @IsNotEmpty({
@@ -43,6 +44,7 @@ export class AppConfig {
   isSwaggerEnabled: boolean = configValidationUtility.convertToBoolean(
     this.configService.get('IS_SWAGGER_ENABLED'),
   );
+
   constructor(private readonly configService: ConfigService) {
     configValidationUtility.validateConfig(this);
   }

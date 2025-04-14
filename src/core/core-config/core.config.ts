@@ -21,6 +21,7 @@ export class CoreConfig {
   postgresUrl: string = this.configService.getOrThrow('NEON_URL');
   postgresPort: string = this.configService.getOrThrow('POSTGRES_PORT');
   postgresDbName: string = this.configService.getOrThrow('NEON_DATABASE_NAME');
+  neonString: string = this.configService.getOrThrow('NEON_STRING');
   jwtRefreshSecret: string =
     this.configService.getOrThrow('JWT_REFRESH_SECRET');
   @IsNotEmpty({
@@ -46,3 +47,31 @@ export class CoreConfig {
     configValidationUtility.validateConfig(this);
   }
 }
+
+// export class ConfigurationService {
+//   private static instance: ConfigurationService;
+//   private config: CoreConfig;
+//
+//   private constructor() {
+//     const configService = new ConfigService();
+//     this.config = new CoreConfig(configService);
+//   }
+//
+//   public static getInstance(): ConfigurationService {
+//     if (!ConfigurationService.instance) {
+//       ConfigurationService.instance = new ConfigurationService();
+//     }
+//     return ConfigurationService.instance;
+//   }
+//
+//   getConfig(): CoreConfig {
+//     return this.config;
+//   }
+// }
+//
+// /**
+//  * Retrieves an instance of the application configuration
+//  * to access configuration values.
+//  */
+// export const coreConfigInstance =
+//   ConfigurationService.getInstance().getConfig();

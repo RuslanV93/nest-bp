@@ -135,6 +135,6 @@ const authUseCases = [
     DevicesRepository,
     DevicesQueryRepository,
   ],
-  exports: [UsersRepository, UsersSqlRepository],
+  exports: [UsersRepository, UsersSqlRepository, UsersOrmRepository],
 })
 export class UsersAccountModule {}

@@ -25,7 +25,6 @@ export class CommentViewDto {
     dto.id = comment._id;
     dto.content = comment.content;
     dto.createdAt = comment.createdAt.toISOString();
-
     dto.commentatorInfo = {
       userId: comment.userId,
       userLogin: comment.userLogin,
