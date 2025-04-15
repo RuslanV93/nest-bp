@@ -43,7 +43,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         autoLoadEntities: true,
         synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
-        logging: true,
+        logging: false,
         extra: {
           ssl: {
             rejectUnauthorized: false,
