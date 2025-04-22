@@ -1,6 +1,7 @@
 import { Catch, HttpException, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter, ErrorMessage } from './base-exception.filter';
 import { Response } from 'express';
+import * as fs from 'node:fs';
 
 // Интерфейс для описания структуры ошибки
 
