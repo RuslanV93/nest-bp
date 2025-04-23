@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsSqlRepository } from '../../infrastructure/repositories/blogs.sql.repository';
 import { ObjectId } from 'mongodb';
 import { Blog } from '../../domain/blogs.orm.domain';
 import { BlogsOrmRepository } from '../../infrastructure/repositories/blogs.orm.repository';

@@ -1849,6 +1849,26 @@ window.onload = function() {
             "DropCollection"
           ]
         }
+      },
+      "/api/sa/quiz/questions": {
+        "get": {
+          "operationId": "QuestionController_getQuestions",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "security": [
+            {
+              "basicAuth": []
+            }
+          ],
+          "summary": "Get all questions",
+          "tags": [
+            "Question"
+          ]
+        }
       }
     },
     "info": {

@@ -17,6 +17,7 @@ import { CoreConfig } from './core/core-config/core.config';
 import { CoreModule } from './core/core-config/core.module';
 import { SwaggerConfigService } from './config/swagger.setup';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
     BloggersPlatformModule,
     DropCollectionModule,
     NotificationModule,
+    QuizGameModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'swagger'),
       serveRoot: '/swagger',
