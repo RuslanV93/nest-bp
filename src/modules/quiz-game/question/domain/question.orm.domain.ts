@@ -20,7 +20,7 @@ export class Question {
   @Column('simple-array')
   correctAnswer: string[];
 
-  @Column({ default: true })
+  @Column({ default: false })
   published: boolean;
 
   @CreateDateColumn()

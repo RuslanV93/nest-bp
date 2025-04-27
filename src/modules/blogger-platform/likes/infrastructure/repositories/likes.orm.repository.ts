@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LikeDislike } from '../../domain/like.orm.domain';
 import { Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { LikeWhereType, ParentType } from '../../types/like.types';
 
 @Injectable()
@@ -11,15 +10,15 @@ export class LikesOrmRepository {
     @InjectRepository(LikeDislike)
     private readonly likeRepository: Repository<LikeDislike>,
   ) {}
-  async findLike(userId: ObjectId, parentId: ObjectId, parentType: ParentType) {
+  async findLike(userId: number, parentId: number, parentType: ParentType) {
     const whereObj: LikeWhereType = {
-      userId: userId.toString(),
+      userId: userId,
       parent: parentType,
     };
     if (parentType === ParentType.COMMENT) {
-      whereObj.commentId = parentId.toString();
+      whereObj.commentId = parentId;
     } else if (parentType === ParentType.POST) {
-      whereObj.postId = parentId.toString();
+      whereObj.postId = parentId;
     }
     const like = await this.likeRepository.findOne({
       where: whereObj,
@@ -35,7 +34,6 @@ export class LikesOrmRepository {
   }
   async createLike(like: LikeDislike) {
     const createdLike = this.likeRepository.create(like);
-    const newLikeId = await this.save(createdLike);
-    return new ObjectId(newLikeId);
+    return this.save(createdLike);
   }
 }

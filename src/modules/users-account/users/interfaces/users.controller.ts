@@ -7,12 +7,12 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserInputDto } from './dto/userInputDto';
-import { ObjectId } from 'mongodb';
 import {
   DomainStatusCode,
   ResultObject,
@@ -78,7 +78,7 @@ export class UsersController {
   })
   @ApiBasicAuth()
   async createNewUser(@Body() body: UserInputDto) {
-    const userCreateResult: ResultObject<{ newUserId: ObjectId } | null> =
+    const userCreateResult: ResultObject<{ newUserId: number } | null> =
       await this.commandBus.execute(new CreateUserCommand(body));
     if (!isSuccess(userCreateResult)) {
       throw new InternalServerErrorException(userCreateResult.extensions);
@@ -105,7 +105,7 @@ export class UsersController {
   })
   @ApiBasicAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserById(@Param('id') id: ObjectId) {
+  async deleteUserById(@Param('id', ParseIntPipe) id: number) {
     await this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

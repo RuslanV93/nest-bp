@@ -14,7 +14,7 @@ export class SoftJwtStrategy extends PassportStrategy(Strategy, 'soft-jwt') {
   }
 
   validate(payload: UserContextDto) {
-    if (!payload || !payload.id) {
+    if (!payload || !payload.id || !Number.isInteger(payload.id)) {
       return null;
     }
 

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Put,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import { DeleteCommentCommand } from '../application/use-cases/delete-comment.us
 import { UpdateCommentLikeStatusCommand } from '../../likes/application/use-cases/update.comment-like-status.use-case';
 import { LikeInputDto } from './dto/like.input-dto';
 import { CommentsOrmQueryRepository } from '../infrastructure/repositories/comments.orm.query.repository';
+import { ParentType } from '../../likes/types/like.types';
 
 /**
  * Comments Controller
@@ -42,7 +44,7 @@ export class CommentsController {
     summary: 'Get a comment by id.',
   })
   async getCommentById(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const comment = await this.postsQueryRepository.getCommentById(id, user.id);
@@ -62,7 +64,7 @@ export class CommentsController {
     summary: 'Update commentary.',
   })
   async updateComment(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: CommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -81,7 +83,7 @@ export class CommentsController {
   })
   /** Update Like Status. Update comments like counters */
   async updateLikeStatus(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: LikeInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -96,7 +98,7 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete 1 comment by id.' })
   async deleteComment(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const userId = user.id;

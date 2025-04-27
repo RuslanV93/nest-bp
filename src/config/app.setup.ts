@@ -6,7 +6,6 @@ import { exceptionFilterSetup } from './exception.setup';
 import { SoftJwtAuthGuard } from '../modules/users-account/auth/guards/bearer/soft-jwt-auth-guard';
 import cookieParser from 'cookie-parser';
 import { UserAgentInterceptor } from '../core/interceptors/user-agent.interceptor';
-import { ObjectIdValidationInterceptor } from '../core/interceptors/object-id.validation-transformation-interceptor';
 import { CoreConfig } from '../core/core-config/core.config';
 
 export const appSetup = (app: INestApplication) => {
@@ -18,7 +17,8 @@ export const appSetup = (app: INestApplication) => {
   app.useGlobalGuards(new SoftJwtAuthGuard());
   app.useGlobalInterceptors(
     new UserAgentInterceptor(),
-    new ObjectIdValidationInterceptor(),
+    /** turn of ObjectId validator cuz app don't use object ids while using sql*/
+    // new ObjectIdValidationInterceptor(),
   );
   app.use(cookieParser());
   pipeSetup(app);

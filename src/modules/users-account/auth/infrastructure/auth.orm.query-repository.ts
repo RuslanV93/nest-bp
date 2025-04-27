@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/domain/users.orm.domain';
-import { ObjectId } from 'mongodb';
 import { MeType } from '../types/me.type';
 import { MeViewDto } from '../../users/interfaces/dto/userViewDto';
 
@@ -11,10 +10,10 @@ export class AuthOrmQueryRepository {
   constructor(
     @InjectRepository(User) private readonly authRepository: Repository<User>,
   ) {}
-  async getMe(userId: ObjectId) {
+  async getMe(userId: number) {
     const me: MeType | null = await this.authRepository.findOne({
       where: {
-        _id: userId.toString(),
+        _id: userId,
       },
     });
     if (!me) {

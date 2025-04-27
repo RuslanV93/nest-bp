@@ -30,7 +30,6 @@ import { LoginCommand } from '../application/auth-use-cases/login.use-case';
 import { CommandBus } from '@nestjs/cqrs';
 import { Tokens } from '../application/jwt.service';
 import { RegistrationCommand } from '../../users/application/users-use-cases/registration.use-case';
-import { ObjectId } from 'mongodb';
 import { EmailResendCommand } from '../../users/application/users-use-cases/email-resend.use-case';
 import { RegistrationConfirmCommand } from '../../users/application/users-use-cases/registration-confirm.use-case';
 import { PasswordRecoveryCommand } from '../../users/application/users-use-cases/password-recovery.use-case';
@@ -48,7 +47,6 @@ import { LogoutCommand } from '../application/auth-use-cases/logout.use-case';
 import { LogoutInterceptor } from '../../../../core/interceptors/logout.interceptor';
 import { UsersOrmQueryRepository } from '../../users/infrastructure/repositories/users.orm.query.repository';
 import { AuthOrmQueryRepository } from '../infrastructure/auth.orm.query-repository';
-import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -93,7 +91,7 @@ export class AuthController {
   /** User registration endpoint */
   async registration(@Body() body: UserInputDto) {
     const createUserResult: ResultObject<{
-      newUserId: ObjectId;
+      newUserId: number;
       emailConfirmCode: string;
     }> = await this.commandBus.execute(new RegistrationCommand(body));
 

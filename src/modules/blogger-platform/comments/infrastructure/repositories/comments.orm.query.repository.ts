@@ -1,13 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from '../../domain/comments.orm.domain';
-import { LikeDislike } from '../../../likes/domain/like.orm.domain';
 import { Repository } from 'typeorm';
 import {
   CommentsSortBy,
   GetCommentsQueryParams,
 } from '../../interface/dto/get-comments.query-params.input.dto';
-import { ObjectId } from 'mongodb';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { CommentViewDto } from '../../interface/dto/comment.view-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
@@ -18,16 +16,12 @@ export class CommentsOrmQueryRepository {
   constructor(
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
-    @InjectRepository(LikeDislike)
-    private readonly likesRepository: Repository<LikeDislike>,
   ) {}
   async getComments(
     query: GetCommentsQueryParams,
-    postId: ObjectId,
-    userId: ObjectId,
+    postId: number,
+    userId: number,
   ) {
-    const postIdStr = postId.toString();
-    const userIdStr = userId?.toString();
     const validSortDirections =
       query.sortDirection === SortDirection.desc ||
       query.sortDirection === SortDirection.asc
@@ -42,7 +36,7 @@ export class CommentsOrmQueryRepository {
       .createQueryBuilder('comment')
       .leftJoin('user', 'user', 'comment.userId = user._id')
       .where('comment.deleted_at IS NULL')
-      .andWhere('comment.postId = :postId', { postId: postIdStr });
+      .andWhere('comment.postId = :postId', { postId });
 
     if (query.searchLoginTerm) {
       countQuery.andWhere('user.name ILIKE :search', {
@@ -59,7 +53,7 @@ export class CommentsOrmQueryRepository {
       .addSelect('usr.login', 'userLogin')
       .addSelect('comment.createdAt', 'createdAt')
       .leftJoin('user', 'usr', 'comment.userId = usr._id')
-      .where('comment.postId = :postId', { postId: postIdStr });
+      .where('comment.postId = :postId', { postId });
 
     if (query.searchLoginTerm) {
       commentQuery.andWhere('usr.name ILIKE :search', {
@@ -87,24 +81,26 @@ export class CommentsOrmQueryRepository {
       .addSelect(
         `
       CASE
-      WHEN :userIdStr = '' THEN 'None'
+      WHEN :userId::integer IS NULL THEN 'None'
       ELSE COALESCE(
       (SELECT ld.status
       FROM "like_dislike" ld
       WHERE ld.comment_id = comment._id
-      AND ld.user_id = :userIdStr
+      AND ld.user_id = :userId
       LIMIT 1),
       'None')
       END
       `,
         'myStatus',
       )
-      .setParameter('userIdStr', userIdStr);
+      .setParameter(
+        'userId',
+        userId !== undefined && userId !== null ? userId : null,
+      );
     commentQuery.orderBy(sortField, validSortDirections);
     commentQuery.limit(query.pageSize).offset(query.calculateSkipParam());
 
     const comments = await commentQuery.getRawMany();
-
     const items = comments.map(CommentViewDto.fromSqlMapToView);
     return PaginatedViewDto.mapToView({
       items,
@@ -113,10 +109,7 @@ export class CommentsOrmQueryRepository {
       totalCount,
     });
   }
-  async getCommentById(id: ObjectId, userId?: ObjectId) {
-    const commentIdStr = id.toString();
-    const userIdStr = userId?._id.toString();
-
+  async getCommentById(id: number, userId?: number) {
     const commentQuery = this.commentsRepository
       .createQueryBuilder('comment')
       .select('comment._id', '_id')
@@ -125,7 +118,7 @@ export class CommentsOrmQueryRepository {
       .addSelect('usr.login', 'userLogin')
       .addSelect('comment.createdAt', 'createdAt')
       .leftJoin('user', 'usr', 'comment.userId = usr._id')
-      .where('comment._id = :id', { id: commentIdStr });
+      .where('comment._id = :id', { id });
 
     commentQuery.addSelect(
       `
@@ -148,18 +141,21 @@ export class CommentsOrmQueryRepository {
       .addSelect(
         `
     CASE 
-    WHEN :userIdStr = '' THEN 'None'
+    WHEN :userId::integer IS NULL THEN 'None'
     ELSE COALESCE(
     (SELECT ld.status
     FROM "like_dislike" ld
     WHERE ld.comment_id = comment._id
-    AND ld.user_id = :userIdStr
+    AND ld.user_id = :userId
     LIMIT 1), 'None'
     ) END
     `,
         'myStatus',
       )
-      .setParameter('userIdStr', userIdStr);
+      .setParameter(
+        'userId',
+        userId !== undefined && userId !== null ? userId : null,
+      );
     const comment: CommentQueryResult | undefined =
       await commentQuery.getRawOne();
 

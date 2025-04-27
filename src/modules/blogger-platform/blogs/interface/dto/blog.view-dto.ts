@@ -1,6 +1,4 @@
-import { BlogDocument } from '../../domain/blogs.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { BlogsFromSql } from '../../infrastructure/repositories/blogs.sql.query-repository';
 import { Blog } from '../../domain/blogs.orm.domain';
 
 export class BlogViewDto {
@@ -11,12 +9,9 @@ export class BlogViewDto {
   @ApiProperty() createdAt: string;
   @ApiProperty() isMembership: boolean;
 
-  public static mapToView(
-    this: void,
-    blog: BlogDocument | BlogsFromSql | Blog,
-  ) {
+  public static mapToView(this: void, blog: Blog) {
     const dto = new BlogViewDto();
-    dto.id = typeof blog._id === 'string' ? blog._id : blog._id.toString();
+    dto.id = blog._id.toString();
     dto.name = blog.name;
     dto.description = blog.description;
     dto.websiteUrl = blog.websiteUrl;

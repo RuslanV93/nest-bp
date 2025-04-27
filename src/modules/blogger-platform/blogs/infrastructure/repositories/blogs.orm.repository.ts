@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager, InsertResult } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { Blog } from '../../domain/blogs.orm.domain';
 
 @Injectable()
@@ -13,15 +12,15 @@ export class BlogsOrmRepository {
   constructor(
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
-  async findOne(id: ObjectId) {
+  async findOne(id: number) {
     return this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
       .where('blog.deletedAt IS NULL')
-      .andWhere('_id = :id', { id: id.toString() })
+      .andWhere('_id = :id', { id: id })
       .getOne();
   }
-  async findOneOrNotFoundException(id: ObjectId) {
+  async findOneOrNotFoundException(id: number) {
     const blog = await this.findOne(id);
     if (!blog) {
       throw new NotFoundException('Blog not found');
@@ -57,7 +56,8 @@ export class BlogsOrmRepository {
     if (!result.identifiers.length) {
       throw new InternalServerErrorException();
     }
-    return new ObjectId((result.identifiers[0] as { _id: string })._id);
+
+    return (result.identifiers[0] as { _id: number })._id;
   }
 
   async deleteBlog(blog: Blog) {

@@ -10,14 +10,14 @@ export class UsersOrmRepository {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
-  async findById(id: ObjectId) {
+  async findById(id: number) {
     return this.userRepository.findOne({
-      where: { _id: id.toString(), deletedAt: IsNull() },
+      where: { _id: id, deletedAt: IsNull() },
       relations: ['emailConfirmationInfo', 'passwordInfo'],
     });
   }
 
-  async findOrNotFoundException(id: ObjectId) {
+  async findOrNotFoundException(id: number) {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -100,7 +100,7 @@ export class UsersOrmRepository {
     try {
       const user = this.userRepository.create(newUser);
       const savedUser = await this.userRepository.save(user);
-      return new ObjectId(savedUser._id);
+      return savedUser._id;
     } catch (e) {
       console.log(e);
       return null;

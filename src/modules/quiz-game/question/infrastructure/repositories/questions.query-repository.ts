@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../../domain/question.orm.domain';
 import {
   GetQuestionsQueryParams,
+  QuestionPublishedType,
   QuestionSortBy,
 } from '../../interfaces/dto/get-questions.query-params.input.dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
@@ -16,6 +17,15 @@ export class QuestionsQueryRepository {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
   ) {}
+  async getQuestionById(id: number) {
+    const question: Question | null = await this.questionRepository.findOne({
+      where: { id },
+    });
+    if (!question) {
+      throw new NotFoundException('Question not found');
+    }
+    return QuestionViewDto.mapToView(question);
+  }
   async getQuestions(query: GetQuestionsQueryParams) {
     const validSortDirections =
       query.sortDirection === SortDirection.desc ||
@@ -24,7 +34,7 @@ export class QuestionsQueryRepository {
           ? 'ASC'
           : 'DESC'
         : 'DESC';
-    const sortField = QuestionSortBy.createdAt;
+    const sortField = 'created_at';
 
     const countQuery = this.questionRepository.createQueryBuilder('question');
 
@@ -40,13 +50,23 @@ export class QuestionsQueryRepository {
       .select('question.id', 'id')
       .addSelect('question.body', 'body')
       .addSelect('question.published', 'published')
-      .addSelect('question.correctAnswers', 'correctAnswers')
+      .addSelect('question.correctAnswer', 'correctAnswer')
       .addSelect('question.createdAt', 'createdAt')
       .addSelect('question.updatedAt', 'updatedAt');
 
     if (query.bodySearchTerm) {
       questionQuery.where('question.body ILIKE :search', {
         search: `%${query.bodySearchTerm}%`,
+      });
+    }
+    if (
+      query.publishedStatus &&
+      query.publishedStatus !== QuestionPublishedType.all
+    ) {
+      const isPublished =
+        query.publishedStatus === QuestionPublishedType.published;
+      questionQuery.where('question.published = :search', {
+        search: isPublished,
       });
     }
     questionQuery.orderBy(sortField, validSortDirections);

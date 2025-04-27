@@ -1,7 +1,5 @@
-import { ObjectId } from 'mongodb';
-
 export class UserContextDto {
-  id: ObjectId;
+  id: number;
   deviceId: string;
 }
 

@@ -6,9 +6,7 @@ import {
   postTitleConstraints,
 } from '../../constants/posts-constants';
 import { Transform } from 'class-transformer';
-import { ObjectId } from 'mongodb';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { IsObjectId } from '../../../../../core/decorators/validation/isObjectId';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class PostInputDto {
   @ApiProperty()
@@ -43,10 +41,9 @@ export class PostInputDto {
     },
     { toClassOnly: true },
   )
-  @IsObjectId()
-  @IsString()
+  @IsInt()
   @IsNotEmpty()
-  blogId: ObjectId;
+  blogId: number;
 }
 
 export class PostInputDtoWithoutBlogId extends OmitType(PostInputDto, [

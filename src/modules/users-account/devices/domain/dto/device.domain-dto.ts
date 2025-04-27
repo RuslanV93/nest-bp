@@ -1,7 +1,5 @@
-import { ObjectId } from 'mongodb';
-
 export class DeviceDomainDto {
-  userId: string;
+  userId: number;
   ip: string;
   title: string;
   tokenVersion: string;

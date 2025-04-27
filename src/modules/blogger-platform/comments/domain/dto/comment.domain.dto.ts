@@ -15,9 +15,9 @@ export class CommentUpdateDomainDto extends CommentDomainDto<ObjectId> {}
 
 export type CommentQueryResult = {
   totalCount: string;
-  _id: string;
+  _id: number;
   content: string;
-  userId: string;
+  userId: number;
   userLogin: string;
   createdAt: Date;
   likesCount: string;

@@ -183,7 +183,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -597,7 +597,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -626,7 +626,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -658,7 +658,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -683,7 +683,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -733,7 +733,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -774,7 +774,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             },
             {
@@ -782,7 +782,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -816,7 +816,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             },
             {
@@ -824,7 +824,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -964,7 +964,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -993,7 +993,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1025,7 +1025,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1049,7 +1049,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1084,7 +1084,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             },
             {
@@ -1177,7 +1177,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1335,7 +1335,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1367,7 +1367,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1504,7 +1504,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1536,7 +1536,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             },
             {
@@ -1629,7 +1629,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1690,7 +1690,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1724,7 +1724,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1753,7 +1753,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1785,7 +1785,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1809,7 +1809,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "$ref": "#/components/schemas/ObjectId"
+                "type": "number"
               }
             }
           ],
@@ -1853,10 +1853,91 @@ window.onload = function() {
       "/api/sa/quiz/questions": {
         "get": {
           "operationId": "QuestionController_getQuestions",
-          "parameters": [],
+          "parameters": [
+            {
+              "name": "bodySearchTerm",
+              "required": false,
+              "in": "query",
+              "description": "Search term for questions",
+              "schema": {
+                "default": null,
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "description": "Field to sort by",
+              "schema": {
+                "default": "createdAt",
+                "example": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "pageNumber",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "example": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 10,
+                "example": 10,
+                "type": "number"
+              }
+            }
+          ],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/QuestionViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "security": [
@@ -1865,6 +1946,29 @@ window.onload = function() {
             }
           ],
           "summary": "Get all questions",
+          "tags": [
+            "Question"
+          ]
+        },
+        "post": {
+          "operationId": "QuestionController_createNewQuestion",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "summary": "Add new question",
           "tags": [
             "Question"
           ]
@@ -1963,10 +2067,6 @@ window.onload = function() {
             "password",
             "email"
           ]
-        },
-        "ObjectId": {
-          "type": "object",
-          "properties": {}
         },
         "MeViewDto": {
           "type": "object",
@@ -2190,7 +2290,7 @@ window.onload = function() {
               "type": "string"
             },
             "blogId": {
-              "$ref": "#/components/schemas/ObjectId"
+              "type": "number"
             }
           },
           "required": [
@@ -2287,6 +2387,58 @@ window.onload = function() {
         "CommentInputDto": {
           "type": "object",
           "properties": {}
+        },
+        "QuestionViewDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "body": {
+              "type": "string"
+            },
+            "correctAnswers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "published": {
+              "type": "boolean"
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "updatedAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "body",
+            "correctAnswers",
+            "published",
+            "createdAt",
+            "updatedAt"
+          ]
+        },
+        "QuestionInputDto": {
+          "type": "object",
+          "properties": {
+            "body": {
+              "type": "string"
+            },
+            "correctAnswers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "body",
+            "correctAnswers"
+          ]
         }
       }
     }

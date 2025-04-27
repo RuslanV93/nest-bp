@@ -23,7 +23,7 @@ export class UpdateDeviceUseCase
     const title = `Device: ${command.clientInfo.device || 'other'},
      Platform: ${command.clientInfo.os || 'other'}, Browser: ${command.clientInfo.browser || 'other'}`;
     const updateDto: DeviceDomainDto = {
-      userId: command.user.id.toString(),
+      userId: command.user.id,
       ip: command.clientInfo.ip,
       title: title,
       tokenVersion: command.sessionVersion,

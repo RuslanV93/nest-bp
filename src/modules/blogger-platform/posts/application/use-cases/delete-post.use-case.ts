@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsOrmRepository } from '../../infrastructure/repositories/posts.orm.repository';
 import { BlogsOrmRepository } from '../../../blogs/infrastructure/repositories/blogs.orm.repository';
@@ -6,8 +5,8 @@ import { Post } from '../../domain/posts.orm.domain';
 
 export class DeletePostCommand {
   constructor(
-    public id: ObjectId,
-    public blogId: ObjectId,
+    public id: number,
+    public blogId: number,
   ) {}
 }
 

@@ -1,5 +1,5 @@
 export type JwtPayloadType = {
-  id: string;
+  id: number;
 };
 export type Tokens = {
   accessToken: string;

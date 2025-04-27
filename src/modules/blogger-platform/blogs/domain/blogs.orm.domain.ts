@@ -1,11 +1,10 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../shared/types/base.entity.type';
-import { ObjectId } from 'mongodb';
+import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { BlogInputDto } from '../interface/dto/blog.input-dto';
 import { Post } from '../../posts/domain/posts.orm.domain';
 
 @Entity()
-export class Blog extends BaseEntity {
+export class Blog extends BazaEntity {
   @Column()
   name: string;
 
@@ -23,8 +22,6 @@ export class Blog extends BaseEntity {
 
   static createInstance(blogDto: BlogInputDto) {
     const blog: Blog = new this();
-    const id: ObjectId = new ObjectId();
-    blog._id = id.toString();
     blog.name = blogDto.name;
     blog.description = blogDto.description;
     blog.websiteUrl = blogDto.websiteUrl;

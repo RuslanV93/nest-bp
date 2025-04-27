@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from '../../domain/comments.orm.domain';
 import { Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { NotFoundDomainException } from '../../../../../core/exceptions/domain-exception';
 
 @Injectable()
@@ -11,12 +10,12 @@ export class CommentsOrmRepository {
     @InjectRepository(Comment)
     private readonly commentsRepository: Repository<Comment>,
   ) {}
-  async findOne(id: ObjectId) {
+  async findOne(id: number) {
     return this.commentsRepository.findOne({
-      where: { _id: id.toString() },
+      where: { _id: id },
     });
   }
-  async findOneAndNotFoundException(id: ObjectId) {
+  async findOneAndNotFoundException(id: number) {
     const comment = await this.findOne(id);
     if (!comment) {
       throw NotFoundDomainException.create('Comment not found');
@@ -29,7 +28,7 @@ export class CommentsOrmRepository {
   async createComment(comment: Comment) {
     const newComment = this.commentsRepository.create(comment);
     const createdComment = await this.save(newComment);
-    return new ObjectId(createdComment._id);
+    return createdComment._id;
   }
   async deleteComment(comment: Comment) {
     await this.commentsRepository.softRemove(comment);

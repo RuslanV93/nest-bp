@@ -1,19 +1,17 @@
-import { ObjectId } from 'mongodb';
-
 export enum LikeStatus {
   Like = 'Like',
   Dislike = 'Dislike',
   None = 'None',
 }
 export class CommentLikeDomainDto {
-  parentId: ObjectId;
-  userId: ObjectId;
+  parentId: number;
+  userId: number;
   status: LikeStatus;
 }
 
 export class PostLikeDomainDto {
-  parentId: ObjectId;
-  userId: ObjectId;
+  parentId: number;
+  userId: number;
   login: string;
   status: LikeStatus;
 }

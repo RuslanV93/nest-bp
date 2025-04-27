@@ -63,12 +63,12 @@ export class BlogsOrmQueryRepository {
   }
 
   /** Get one blog by id */
-  async getBlogById(id: ObjectId) {
+  async getBlogById(id: number) {
     const blog: Blog | null = await this.entityManager
       .createQueryBuilder(Blog, 'blog')
       .select('blog')
       .where('blog.deletedAt IS NULL')
-      .andWhere('blog._id = :id', { id: id.toString() })
+      .andWhere('blog._id = :id', { id: id })
       .getOne();
     if (!blog) {
       throw new NotFoundException('Blog not found');

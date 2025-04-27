@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../../domain/devices.orm.domain';
 import { IsNull, Not, Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class DevicesOrmRepository {
@@ -17,15 +16,14 @@ export class DevicesOrmRepository {
     });
   }
 
-  async findSessionByDeviceIdAndUserId(deviceId: string, userId: ObjectId) {
-    const session: Device | null = await this.devicesRepository.findOne({
+  async findSessionByDeviceIdAndUserId(deviceId: string, userId: number) {
+    return this.devicesRepository.findOne({
       where: {
         deviceId: deviceId,
-        userId: userId.toString(),
+        userId: userId,
         deletedAt: IsNull(),
       },
     });
-    return session;
   }
 
   async findOrNotFoundException(deviceId: string) {
@@ -36,10 +34,10 @@ export class DevicesOrmRepository {
     return device;
   }
 
-  async findAll(userId: ObjectId, deviceId: string) {
+  async findAll(userId: number, deviceId: string) {
     const devices: Device[] = await this.devicesRepository.find({
       where: {
-        userId: userId.toString(),
+        userId: userId,
         deviceId: Not(deviceId),
         deletedAt: IsNull(),
       },

@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import {
@@ -13,7 +14,6 @@ import {
 import { BlogViewDto } from './dto/blog.view-dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
-import { ObjectId } from 'mongodb';
 import { PostViewDto } from '../../posts/interface/dto/post.view-dto';
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
@@ -47,7 +47,7 @@ export class PublicBlogsController {
   @ApiOperation({
     summary: 'Get 1 blog by id.',
   })
-  async getBlogById(@Param('id') id: ObjectId) {
+  async getBlogById(@Param('id', ParseIntPipe) id: number) {
     const user = await this.blogsQueryRepository.getBlogById(id);
     if (!user) {
       throw new NotFoundException('Blog not found');
@@ -63,7 +63,7 @@ export class PublicBlogsController {
       'Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.',
   })
   async getPostsByBlogId(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: GetPostsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {

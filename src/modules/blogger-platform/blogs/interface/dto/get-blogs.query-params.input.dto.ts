@@ -5,6 +5,7 @@ export enum BlogsSortBy {
   name = 'name',
   description = 'description',
 }
+
 export class GetBlogsQueryParams extends BaseSortDirectionParam<BlogsSortBy> {
   sortBy = BlogsSortBy.createdAt;
   searchNameTerm: string | null = null;

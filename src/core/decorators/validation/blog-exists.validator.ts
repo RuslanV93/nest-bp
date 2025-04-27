@@ -2,16 +2,15 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { BlogsSqlRepository } from '../../../modules/blogger-platform/blogs/infrastructure/repositories/blogs.sql.repository';
-import { ObjectId } from 'mongodb';
+import { BlogsOrmRepository } from '../../../modules/blogger-platform/blogs/infrastructure/repositories/blogs.orm.repository';
 
 @ValidatorConstraint({ async: true })
 export class BlogExistsValidator implements ValidatorConstraintInterface {
-  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
+  constructor(private readonly blogsRepository: BlogsOrmRepository) {}
 
-  async validate(blogId: ObjectId) {
+  async validate(blogId: number) {
     try {
-      const user = await this.blogsRepository.findOne(new ObjectId(blogId));
+      const user = await this.blogsRepository.findOne(blogId);
 
       return !!user;
     } catch {

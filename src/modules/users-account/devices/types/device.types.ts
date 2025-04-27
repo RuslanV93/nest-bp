@@ -1,6 +1,6 @@
 export type DeviceEntityType = {
   _id: string;
-  userId: string;
+  userId: number;
   ip: string;
   loginDate: Date;
   lastActivity: Date;
@@ -12,7 +12,7 @@ export type DeviceEntityType = {
   deletedAt?: Date | null;
 };
 export type DeviceDomainDto = {
-  userId: string;
+  userId: number;
   ip: string;
   title: string;
   tokenVersion: string;

@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { BaseEntity } from '../../../../shared/types/base.entity.type';
+import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { User } from './users.orm.domain';
 
 @Entity()
-export class EmailInfo extends BaseEntity {
+export class EmailInfo extends BazaEntity {
   @Column()
   confirmCode: string;
 

@@ -1,15 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ObjectId } from 'mongodb';
 import { ForbiddenDomainException } from '../../../../../core/exceptions/domain-exception';
 import { DevicesOrmRepository } from '../../infrastructure/repositories/devices.orm.repository';
 import { Device } from '../../domain/devices.orm.domain';
 
 export abstract class DeleteDeviceCommand {
-  protected constructor(public readonly userId: ObjectId) {}
+  protected constructor(public readonly userId: number) {}
 }
 export class DeleteSpecifiedDeviceCommand extends DeleteDeviceCommand {
   constructor(
-    userId: ObjectId,
+    userId: number,
     public readonly deviceId: string,
   ) {
     super(userId);
@@ -17,7 +16,7 @@ export class DeleteSpecifiedDeviceCommand extends DeleteDeviceCommand {
 }
 export class DeleteOtherDevicesCommand extends DeleteDeviceCommand {
   constructor(
-    userId: ObjectId,
+    userId: number,
     public readonly deviceId: string,
   ) {
     super(userId);
@@ -49,7 +48,7 @@ export class DeleteSpecifiedDeviceUseCase
       command.deviceId,
     );
 
-    if (device.userId.toString() !== command.userId.toString()) {
+    if (device.userId !== command.userId) {
       throw ForbiddenDomainException.create();
     }
     await this.devicesRepository.deleteDevice(device);

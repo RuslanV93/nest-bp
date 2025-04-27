@@ -1,5 +1,5 @@
 export type MeType = {
-  _id: string;
+  _id: number;
   email: string;
   login: string;
 };

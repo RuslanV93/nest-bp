@@ -22,7 +22,9 @@ export class SwaggerConfigService {
       .build();
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('swagger', app, documentFactory);
+    SwaggerModule.setup('swagger', app, documentFactory, {
+      customCssUrl: '/swagger/swagger-custom.css',
+    });
 
     get(`${serverUrl}/swagger/swagger-ui-bundle.js`, (response) => {
       response.pipe(createWriteStream('swagger/swagger-ui-bundle.js'));
@@ -49,6 +51,7 @@ export class SwaggerConfigService {
 
     get(`${serverUrl}/swagger/swagger-ui.css`, (response) => {
       response.pipe(createWriteStream('swagger/swagger-ui.css'));
+
       console.log(`Swagger UI css file written to: '/swagger/swagger-ui.css'`);
     });
   }

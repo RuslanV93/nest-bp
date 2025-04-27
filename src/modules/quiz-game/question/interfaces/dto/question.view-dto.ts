@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Question } from '../../domain/question.orm.domain';
 
 export type QuestionFromSql = {
-  id: string;
+  id: number;
   body: string;
-  correctAnswers: string[];
+  correctAnswer: string[];
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -17,11 +18,11 @@ export class QuestionViewDto {
   @ApiProperty() createdAt: string;
   @ApiProperty() updatedAt: string;
 
-  public static mapToView(this: void, question: QuestionFromSql) {
+  public static mapToView(this: void, question: QuestionFromSql | Question) {
     const dto = new QuestionViewDto();
-    dto.id = question.id;
+    dto.id = question.id.toString();
     dto.body = question.body;
-    dto.correctAnswers = question.correctAnswers;
+    dto.correctAnswers = question.correctAnswer;
     dto.published = question.published;
     dto.createdAt = question.createdAt.toISOString();
     dto.updatedAt = question.updatedAt.toISOString();

@@ -1,7 +1,7 @@
 import { LikeStatus } from '../domain/dto/like.domain.dto';
 
 export type LikeSqlDtoType = {
-  _id: string;
+  _id: number;
   status: LikeStatus;
   parentId: string;
   userId: string;
@@ -14,8 +14,8 @@ export enum ParentType {
   COMMENT = 'COMMENT',
 }
 export type LikeWhereType = {
-  userId: string;
+  userId: number;
   parent: ParentType;
-  commentId?: string;
-  postId?: string;
+  commentId?: number;
+  postId?: number;
 };

@@ -1,16 +1,16 @@
-import { BaseEntity } from '../../../../shared/types/base.entity.type';
+import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../../users/domain/users.orm.domain';
 import { DeviceDomainDto } from '../types/device.types';
 import { ObjectId } from 'mongodb';
 
 @Entity()
-export class Device extends BaseEntity {
+export class Device extends BazaEntity {
   @ManyToOne(() => User)
   user: User;
 
   @Column()
-  userId: string;
+  userId: number;
 
   @Column()
   ip: string;
@@ -29,8 +29,6 @@ export class Device extends BaseEntity {
 
   static createInstance(deviceDto: DeviceDomainDto) {
     const device = new this();
-    const id = new ObjectId();
-    device._id = id.toString();
     device.userId = deviceDto.userId;
     device.ip = deviceDto.ip;
     device.title = deviceDto.title;

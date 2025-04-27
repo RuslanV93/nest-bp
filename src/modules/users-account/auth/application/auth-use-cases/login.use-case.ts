@@ -1,13 +1,12 @@
 import { TokenService } from '../jwt.service';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ObjectId } from 'mongodb';
 import { ClientInfoDto } from '../../../devices/types/client-info.dto';
 import { CreateDeviceCommand } from '../../../devices/application/use-cases/create-device.use-case';
 import { randomUUID } from 'node:crypto';
 
 export class LoginCommand {
   constructor(
-    public userId: ObjectId,
+    public userId: number,
     public clientInfo: ClientInfoDto,
   ) {}
 }
@@ -20,7 +19,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   async execute(command: LoginCommand) {
     const deviceId: string = randomUUID();
     const { accessToken, refreshToken } = this.tokenService.generateTokens(
-      command.userId.toString(),
+      command.userId,
       deviceId,
     );
 

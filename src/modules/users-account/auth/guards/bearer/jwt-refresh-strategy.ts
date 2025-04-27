@@ -15,8 +15,6 @@ import {
 } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { Reflector } from '@nestjs/core';
-import { DevicesSqlRepository } from '../../../devices/infrastructure/repositories/devices.sql.repository';
-import { SqlDomainDevice } from '../../../devices/domain/devices.domain';
 import { CoreConfig } from '../../../../../core/core-config/core.config';
 import { DevicesOrmRepository } from '../../../devices/infrastructure/repositories/devices.orm.repository';
 import { Device } from '../../../devices/domain/devices.orm.domain';
@@ -56,7 +54,6 @@ export class SoftRefreshStrategy implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest<Request>();
-    const response: Response = context.switchToHttp().getResponse<Response>();
     const refreshToken: string = request.cookies.refreshToken;
 
     if (!refreshToken) {
@@ -79,7 +76,7 @@ export class SoftRefreshStrategy implements CanActivate {
       const session: Device | null =
         await this.devicesRepository.findSessionByDeviceIdAndUserId(
           tokenPayload.deviceId,
-          new ObjectId(tokenPayload.id),
+          tokenPayload.id,
         );
 
       if (session) {

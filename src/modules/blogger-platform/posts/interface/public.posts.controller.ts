@@ -7,13 +7,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { GetPostsQueryParams } from './dto/get-posts.query-params.input.dto';
-import { PostInputDto } from './dto/post.input-dto';
 
 import { GetCommentsQueryParams } from '../../comments/interface/dto/get-comments.query-params.input.dto';
 import {
@@ -23,7 +23,6 @@ import {
 import { PostViewDto } from './dto/post.view-dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
-import { ObjectId } from 'mongodb';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
 import { CommandBus } from '@nestjs/cqrs';
@@ -80,7 +79,7 @@ export class PublicPostsController {
     summary: 'Gets post by id.',
   })
   async getPostById(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const post = await this.postsQueryRepository.getPostById(id, user.id);
@@ -99,17 +98,16 @@ export class PublicPostsController {
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
-    @Param('id', PostExistsPipe) id: ObjectId,
+    @Param('id', ParseIntPipe, PostExistsPipe) id: number,
     @Query() query: GetCommentsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    const comments = await this.commentsQueryRepository.getComments(
-      query,
-      id,
-      user.id,
-    );
-
-    return comments;
+    try {
+      console.log('hello');
+      return this.commentsQueryRepository.getComments(query, id, user.id);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /** Update Like Status. Update posts like counters */
@@ -121,7 +119,7 @@ export class PublicPostsController {
     summary: 'Update post like.',
   })
   async updateLikeStatus(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: LikeInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -139,11 +137,11 @@ export class PublicPostsController {
     description: 'Create and returns a new comment.',
   })
   async createComment(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: CommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    const newCommentId: ObjectId = await this.commandBus.execute(
+    const newCommentId: number = await this.commandBus.execute(
       new CreateCommentCommand(body.content, user.id, id),
     );
     return await this.commentsQueryRepository.getCommentById(

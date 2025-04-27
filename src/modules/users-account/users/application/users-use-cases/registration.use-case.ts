@@ -5,7 +5,6 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { CreateUserCommand } from './create-user.use-case';
 import { EmailService } from '../../../../notification/application/email.service';
 import { ResultObject } from '../../../../../shared/types/serviceResultObjectType';
-import { ObjectId } from 'mongodb';
 import { UsersOrmRepository } from '../../infrastructure/repositories/users.orm.repository';
 
 export class RegistrationCommand {
@@ -22,9 +21,9 @@ export class RegistrationUseCase
   ) {}
   async execute(
     command: RegistrationCommand,
-  ): Promise<ResultObject<{ newUserId: ObjectId; emailConfirmCode: string }>> {
+  ): Promise<ResultObject<{ newUserId: number; emailConfirmCode: string }>> {
     const registrationResult: ResultObject<{
-      newUserId: ObjectId;
+      newUserId: number;
       emailConfirmCode: string;
     }> = await this.commandBus.execute(new CreateUserCommand(command.userDto));
 

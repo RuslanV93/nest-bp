@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PasswordUpdateInputDto } from '../../../auth/interfaces/dto/password.dto';
 import { CryptoService } from '../../../auth/application/crypto.service';
-import { SqlDomainUser } from '../../domain/users.sql.domain';
 import { UsersOrmRepository } from '../../infrastructure/repositories/users.orm.repository';
 import { User } from '../../domain/users.orm.domain';
 

@@ -44,7 +44,7 @@ import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
         autoLoadEntities: true,
         synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
-        logging: false,
+        logging: ['error'],
         extra: {
           ssl: {
             rejectUnauthorized: false,

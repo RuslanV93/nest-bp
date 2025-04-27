@@ -6,9 +6,7 @@ import {
   GetPostsQueryParams,
   PostsSortBy,
 } from '../../interface/dto/get-posts.query-params.input.dto';
-import { ObjectId } from 'mongodb';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { LikeDislike } from '../../../likes/domain/like.orm.domain';
 import { PostViewDto } from '../../interface/dto/post.view-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { PostQueryResult } from '../../domain/dto/post.domain.dto';
@@ -18,16 +16,8 @@ export class PostsOrmQueryRepository {
   constructor(
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
-    @InjectRepository(LikeDislike)
-    private readonly likesRepository: Repository<LikeDislike>,
   ) {}
-  async getPosts(
-    query: GetPostsQueryParams,
-    blogId?: ObjectId,
-    userId?: ObjectId,
-  ) {
-    const blogIdStr = blogId?.toString() || '';
-    const userIdStr = userId?.toString() || '';
+  async getPosts(query: GetPostsQueryParams, blogId?: number, userId?: number) {
     const validSortDirection =
       query.sortDirection === SortDirection.asc ||
       query.sortDirection === SortDirection.desc
@@ -48,8 +38,8 @@ export class PostsOrmQueryRepository {
       .where('post.deleted_at IS NULL');
 
     // Добавляем фильтрацию по ID блога, если передан
-    if (blogIdStr) {
-      countQuery.andWhere('post.blog_id = :blogIdStr', { blogIdStr });
+    if (blogId) {
+      countQuery.andWhere('post.blog_id = :blogId', { blogId });
     }
 
     // Добавляем поиск по названию, если передан
@@ -75,8 +65,8 @@ export class PostsOrmQueryRepository {
       .leftJoin('blog', 'blog', 'blog._id = post.blog_id')
       .where('post.deleted_at IS NULL');
 
-    if (blogIdStr) {
-      postsQuery.andWhere('post.blog_id = :blogIdStr', { blogIdStr });
+    if (blogId) {
+      postsQuery.andWhere('post.blog_id = :blogId', { blogId });
     }
 
     if (query.searchTitleTerm) {
@@ -107,18 +97,21 @@ export class PostsOrmQueryRepository {
       .addSelect(
         `
     CASE 
-      WHEN :userIdStr = '' THEN 'None'
+      WHEN :userId::integer IS NULL THEN 'None'
       ELSE COALESCE(
         (SELECT ld.status 
          FROM "like_dislike" ld 
          WHERE ld.post_id = post._id 
-         AND ld.user_id = :userIdStr 
+         AND ld.user_id = :userId
          LIMIT 1), 
         'None')
     END`,
         'myStatus',
       )
-      .setParameter('userIdStr', userIdStr);
+      .setParameter(
+        'userId',
+        userId !== undefined && userId !== null ? userId : null,
+      );
 
     postsQuery.addSelect(
       `
@@ -159,9 +152,7 @@ export class PostsOrmQueryRepository {
     });
   }
 
-  async getPostById(id: ObjectId, userId?: ObjectId | null) {
-    const postIdStr = id.toString();
-    const userIdStr = userId?.toString();
+  async getPostById(id: number, userId?: number | null) {
     const query = this.postsRepository
       .createQueryBuilder('post')
       .select('post._id', 'id')
@@ -193,12 +184,12 @@ export class PostsOrmQueryRepository {
       .addSelect(
         `
       CASE 
-        WHEN :userIdStr = '' THEN 'None'
+        WHEN :userId::integer IS NULL THEN 'None'
         ELSE COALESCE(
           (SELECT ld.status 
            FROM "like_dislike" ld 
            WHERE ld.post_id = post._id 
-           AND ld.user_id = :userIdStr 
+           AND ld.user_id = :userId 
            LIMIT 1), 
           'None')
       END`,
@@ -229,9 +220,12 @@ export class PostsOrmQueryRepository {
       )
       .leftJoin('blog', 'blog', 'blog._id = post.blog_id')
       .where('post.deleted_at IS NULL')
-      .andWhere('post._id = :postIdStr')
-      .setParameter('postIdStr', postIdStr)
-      .setParameter('userIdStr', userIdStr);
+      .andWhere('post._id = :postId')
+      .setParameter('postId', id)
+      .setParameter(
+        'userId',
+        userId !== undefined && userId !== null ? userId : null,
+      );
 
     const result: PostQueryResult | undefined = await query.getRawOne();
 

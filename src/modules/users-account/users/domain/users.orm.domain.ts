@@ -1,16 +1,14 @@
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { BaseEntity } from '../../../../shared/types/base.entity.type';
+import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { EmailInfo } from './email-info.orm.domain';
 import { PasswordInfo } from './password-info.orm.domain';
-import { ObjectId } from 'mongodb';
-import { randomUUID } from 'node:crypto';
 import { Device } from '../../devices/domain/devices.orm.domain';
 import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
 import { CryptoService } from '../../auth/application/crypto.service';
 import { LikeDislike } from '../../../blogger-platform/likes/domain/like.orm.domain';
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends BazaEntity {
   @Column()
   login: string;
 
@@ -41,16 +39,13 @@ export class User extends BaseEntity {
     emailConfirmCode: string,
   ) {
     const now = new Date();
-    const id = new ObjectId();
     const user = new this();
     const emailInfo = new EmailInfo();
     const passwordInfo = new PasswordInfo();
-    user._id = id.toString();
     user.login = login;
     user.email = email;
 
     /// Email confirmation info
-    emailInfo._id = randomUUID();
     emailInfo.confirmCode = emailConfirmCode;
     emailInfo.codeExpirationDate = new Date(
       now.getTime() + 24 * 60 * 60 * 1000,
@@ -61,7 +56,6 @@ export class User extends BaseEntity {
     );
 
     /// Password info
-    passwordInfo._id = randomUUID();
     passwordInfo.passwordHash = password;
     passwordInfo.passwordRecoveryCode = null;
 

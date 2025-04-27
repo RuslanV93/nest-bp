@@ -1,10 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ObjectId } from 'mongodb';
 import { Blog } from '../../domain/blogs.orm.domain';
 import { BlogsOrmRepository } from '../../infrastructure/repositories/blogs.orm.repository';
 
 export class DeleteBlogCommand {
-  constructor(public id: ObjectId) {}
+  constructor(public id: number) {}
 }
 
 @CommandHandler(DeleteBlogCommand)

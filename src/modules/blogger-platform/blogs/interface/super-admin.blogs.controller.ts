@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -15,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { GetBlogsQueryParams } from './dto/get-blogs.query-params.input.dto';
 import { BlogInputDto } from './dto/blog.input-dto';
-import { ObjectId } from 'mongodb';
 import { GetPostsQueryParams } from '../../posts/interface/dto/get-posts.query-params.input.dto';
 import {
   PostInputDto,
@@ -79,7 +79,7 @@ export class SuperAdminBlogsController {
   @ApiOperation({
     summary: 'Get 1 blog by id.',
   })
-  async getBlogById(@Param('id') id: ObjectId) {
+  async getBlogById(@Param('id', ParseIntPipe) id: number) {
     const blog = await this.blogsQueryRepository.getBlogById(id);
     if (!blog) {
       throw new NotFoundException('Blog not found');
@@ -97,7 +97,7 @@ export class SuperAdminBlogsController {
     summary: 'Creates new blog. Returns new created blog',
   })
   async createNewBlog(@Body() body: BlogInputDto) {
-    const newBlogId: ObjectId = await this.commandBus.execute(
+    const newBlogId: number = await this.commandBus.execute(
       new CreateBlogCommand(body),
     );
     const newUser = await this.blogsQueryRepository.getBlogById(newBlogId);
@@ -116,7 +116,10 @@ export class SuperAdminBlogsController {
     summary: 'Update blog fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updateBlog(@Param('id') id: ObjectId, @Body() body: BlogInputDto) {
+  async updateBlog(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: BlogInputDto,
+  ) {
     await this.commandBus.execute(new UpdateBlogCommand(id, body));
   }
 
@@ -127,7 +130,7 @@ export class SuperAdminBlogsController {
     summary: 'Delete one blog by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id') id: ObjectId) {
+  async deleteBlog(@Param('id', ParseIntPipe) id: number) {
     await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
@@ -141,7 +144,7 @@ export class SuperAdminBlogsController {
       'Fetches all posts by existing blog id with optional query parameters for search, sorting, and pagination.',
   })
   async getPostsByBlogId(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Query() query: GetPostsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -164,13 +167,12 @@ export class SuperAdminBlogsController {
       'Create and return one post to existing blog. Using blogs uri parameter. ',
   })
   async createPostByBlogId(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: PostInputDtoWithoutBlogId,
   ) {
-    const postId: ObjectId = await this.commandBus.execute(
+    const postId: number = await this.commandBus.execute(
       new CreatePostCommand(id, body),
     );
-
     const newPost = await this.postsQueryRepository.getPostById(postId);
     if (!newPost) {
       throw new InternalServerErrorException();
@@ -187,8 +189,8 @@ export class SuperAdminBlogsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostByBlogId(
-    @Param('blogId') blogId: ObjectId,
-    @Param('postId') postId: ObjectId,
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Param('postId', ParseIntPipe) postId: number,
     @Body() body: PostInputDtoWithoutBlogId,
   ) {
     await this.commandBus.execute(new UpdatePostCommand(postId, blogId, body));
@@ -202,8 +204,8 @@ export class SuperAdminBlogsController {
   })
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePostByBlogId(
-    @Param('id') id: ObjectId,
-    @Param('blogId') blogId: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
+    @Param('blogId', ParseIntPipe) blogId: number,
   ) {
     await this.commandBus.execute(new DeletePostCommand(id, blogId));
   }

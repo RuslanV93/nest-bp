@@ -1,8 +1,8 @@
-import { PostDocument } from '../../domain/posts.model';
 import { ApiProperty } from '@nestjs/swagger';
-import { PostLikeDocument } from '../../../likes/domain/posts.likes.model';
-import { LikeStatus } from '../../../likes/domain/dto/like.domain.dto';
-import { PostQueryResult } from '../../domain/dto/post.domain.dto';
+import {
+  NewestLikeType,
+  PostQueryResult,
+} from '../../domain/dto/post.domain.dto';
 
 export class NewestLikesViewDto {
   @ApiProperty() addedAt: string | Date;
@@ -31,37 +31,7 @@ export class PostViewDto {
   public static fromSqlMapToView(this: void, post: PostQueryResult) {
     const dto = new PostViewDto();
 
-    dto.id = post.id;
-    dto.title = post.title;
-    dto.shortDescription = post.shortDescription;
-    dto.content = post.content;
-    dto.blogId = post.blogId;
-    dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt.toISOString();
-    dto.extendedLikesInfo = {
-      likesCount: parseInt(post.likesCount),
-      dislikesCount: parseInt(post.dislikesCount),
-      myStatus: post.myStatus,
-      newestLikes: post.newestLikes,
-    };
-    return dto;
-  }
-  public static mapToView(
-    this: void,
-    post: PostDocument,
-    likeInfo: PostLikeDocument[] | null,
-    newestLikesMap: Map<string, NewestLikesViewDto[]>,
-  ) {
-    const likesMap = new Map(
-      likeInfo?.map((like) => {
-        return [like.parentId.toString(), like.status];
-      }) ?? [],
-    );
-
-    const dto = new PostViewDto();
-    const postId = post._id.toString();
-
-    dto.id = postId;
+    dto.id = post.id.toString();
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
@@ -69,11 +39,45 @@ export class PostViewDto {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt.toISOString();
     dto.extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo.likesCount,
-      dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus: likesMap.get(postId) ?? LikeStatus.None,
-      newestLikes: newestLikesMap.get(postId) ?? [],
+      likesCount: parseInt(post.likesCount),
+      dislikesCount: parseInt(post.dislikesCount),
+      myStatus: post.myStatus,
+      newestLikes: post.newestLikes.map((like: NewestLikeType) => ({
+        addedAt: like.addedAt,
+        userId: like.userId.toString(),
+        login: like.login,
+      })),
     };
     return dto;
   }
+  // public static mapToView(
+  //   this: void,
+  //   post: PostDocument,
+  //   likeInfo: PostLikeDocument[] | null,
+  //   newestLikesMap: Map<string, NewestLikesViewDto[]>,
+  // ) {
+  //   const likesMap = new Map(
+  //     likeInfo?.map((like) => {
+  //       return [like.parentId, like.status];
+  //     }) ?? [],
+  //   );
+  //
+  //   const dto = new PostViewDto();
+  //   const postId = post._id.toString();
+  //
+  //   dto.id = postId;
+  //   dto.title = post.title;
+  //   dto.shortDescription = post.shortDescription;
+  //   dto.content = post.content;
+  //   dto.blogId = post.blogId.toString();
+  //   dto.blogName = post.blogName;
+  //   dto.createdAt = post.createdAt.toISOString();
+  //   dto.extendedLikesInfo = {
+  //     likesCount: post.extendedLikesInfo.likesCount,
+  //     dislikesCount: post.extendedLikesInfo.dislikesCount,
+  //     myStatus: likesMap.get(postId) ?? LikeStatus.None,
+  //     newestLikes: newestLikesMap.get(postId) ?? [],
+  //   };
+  //   return dto;
+  // }
 }

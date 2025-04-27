@@ -31,10 +31,7 @@ export class DevicesController {
   async getDevices(
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<DeviceViewDto[]> {
-    const devices: DeviceViewDto[] = await this.queryBus.execute(
-      new GetDevicesQuery(user.id),
-    );
-    return devices;
+    return await this.queryBus.execute(new GetDevicesQuery(user.id));
   }
 
   @Delete()

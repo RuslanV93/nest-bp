@@ -4,7 +4,7 @@ import { DeviceViewDto } from '../../interfaces/dto/devices.view-dto';
 import { DevicesOrmQueryRepository } from '../../infrastructure/repositories/devices.orm.query-repository';
 
 export class GetDevicesQuery {
-  constructor(public userId: ObjectId) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(GetDevicesQuery)

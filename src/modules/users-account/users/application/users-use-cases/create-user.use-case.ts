@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserInputDto } from '../../interfaces/dto/userInputDto';
 import { BadRequestDomainException } from '../../../../../core/exceptions/domain-exception';
-import { ObjectId } from 'mongodb';
 import { ServiceResultObjectFactory } from '../../../../../shared/utils/serviceResultObject';
 import { CryptoService } from '../../../auth/application/crypto.service';
 import { randomUUID } from 'node:crypto';
@@ -40,7 +39,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       passwordHash,
       emailConfirmCode,
     );
-    const newUserId: ObjectId | null =
+    const newUserId: number | null =
       await this.usersRepository.createUser(user);
 
     return ServiceResultObjectFactory.successResultObject({

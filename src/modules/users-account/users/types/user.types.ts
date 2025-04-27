@@ -10,7 +10,7 @@ export type PasswordInfoType = {
   passwordRecoveryCodeExpirationDate?: Date | null;
 };
 export type UserSqlEntityType = {
-  _id: string;
+  _id: number;
   login: string;
   email: string;
   createdAt: Date | null;

@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users/interfaces/users.controller';
-import { UsersRepository } from './users/infrastructure/repositories/users.repository';
-import { UsersQueryRepository } from './users/infrastructure/repositories/users.query.repository';
 import { CryptoService } from './auth/application/crypto.service';
 import { NotificationModule } from '../notification/notification.module';
 import { EmailService } from '../notification/application/email.service';
 import { AuthController } from './auth/interfaces/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthQueryRepository } from './auth/infrastructure/auth.query-repository';
 import { AuthService } from './auth/application/auth.service';
 import { TokenService } from './auth/application/jwt.service';
 import { PassportModule } from '@nestjs/passport';
@@ -29,8 +26,6 @@ import {
   DeleteOtherDevicesUseCase,
   DeleteSpecifiedDeviceUseCase,
 } from './devices/application/use-cases/delete-device.use-case';
-import { DevicesRepository } from './devices/infrastructure/repositories/devices.repository';
-import { DevicesQueryRepository } from './devices/infrastructure/repositories/devices.query-repository';
 import {
   Device as DeviceMongo,
   DeviceSchema,
@@ -40,11 +35,6 @@ import { GetDevicesHandler } from './devices/application/use-cases/get-devices.q
 import { LogoutUseCase } from './auth/application/auth-use-cases/logout.use-case';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { UsersSqlQueryRepository } from './users/infrastructure/repositories/users.sql.query.repository';
-import { UsersSqlRepository } from './users/infrastructure/repositories/users.sql.repository';
-import { AuthSqlQueryRepository } from './auth/infrastructure/auth.sql.query-repository';
-import { DevicesSqlQueryRepository } from './devices/infrastructure/repositories/devices.sql.query-repository';
-import { DevicesSqlRepository } from './devices/infrastructure/repositories/devices.sql.repository';
 import { UpdateDeviceUseCase } from './devices/application/use-cases/update-device.use-case';
 import { CoreConfig } from '../../core/core-config/core.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -115,26 +105,16 @@ const authUseCases = [
       },
       inject: [CoreConfig, TokenService],
     },
-    UsersRepository,
-    UsersQueryRepository,
-    UsersSqlQueryRepository,
-    UsersSqlRepository,
     UsersOrmRepository,
     UsersOrmQueryRepository,
-    AuthSqlQueryRepository,
-    DevicesSqlQueryRepository,
-    DevicesSqlRepository,
     DevicesOrmQueryRepository,
     DevicesOrmRepository,
     AuthOrmQueryRepository,
-    AuthQueryRepository,
     AuthService,
     TokenService,
     CryptoService,
     EmailService,
-    DevicesRepository,
-    DevicesQueryRepository,
   ],
-  exports: [UsersRepository, UsersSqlRepository, UsersOrmRepository],
+  exports: [UsersOrmRepository],
 })
 export class UsersAccountModule {}

@@ -1,16 +1,15 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../../../../shared/types/base.entity.type';
+import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { LikeStatus } from './dto/like.domain.dto';
 import { Post } from '../../posts/domain/posts.orm.domain';
 import { ParentType } from '../types/like.types';
-import { ObjectId } from 'mongodb';
 import { Comment } from '../../comments/domain/comments.orm.domain';
 
 @Entity()
-export class LikeDislike extends BaseEntity {
+export class LikeDislike extends BazaEntity {
   @Column()
-  userId: string;
+  userId: number;
 
   @ManyToOne(() => User, (user) => user.like)
   @JoinColumn({ name: 'user_id' })
@@ -20,10 +19,10 @@ export class LikeDislike extends BaseEntity {
   status: LikeStatus;
 
   @Column({ nullable: true })
-  postId: string | null;
+  postId: number | null;
 
   @Column({ nullable: true })
-  commentId: string | null;
+  commentId: number | null;
 
   @Column({ type: 'enum', enum: ParentType, nullable: false })
   parent: ParentType;
@@ -44,22 +43,19 @@ export class LikeDislike extends BaseEntity {
 
   static createInstance(
     status: LikeStatus,
-    parentId: ObjectId,
-    userId: ObjectId,
+    parentId: number,
+    userId: number,
     parent: ParentType,
   ) {
     const like = new this();
-    const id = new ObjectId();
-
-    like._id = id.toString();
     like.parent = parent;
     like.status = status;
-    like.userId = userId.toString();
+    like.userId = userId;
     if (parent === ParentType.POST) {
-      like.postId = parentId.toString();
+      like.postId = parentId;
       like.commentId = null;
     } else if (parent === ParentType.COMMENT) {
-      like.commentId = parentId.toString();
+      like.commentId = parentId;
       like.postId = null;
     }
 

@@ -1,4 +1,3 @@
-import { ObjectId } from 'mongodb';
 import { BlogInputDto } from '../../interface/dto/blog.input-dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsOrmRepository } from '../../infrastructure/repositories/blogs.orm.repository';
@@ -6,7 +5,7 @@ import { Blog } from '../../domain/blogs.orm.domain';
 
 export class UpdateBlogCommand {
   constructor(
-    public id: ObjectId,
+    public id: number,
     public updateBlogDto: BlogInputDto,
   ) {}
 }

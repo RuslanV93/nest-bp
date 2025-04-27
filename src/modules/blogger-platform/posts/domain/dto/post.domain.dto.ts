@@ -19,16 +19,16 @@ export class PostUpdateDomainDto extends PostDomainDto<ObjectId> {}
 /** SQL TYPES */
 export type NewestLikeType = {
   addedAt: Date | string;
-  userId: string;
+  userId: number;
   login: string;
 };
 export type PostQueryResult = {
   totalCount: string;
-  id: string;
+  id: number;
   title: string;
   shortDescription: string;
   content: string;
-  blogId: string;
+  blogId: number;
   blogName: string;
   createdAt: Date;
   likesCount: string;

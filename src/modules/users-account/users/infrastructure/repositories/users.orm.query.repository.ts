@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/users.orm.domain';
 import { ILike, IsNull, Repository } from 'typeorm';
-import { ObjectId } from 'mongodb';
 import { UserViewDto } from '../../interfaces/dto/userViewDto';
 import {
   GetUsersQueryParams,
@@ -18,10 +17,9 @@ export class UsersOrmQueryRepository {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async getUserById(id: ObjectId) {
-    const stringId = id.toString();
+  async getUserById(id: number) {
     const user: User | null = await this.userRepository.findOne({
-      where: { _id: stringId, deletedAt: IsNull() },
+      where: { _id: id, deletedAt: IsNull() },
     });
     if (!user) {
       throw new NotFoundException('User not Found');

@@ -96,6 +96,18 @@ export function ApiPaginationQueries(path?: string) {
       );
       break;
     }
+    case 'questions': {
+      decorators.unshift(
+        ApiQuery({
+          name: 'bodySearchTerm',
+          type: String,
+          default: null,
+          required: false,
+          description: 'Search term for questions',
+        }),
+      );
+      break;
+    }
     default:
       break;
   }

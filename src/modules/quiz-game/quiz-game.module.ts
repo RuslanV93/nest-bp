@@ -4,10 +4,25 @@ import { CreateQuestionUseCase } from './question/application/use-cases/create-q
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './question/domain/question.orm.domain';
 import { UsersAccountModule } from '../users-account/users-account.module';
+import { DeleteQuestionUseCase } from './question/application/use-cases/delete-question.use-case';
+import { UpdateQuestionUseCase } from './question/application/use-cases/update-question.use-case';
+import { UpdateQuestionPublishUseCase } from './question/application/use-cases/update-question-publish.use-case';
+import { QuestionsRepository } from './question/infrastructure/repositories/questions.repository';
+import { QuestionsQueryRepository } from './question/infrastructure/repositories/questions.query-repository';
 
+const QuestionUseCases = [
+  CreateQuestionUseCase,
+  DeleteQuestionUseCase,
+  UpdateQuestionUseCase,
+  UpdateQuestionPublishUseCase,
+];
 @Module({
   imports: [TypeOrmModule.forFeature([Question]), UsersAccountModule],
   controllers: [QuestionController],
-  providers: [CreateQuestionUseCase],
+  providers: [
+    ...QuestionUseCases,
+    QuestionsRepository,
+    QuestionsQueryRepository,
+  ],
 })
 export class QuizGameModule {}

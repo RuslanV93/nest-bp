@@ -36,7 +36,7 @@ export class RefreshTokenUseCase
     }
     /** generate new token pare */
     const { accessToken, refreshToken } = this.tokenService.generateTokens(
-      id.toString(),
+      id,
       session.deviceId,
     );
     /** getting token payload from new token. version exists */

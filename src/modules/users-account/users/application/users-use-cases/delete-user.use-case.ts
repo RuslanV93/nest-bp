@@ -1,10 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ObjectId } from 'mongodb';
 import { UsersOrmRepository } from '../../infrastructure/repositories/users.orm.repository';
 import { User } from '../../domain/users.orm.domain';
 
 export class DeleteUserCommand {
-  constructor(public id: ObjectId) {}
+  constructor(public id: number) {}
 }
 
 @CommandHandler(DeleteUserCommand)

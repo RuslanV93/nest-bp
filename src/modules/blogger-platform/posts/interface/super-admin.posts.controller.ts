@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -24,7 +25,6 @@ import {
 import { PostViewDto } from './dto/post.view-dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from '../../comments/interface/dto/comment.view-dto';
-import { ObjectId } from 'mongodb';
 import { LikeInputDto } from '../../comments/interface/dto/like.input-dto';
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import {
@@ -40,9 +40,9 @@ import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-s
 import { CreatePostCommand } from '../application/use-cases/create-post.use-case';
 import { UpdatePostCommand } from '../application/use-cases/update-post.use-case';
 import { PostExistsPipe } from '../../comments/infrastructure/pipes/post.exists.pipe';
-import { CommentsSqlQueryRepository } from '../../comments/infrastructure/repositories/comments.sql.query.repository';
 import { PostsOrmQueryRepository } from '../infrastructure/repositories/posts.orm.query-repository';
 import { DeletePostCommand } from '../application/use-cases/delete-post.use-case';
+import { CommentsOrmQueryRepository } from '../../comments/infrastructure/repositories/comments.orm.query.repository';
 
 /**
  * Posts Controller
@@ -53,7 +53,7 @@ import { DeletePostCommand } from '../application/use-cases/delete-post.use-case
 export class SuperAdminPostsController {
   constructor(
     private readonly postsQueryRepository: PostsOrmQueryRepository,
-    private readonly commentsQueryRepository: CommentsSqlQueryRepository,
+    private readonly commentsQueryRepository: CommentsOrmQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -88,7 +88,7 @@ export class SuperAdminPostsController {
     summary: 'Gets post by id.',
   })
   async getPostById(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
     const post = await this.postsQueryRepository.getPostById(id, user.id);
@@ -111,7 +111,7 @@ export class SuperAdminPostsController {
     @ExtractUserFromRequest()
     user: Nullable<UserContextDto>,
   ) {
-    const postId: ObjectId = await this.commandBus.execute(
+    const postId: number = await this.commandBus.execute(
       new CreatePostCommand(body.blogId, body),
     );
     const newPost = await this.postsQueryRepository.getPostById(
@@ -132,7 +132,10 @@ export class SuperAdminPostsController {
     summary: 'Update existing post fields.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updatePost(@Param('id') id: ObjectId, @Body() body: PostInputDto) {
+  async updatePost(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: PostInputDto,
+  ) {
     await this.commandBus.execute(new UpdatePostCommand(id, body.blogId, body));
   }
 
@@ -145,7 +148,7 @@ export class SuperAdminPostsController {
     summary: 'Update post like.',
   })
   async updateLikeStatus(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: LikeInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -161,10 +164,13 @@ export class SuperAdminPostsController {
     summary: 'Delete post by id.',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(@Param('id') id: ObjectId) {
+  async deletePost(@Param('id', ParseIntPipe) id: number) {
     const post = await this.postsQueryRepository.getPostById(id);
+    if (!post) {
+      throw new NotFoundException('Post not Found.');
+    }
     await this.commandBus.execute(
-      new DeletePostCommand(id, new ObjectId(post?.blogId)),
+      new DeletePostCommand(id, Number.parseInt(post?.blogId)),
     );
   }
 
@@ -177,7 +183,7 @@ export class SuperAdminPostsController {
     description: 'Returns all comments for the post.',
   })
   async getCommentsByPostId(
-    @Param('id', PostExistsPipe) id: ObjectId,
+    @Param('id', PostExistsPipe) id: number,
     @Query() query: GetCommentsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
@@ -201,11 +207,11 @@ export class SuperAdminPostsController {
     description: 'Create and returns a new comment.',
   })
   async createComment(
-    @Param('id') id: ObjectId,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: CommentInputDto,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    const newCommentId: ObjectId = await this.commandBus.execute(
+    const newCommentId: number = await this.commandBus.execute(
       new CreateCommentCommand(body.content, user.id, id),
     );
     return await this.commentsQueryRepository.getCommentById(
