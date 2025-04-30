@@ -25,10 +25,13 @@ export class GameQuestion {
   @Column({ name: 'game_id' })
   gameId: number;
 
-  static createInstance(question: Question, game: Game) {
+  @Column()
+  order: number;
+  static createInstance(question: Question, game: Game, order: number) {
     const gameQuestion = new this();
     gameQuestion.game = game;
     gameQuestion.question = question;
+    gameQuestion.order = order;
     return gameQuestion;
   }
 }
