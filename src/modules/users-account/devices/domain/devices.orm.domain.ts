@@ -2,7 +2,6 @@ import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { User } from '../../users/domain/users.orm.domain';
 import { DeviceDomainDto } from '../types/device.types';
-import { ObjectId } from 'mongodb';
 
 @Entity()
 export class Device extends BazaEntity {

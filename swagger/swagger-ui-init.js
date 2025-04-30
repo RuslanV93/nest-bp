@@ -1973,6 +1973,96 @@ window.onload = function() {
             "Question"
           ]
         }
+      },
+      "/api/sa/quiz/questions/{id}": {
+        "delete": {
+          "operationId": "QuestionController_deleteQuestion",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Delete question",
+          "tags": [
+            "Question"
+          ]
+        },
+        "put": {
+          "operationId": "QuestionController_updateQuestion",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Update question",
+          "tags": [
+            "Question"
+          ]
+        }
+      },
+      "/api/sa/quiz/questions/{id}/publish": {
+        "put": {
+          "operationId": "QuestionController_publishQuestion",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionPublishDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "summary": "Publish question",
+          "tags": [
+            "Question"
+          ]
+        }
       }
     },
     "info": {
@@ -2438,6 +2528,17 @@ window.onload = function() {
           "required": [
             "body",
             "correctAnswers"
+          ]
+        },
+        "QuestionPublishDto": {
+          "type": "object",
+          "properties": {
+            "published": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "published"
           ]
         }
       }

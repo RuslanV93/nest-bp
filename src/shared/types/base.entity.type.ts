@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 export class BazaEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   _id: number;
   @CreateDateColumn()
   createdAt: Date;

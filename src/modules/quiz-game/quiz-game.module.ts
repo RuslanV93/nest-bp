@@ -9,6 +9,10 @@ import { UpdateQuestionUseCase } from './question/application/use-cases/update-q
 import { UpdateQuestionPublishUseCase } from './question/application/use-cases/update-question-publish.use-case';
 import { QuestionsRepository } from './question/infrastructure/repositories/questions.repository';
 import { QuestionsQueryRepository } from './question/infrastructure/repositories/questions.query-repository';
+import { Player } from './pair-game-quiz/domain/player.orm.domain';
+import { Game } from './pair-game-quiz/domain/game.orm.domain';
+import { GameQuestion } from './pair-game-quiz/domain/game-question.orm.domain';
+import { GameAnswer } from './pair-game-quiz/domain/answer.orm.domain';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,
@@ -17,7 +21,16 @@ const QuestionUseCases = [
   UpdateQuestionPublishUseCase,
 ];
 @Module({
-  imports: [TypeOrmModule.forFeature([Question]), UsersAccountModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Question,
+      Player,
+      Game,
+      GameQuestion,
+      GameAnswer,
+    ]),
+    UsersAccountModule,
+  ],
   controllers: [QuestionController],
   providers: [
     ...QuestionUseCases,

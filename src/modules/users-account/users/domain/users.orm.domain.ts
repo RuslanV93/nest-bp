@@ -6,6 +6,7 @@ import { Device } from '../../devices/domain/devices.orm.domain';
 import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
 import { CryptoService } from '../../auth/application/crypto.service';
 import { LikeDislike } from '../../../blogger-platform/likes/domain/like.orm.domain';
+import { Player } from '../../../quiz-game/pair-game-quiz/domain/player.orm.domain';
 
 @Entity()
 export class User extends BazaEntity {
@@ -14,6 +15,9 @@ export class User extends BazaEntity {
 
   @Column()
   email: string;
+
+  @OneToMany(() => Player, (player) => player.user)
+  players: Player[];
 
   @OneToOne(() => EmailInfo, (e) => e.user, { cascade: true, eager: true })
   // @JoinColumn()

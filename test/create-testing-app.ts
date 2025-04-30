@@ -4,8 +4,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
+import { App } from 'supertest/types';
 
-export const createTestingApp = async (): Promise<INestApplication> => {
+export const createTestingApp = async (): Promise<
+  [INestApplication<App>, TestingModule]
+> => {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
@@ -29,5 +32,5 @@ export const createTestingApp = async (): Promise<INestApplication> => {
     }),
   );
   await app.init();
-  return app;
+  return [app, moduleFixture];
 };

@@ -45,11 +45,11 @@ import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
         synchronize: false,
         namingStrategy: new SnakeNamingStrategy(),
         logging: ['error'],
-        extra: {
-          ssl: {
-            rejectUnauthorized: false,
-          },
-        },
+        // extra: {
+        //   ssl: {
+        //     rejectUnauthorized: false,
+        //   },
+        // },
       }),
       inject: [CoreConfig],
     }),

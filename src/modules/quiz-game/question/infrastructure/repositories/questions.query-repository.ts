@@ -4,7 +4,6 @@ import { Question } from '../../domain/question.orm.domain';
 import {
   GetQuestionsQueryParams,
   QuestionPublishedType,
-  QuestionSortBy,
 } from '../../interfaces/dto/get-questions.query-params.input.dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { Repository } from 'typeorm';

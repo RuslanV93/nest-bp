@@ -1,11 +1,15 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
+  Param,
+  ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,10 +21,13 @@ import {
   ApiPaginationQueries,
 } from '../../../../../swagger/swagger.decorator';
 import { QuestionViewDto } from './dto/question.view-dto';
-import { QuestionInputDto } from './dto/question.input.dto';
+import { QuestionInputDto, QuestionPublishDto } from './dto/question.input.dto';
 import { BasicAuthGuard } from '../../../users-account/auth/guards/basic/basic-strategy';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/use-cases/create-question.use-case';
+import { DeleteQuestionCommand } from '../application/use-cases/delete-question.use-case';
+import { UpdateQuestionCommand } from '../application/use-cases/update-question.use-case';
+import { UpdateQuestionPublishCommand } from '../application/use-cases/update-question-publish.use-case';
 
 @Controller('sa/quiz/questions')
 export class QuestionController {
@@ -29,7 +36,7 @@ export class QuestionController {
     private readonly questionsQueryRepository: QuestionsQueryRepository,
   ) {}
 
-  /** Getting all questions. Using query, search params.*/
+  /** Getting all questions. Using a query, search params.*/
   @Get()
   @ApiBasicAuth('basicAuth')
   @ApiPaginatedResponse(QuestionViewDto)
@@ -60,5 +67,39 @@ export class QuestionController {
       throw new InternalServerErrorException('Something went wrong');
     }
     return newQuestion;
+  }
+
+  @Delete(':id')
+  @UseGuards(BasicAuthGuard)
+  @ApiOperation({ summary: 'Delete question' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteQuestion(@Param('id', ParseIntPipe) id: number) {
+    await this.commandBus.execute(new DeleteQuestionCommand(id));
+  }
+
+  @Put(':id')
+  @UseGuards(BasicAuthGuard)
+  @ApiBody({ type: QuestionInputDto })
+  @ApiOperation({ summary: 'Update question' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateQuestion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: QuestionInputDto,
+  ) {
+    await this.commandBus.execute(new UpdateQuestionCommand(id, body));
+  }
+
+  @Put(':id/publish')
+  @UseGuards(BasicAuthGuard)
+  @ApiBody({ type: QuestionPublishDto })
+  @ApiOperation({ summary: 'Publish question' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async publishQuestion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: QuestionPublishDto,
+  ) {
+    await this.commandBus.execute(
+      new UpdateQuestionPublishCommand(id, body.published),
+    );
   }
 }

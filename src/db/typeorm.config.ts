@@ -20,14 +20,14 @@ for (const path of envPaths) {
 
 export default new DataSource({
   type: 'postgres',
-  url: process.env.NEON_STRING,
+  url: process.env.POSTGRES_STRING,
   entities: ['src/**/*.orm.domain.ts'],
   migrations: ['src/db/migrations/*.ts'],
   namingStrategy: new SnakeNamingStrategy(),
   synchronize: false,
-  extra: {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  },
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: true,
+  //   },
+  // },
 });
