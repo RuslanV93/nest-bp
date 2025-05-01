@@ -42,9 +42,9 @@ import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
         password: coreConfig.postgresPassword,
         database: coreConfig.postgresDbName,
         autoLoadEntities: true,
-        synchronize: false,
+        synchronize: true,
         namingStrategy: new SnakeNamingStrategy(),
-        logging: ['error'],
+        logging: true,
         // extra: {
         //   ssl: {
         //     rejectUnauthorized: false,

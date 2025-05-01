@@ -10,6 +10,7 @@ import { Player } from './player.orm.domain';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Question } from '../../question/domain/question.orm.domain';
 import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
+import { AnswerStatus, GameAnswer } from './answer.orm.domain';
 
 export enum GameStatusType {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -43,10 +44,10 @@ export class Game {
   @CreateDateColumn()
   pairCreatedDate: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   startGameDate: Date | null;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   finishGameDate: Date | null;
 
   static createInstance(user: User, questions: Question[]) {
@@ -72,6 +73,47 @@ export class Game {
     }
     if (this.players[0].id === user._id) {
       throw BadRequestDomainException.create('User already joined this game');
+    }
+    const secondPlayer = Player.createInstance(user, this);
+    this.players = [...this.players, secondPlayer];
+
+    this.startGameDate = new Date();
+    this.status = GameStatusType.Active;
+    return secondPlayer;
+  }
+  finishGame() {
+    this.status = GameStatusType.Finished;
+    this.finishGameDate = new Date();
+  }
+  setBonusPointForSpeed() {
+    const player1 = this.players[0];
+    const player2 = this.players[1];
+
+    const player1Answers: GameAnswer[] = player1.answers;
+    const player2Answers: GameAnswer[] = player2.answers;
+
+    const player1GotCorrectAnswer = player1Answers.some(
+      (a) => a.status === AnswerStatus.Correct,
+    );
+    const player2GotCorrectAnswer = player2Answers.some(
+      (a) => a.status === AnswerStatus.Correct,
+    );
+    const player1AnswerTime =
+      player1Answers.length > 0
+        ? Math.max(...player1Answers.map((a) => a.date.getTime()))
+        : Infinity;
+    const player2AnswerTime =
+      player2Answers.length > 0
+        ? Math.max(...player2Answers.map((a) => a.date.getTime()))
+        : Infinity;
+
+    if (player1GotCorrectAnswer && player1AnswerTime < player2AnswerTime) {
+      return player1;
+    } else if (
+      player2GotCorrectAnswer &&
+      player2AnswerTime < player1AnswerTime
+    ) {
+      return player2;
     }
   }
 }

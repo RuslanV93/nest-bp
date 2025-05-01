@@ -13,6 +13,11 @@ import { Player } from './pair-game-quiz/domain/player.orm.domain';
 import { Game } from './pair-game-quiz/domain/game.orm.domain';
 import { GameQuestion } from './pair-game-quiz/domain/game-question.orm.domain';
 import { GameAnswer } from './pair-game-quiz/domain/answer.orm.domain';
+import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
+import { ConnectionUseCase } from './pair-game-quiz/application/connection.use-case';
+import { QuizGameRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.repository';
+import { QuizGameQueryRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.query-repository';
+import { UnitOfWork } from './pair-game-quiz/infrastructure/repositories/unit.of.work';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,
@@ -20,6 +25,7 @@ const QuestionUseCases = [
   UpdateQuestionUseCase,
   UpdateQuestionPublishUseCase,
 ];
+const GameUseCases = [ConnectionUseCase];
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -31,11 +37,15 @@ const QuestionUseCases = [
     ]),
     UsersAccountModule,
   ],
-  controllers: [QuestionController],
+  controllers: [QuestionController, PairGameQuizController],
   providers: [
+    ...GameUseCases,
     ...QuestionUseCases,
     QuestionsRepository,
     QuestionsQueryRepository,
+    QuizGameRepository,
+    QuizGameQueryRepository,
+    UnitOfWork,
   ],
 })
 export class QuizGameModule {}

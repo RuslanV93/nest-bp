@@ -2063,6 +2063,72 @@ window.onload = function() {
             "Question"
           ]
         }
+      },
+      "/api/pair-game-quiz/pairs/my-current": {
+        "get": {
+          "operationId": "PairGameQuizController_getMyCurrentGame",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
+      "/api/pair-game-quiz/pairs/{id}": {
+        "get": {
+          "operationId": "PairGameQuizController_getGameById",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
+      "/api/pair-game-quiz/pairs/connection": {
+        "post": {
+          "operationId": "PairGameQuizController_connection",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "summary": "Create new game or connect to existing game",
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
+      "/api/pair-game-quiz/pairs/my-current/answer": {
+        "post": {
+          "operationId": "PairGameQuizController_answer",
+          "parameters": [],
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
       }
     },
     "info": {

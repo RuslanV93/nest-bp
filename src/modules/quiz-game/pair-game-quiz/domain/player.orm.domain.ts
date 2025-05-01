@@ -30,7 +30,7 @@ export class Player {
   gameId: number;
 
   @OneToMany(() => GameAnswer, (answer) => answer.player)
-  answers: string[];
+  answers: GameAnswer[];
 
   @Column({ default: 0 })
   score: number;

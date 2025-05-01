@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CommentViewDto } from './dto/comment.view-dto';
-import { ObjectId } from 'mongodb';
 import { CommentInputDto } from './dto/comment.input-dto';
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
 import { CommandBus } from '@nestjs/cqrs';
@@ -24,7 +23,6 @@ import { DeleteCommentCommand } from '../application/use-cases/delete-comment.us
 import { UpdateCommentLikeStatusCommand } from '../../likes/application/use-cases/update.comment-like-status.use-case';
 import { LikeInputDto } from './dto/like.input-dto';
 import { CommentsOrmQueryRepository } from '../infrastructure/repositories/comments.orm.query.repository';
-import { ParentType } from '../../likes/types/like.types';
 
 /**
  * Comments Controller

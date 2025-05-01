@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Question } from '../../question/domain/question.orm.domain';
 import { Game } from './game.orm.domain';
+import { GameAnswer } from './answer.orm.domain';
 
 @Entity()
 export class GameQuestion {

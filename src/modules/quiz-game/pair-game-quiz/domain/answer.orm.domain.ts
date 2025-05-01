@@ -25,7 +25,7 @@ export class GameAnswer {
   @Column({ name: 'question_id' })
   questionId: number;
 
-  @ManyToOne(() => Player)
+  @ManyToOne(() => Player, (player) => player.answers)
   @JoinColumn({ name: 'player_id' })
   player: Player;
   @Column({ name: 'player_id' })

@@ -4,30 +4,45 @@ import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.rep
 import { Game } from '../domain/game.orm.domain';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Question } from '../../question/domain/question.orm.domain';
+import { UnitOfWork } from '../infrastructure/repositories/unit.of.work';
+import { EntityManager } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
 
-export class ConnectionCommandHandler {
+export class ConnectionCommand {
   constructor(public userId: number) {}
 }
 
-@CommandHandler(ConnectionCommandHandler)
-export class ConnectionUseCase
-  implements ICommandHandler<ConnectionCommandHandler>
-{
+@CommandHandler(ConnectionCommand)
+export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
   constructor(
     private readonly usersRepository: UsersOrmRepository,
     private readonly quizGameRepository: QuizGameRepository,
+    private readonly unitOfWork: UnitOfWork,
   ) {}
-  async execute(command: ConnectionCommandHandler) {
-    const user: User = await this.usersRepository.findOrNotFoundException(
-      command.userId,
-    );
-    const currentGame = await this.quizGameRepository.findOne();
+  async execute(command: ConnectionCommand) {
+    return this.unitOfWork.runTransaction(async (manager: EntityManager) => {
+      try {
+        const user: User = await this.usersRepository.findOrNotFoundException(
+          command.userId,
+        );
+        const pendingGame =
+          await this.quizGameRepository.findPendingGame(manager);
 
-    if (!currentGame) {
-      const questions: Question[] =
-        await this.quizGameRepository.findFiveRandomQuestions();
-      const newGame = Game.createInstance(user, questions);
-      await this.quizGameRepository.save(newGame);
-    }
+        if (pendingGame) {
+          pendingGame.addSecondPlayer(user);
+          return this.quizGameRepository.save(pendingGame, manager);
+        } else if (!pendingGame) {
+          const questions: Question[] =
+            await this.quizGameRepository.findFiveRandomQuestions();
+          const newGame = Game.createInstance(user, questions);
+          return this.quizGameRepository.save(newGame, manager);
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new InternalServerErrorException(e.message);
+        }
+        throw new InternalServerErrorException('Unexpected error');
+      }
+    });
   }
 }
