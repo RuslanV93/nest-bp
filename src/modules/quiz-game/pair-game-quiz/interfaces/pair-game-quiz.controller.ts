@@ -13,19 +13,29 @@ import { UserContextDto } from '../../../users-account/auth/guards/dto/user-cont
 import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decorators/extract-user-from-request-decorator';
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
 import { ApiOperation } from '@nestjs/swagger';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ConnectionCommand } from '../application/connection.use-case';
 import { Game } from '../domain/game.orm.domain';
 import { GameAnswer } from '../domain/answer.orm.domain';
 import { AnswerCommand } from '../application/answer.use-case';
 import { AnswerInputDto } from './dto/answer.input-dto';
+import {
+  GetCurrentGameHandler,
+  GetCurrentGameQuery,
+} from '../application/current-game.query-handler';
+import { use } from 'passport';
 
 @Controller('pair-game-quiz/pairs')
 export class PairGameQuizController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
   @Get('my-current')
-  async getMyCurrentGame() {
-    return 'hello';
+  async getMyCurrentGame(@ExtractUserFromRequest() user: UserContextDto) {
+    const currentGame = await this.queryBus.execute(
+      new GetCurrentGameQuery(user.id),
+    );
   }
 
   @Get(':id')
