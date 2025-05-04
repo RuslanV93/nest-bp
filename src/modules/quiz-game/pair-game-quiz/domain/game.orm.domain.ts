@@ -71,7 +71,7 @@ export class Game {
         'Game already has correct number of players',
       );
     }
-    if (this.players[0].id === user._id) {
+    if (this.players[0].userId === user._id) {
       throw BadRequestDomainException.create('User already joined this game');
     }
     const secondPlayer = Player.createInstance(user, this);
@@ -82,8 +82,11 @@ export class Game {
     return secondPlayer;
   }
   finishGame() {
-    this.status = GameStatusType.Finished;
-    this.finishGameDate = new Date();
+    const isAllQuestionsAnswered = this.checkIsAllQuestionsAnswered();
+    if (isAllQuestionsAnswered) {
+      this.status = GameStatusType.Finished;
+      this.finishGameDate = new Date();
+    }
   }
   setBonusPointForSpeed() {
     const player1 = this.players[0];
@@ -115,5 +118,10 @@ export class Game {
     ) {
       return player2;
     }
+  }
+  checkIsAllQuestionsAnswered() {
+    return this.players.every(
+      (p) => p.answers.length === this.questions.length,
+    );
   }
 }

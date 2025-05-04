@@ -1,9 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   Param,
   ParseIntPipe,
   Post,
@@ -16,6 +16,9 @@ import { ApiOperation } from '@nestjs/swagger';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConnectionCommand } from '../application/connection.use-case';
 import { Game } from '../domain/game.orm.domain';
+import { GameAnswer } from '../domain/answer.orm.domain';
+import { AnswerCommand } from '../application/answer.use-case';
+import { AnswerInputDto } from './dto/answer.input-dto';
 
 @Controller('pair-game-quiz/pairs')
 export class PairGameQuizController {
@@ -44,5 +47,16 @@ export class PairGameQuizController {
   }
 
   @Post('my-current/answer')
-  async answer() {}
+  async answer(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Body() body: AnswerInputDto,
+  ) {
+    const newAnswer: GameAnswer = await this.commandBus.execute(
+      new AnswerCommand(body.answer, user.id),
+    );
+    if (!newAnswer) {
+      return 'from controller';
+    }
+    return newAnswer.id;
+  }
 }

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { EntityManager, Repository } from 'typeorm';
 import { Question } from '../../../question/domain/question.orm.domain';
-import { GameAnswer } from '../../domain/answer.orm.domain';
 
 @Injectable()
 export class QuizGameRepository {
@@ -13,9 +12,8 @@ export class QuizGameRepository {
     private readonly questionRepository: Repository<Question>,
   ) {}
 
-  async findPendingGame(manager: EntityManager) {
-    return manager
-      .getRepository(Game)
+  async findPendingGame() {
+    return this.gameRepository
       .createQueryBuilder('game')
       .innerJoinAndSelect('game.players', 'player')
       .where('game.status = :status', {
@@ -42,13 +40,12 @@ export class QuizGameRepository {
 
   async answer() {}
 
-  async save(gameToSave: Game, manager: EntityManager) {
-    return manager.getRepository(Game).save(gameToSave);
+  async save(gameToSave: Game) {
+    return this.gameRepository.save(gameToSave);
   }
 
-  async findActiveGame(manager: EntityManager, userId: number) {
-    const activeGame = await manager
-      .getRepository(Game)
+  async findActiveGame(userId: number) {
+    const activeGame = await this.gameRepository
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.questions', 'gq')
       .leftJoinAndSelect('game.player', 'p')

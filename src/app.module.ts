@@ -6,7 +6,6 @@ import { BloggersPlatformModule } from './modules/blogger-platform/bloggers-plat
 import { DropCollectionModule } from './modules/drop-collections/drop-collection.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -18,6 +17,8 @@ import { CoreModule } from './core/core-config/core.module';
 import { SwaggerConfigService } from './config/swagger.setup';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
       ],
     }),
     CqrsModule.forRoot(),
+
     TypeOrmModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
@@ -52,6 +54,14 @@ import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
         // },
       }),
       inject: [CoreConfig],
+      dataSourceFactory(options) {
+        if (!options) {
+          throw new Error('Invalid options passed');
+        }
+        return Promise.resolve(
+          addTransactionalDataSource(new DataSource(options)),
+        );
+      },
     }),
     MongooseModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => {

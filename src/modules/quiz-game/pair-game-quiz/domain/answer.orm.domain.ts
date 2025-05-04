@@ -4,11 +4,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Question } from '../../question/domain/question.orm.domain';
 import { Player } from './player.orm.domain';
+import { GameQuestion } from './game-question.orm.domain';
 
 export enum AnswerStatus {
   Correct = 'Correct',
@@ -19,11 +18,11 @@ export class GameAnswer {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @OneToOne(() => Question)
+  @ManyToOne(() => GameQuestion)
   @JoinColumn({ name: 'question_id' })
-  question: Question;
+  gameQuestion: GameQuestion;
   @Column({ name: 'question_id' })
-  questionId: number;
+  gameQuestionId: number;
 
   @ManyToOne(() => Player, (player) => player.answers)
   @JoinColumn({ name: 'player_id' })
@@ -36,4 +35,26 @@ export class GameAnswer {
 
   @Column({ type: 'enum', enum: AnswerStatus })
   status: AnswerStatus;
+
+  @Column()
+  answerText: string;
+
+  static createInstance(
+    player: Player,
+    gameQuestion: GameQuestion,
+    isCorrect: boolean,
+    answerText: string,
+  ) {
+    const gameAnswer = new this();
+    gameAnswer.gameQuestion = gameQuestion;
+    gameAnswer.gameQuestionId = gameQuestion.id;
+    gameAnswer.status = isCorrect
+      ? AnswerStatus.Correct
+      : AnswerStatus.Incorrect;
+    gameAnswer.answerText = answerText;
+    gameAnswer.player = player;
+    gameAnswer.playerId = player.id;
+
+    return gameAnswer;
+  }
 }

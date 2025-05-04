@@ -2120,6 +2120,16 @@ window.onload = function() {
         "post": {
           "operationId": "PairGameQuizController_answer",
           "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerInputDto"
+                }
+              }
+            }
+          },
           "responses": {
             "201": {
               "description": ""
@@ -2605,6 +2615,17 @@ window.onload = function() {
           },
           "required": [
             "published"
+          ]
+        },
+        "AnswerInputDto": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "answer"
           ]
         }
       }

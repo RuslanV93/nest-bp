@@ -3,7 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Question } from '../../question/domain/question.orm.domain';
@@ -20,6 +20,9 @@ export class GameQuestion {
   question: Question;
   @Column({ name: 'question_id' })
   questionId: number;
+
+  @OneToMany(() => GameAnswer, (answer) => answer.gameQuestion)
+  answers: GameAnswer[];
 
   @ManyToOne(() => Game)
   @JoinColumn({ name: 'game_id' })
