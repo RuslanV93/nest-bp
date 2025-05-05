@@ -1942,6 +1942,9 @@ window.onload = function() {
           },
           "security": [
             {
+              "basic": []
+            },
+            {
               "basicAuth": []
             }
           ],
@@ -1968,6 +1971,11 @@ window.onload = function() {
               "description": ""
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Add new question",
           "tags": [
             "Question"
@@ -1992,6 +2000,11 @@ window.onload = function() {
               "description": ""
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Delete question",
           "tags": [
             "Question"
@@ -2024,6 +2037,11 @@ window.onload = function() {
               "description": ""
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Update question",
           "tags": [
             "Question"
@@ -2058,6 +2076,11 @@ window.onload = function() {
               "description": ""
             }
           },
+          "security": [
+            {
+              "basic": []
+            }
+          ],
           "summary": "Publish question",
           "tags": [
             "Question"
@@ -2070,9 +2093,42 @@ window.onload = function() {
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/GameViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get the current game",
           "tags": [
             "PairGameQuiz"
           ]
@@ -2093,9 +2149,42 @@ window.onload = function() {
           ],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/GameViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get the game by id",
           "tags": [
             "PairGameQuiz"
           ]
@@ -2107,16 +2196,48 @@ window.onload = function() {
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/GameViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
           "summary": "Create new game or connect to existing game",
           "tags": [
             "PairGameQuiz"
           ]
         }
       },
-      "/api/pair-game-quiz/pairs/my-current/answer": {
+      "/api/pair-game-quiz/pairs/my-current/answers": {
         "post": {
           "operationId": "PairGameQuizController_answer",
           "parameters": [],
@@ -2131,10 +2252,43 @@ window.onload = function() {
             }
           },
           "responses": {
-            "201": {
-              "description": ""
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/GameViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Answer the question",
           "tags": [
             "PairGameQuiz"
           ]
@@ -2576,7 +2730,7 @@ window.onload = function() {
               "type": "string"
             },
             "updatedAt": {
-              "type": "string"
+              "type": "object"
             }
           },
           "required": [
@@ -2615,6 +2769,52 @@ window.onload = function() {
           },
           "required": [
             "published"
+          ]
+        },
+        "PlayerProgressViewDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "GameViewDto": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "firstPlayerProgress": {
+              "$ref": "#/components/schemas/PlayerProgressViewDto"
+            },
+            "secondPlayerProgress": {
+              "$ref": "#/components/schemas/PlayerProgressViewDto"
+            },
+            "questions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/QuestionViewDto"
+              }
+            },
+            "status": {
+              "type": "string"
+            },
+            "pairCreatedDate": {
+              "type": "string"
+            },
+            "startGameDate": {
+              "type": "object"
+            },
+            "finishGameDate": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "id",
+            "firstPlayerProgress",
+            "secondPlayerProgress",
+            "questions",
+            "status",
+            "pairCreatedDate",
+            "startGameDate",
+            "finishGameDate"
           ]
         },
         "AnswerInputDto": {

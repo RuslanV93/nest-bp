@@ -1,6 +1,6 @@
 import { configModule } from './config-module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { UsersAccountModule } from './modules/users-account/users-account.module';
 import { BloggersPlatformModule } from './modules/blogger-platform/bloggers-platform.module';
 import { DropCollectionModule } from './modules/drop-collections/drop-collection.module';
@@ -54,14 +54,6 @@ import { DataSource } from 'typeorm';
         // },
       }),
       inject: [CoreConfig],
-      dataSourceFactory(options) {
-        if (!options) {
-          throw new Error('Invalid options passed');
-        }
-        return Promise.resolve(
-          addTransactionalDataSource(new DataSource(options)),
-        );
-      },
     }),
     MongooseModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => {
@@ -86,4 +78,22 @@ import { DataSource } from 'typeorm';
   controllers: [AppController],
   providers: [CoreConfig, AppService, SwaggerConfigService],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  constructor(private readonly dataSource: DataSource) {}
+
+  // Добавляем typeorm-transactional после инициализации приложения
+  async onModuleInit() {
+    try {
+      // Проверяем, подключено ли соединение, если нет, подключаем
+      if (!this.dataSource.isInitialized) {
+        await this.dataSource.initialize(); // Инициализация подключения
+      }
+
+      // Добавляем поддержку транзакций
+      addTransactionalDataSource(this.dataSource);
+      console.log('Transactional added to DataSource successfully');
+    } catch (error) {
+      console.error('Failed to add transactional to DataSource:', error);
+    }
+  }
+}

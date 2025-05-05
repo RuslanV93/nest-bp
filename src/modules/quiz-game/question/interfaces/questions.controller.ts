@@ -30,6 +30,7 @@ import { UpdateQuestionCommand } from '../application/use-cases/update-question.
 import { UpdateQuestionPublishCommand } from '../application/use-cases/update-question-publish.use-case';
 
 @Controller('sa/quiz/questions')
+@ApiBasicAuth()
 export class QuestionController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -39,6 +40,7 @@ export class QuestionController {
   /** Getting all questions. Using a query, search params.*/
   @Get()
   @ApiBasicAuth('basicAuth')
+  @UseGuards(BasicAuthGuard)
   @ApiPaginatedResponse(QuestionViewDto)
   @ApiPaginationQueries('questions')
   @ApiOperation({ summary: 'Get all questions' })

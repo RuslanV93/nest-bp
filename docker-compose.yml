@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: my-postgres
+    environment:
+      POSTGRES_PASSWORD: Rus080899
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    external: true
+    name: 1929e0c536ba627545ea40fb5336369cdba1dd9dfaf305b916a6cbdde0ddac8f

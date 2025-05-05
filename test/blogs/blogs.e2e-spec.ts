@@ -4,11 +4,15 @@ import { createTestingApp } from '../create-testing-app';
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import request from 'supertest';
+import { TestingModule } from '@nestjs/testing';
+import { DataSource } from 'typeorm';
 
 describe('Blogs e2e tests', () => {
   let app: INestApplication<App>;
+  let moduleFixture: TestingModule;
+  let dataSource: DataSource;
   beforeAll(async () => {
-    app = await createTestingApp();
+    [app, moduleFixture] = await createTestingApp();
   });
   afterAll(async () => {
     await app.close();

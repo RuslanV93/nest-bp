@@ -3,6 +3,7 @@ import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-gam
 import { UsersOrmRepository } from '../../../users-account/users/infrastructure/repositories/users.orm.repository';
 import { NotFoundException } from '@nestjs/common';
 import { Game } from '../domain/game.orm.domain';
+import { GameViewDto } from '../interfaces/dto/game.view-dto';
 
 export class GetCurrentGameQuery {
   constructor(public readonly userId: number) {}
@@ -22,9 +23,12 @@ export class GetCurrentGameHandler {
       throw new NotFoundException('User not found');
     }
 
-    const currentGame: Game | null =
-      await this.quizGameQueryRepository.getMyCurrentGame(query.userId);
-
-    // VIEW DTO DELAI DAVAI
+    const currentGame: Game | null = await this.quizGameQueryRepository.getGame(
+      query.userId,
+    );
+    if (!currentGame) {
+      throw new NotFoundException('Game not found');
+    }
+    return GameViewDto.mapToView(currentGame);
   }
 }

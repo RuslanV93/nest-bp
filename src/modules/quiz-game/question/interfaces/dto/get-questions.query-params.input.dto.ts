@@ -2,6 +2,7 @@ import { BaseSortDirectionParam } from '../../../../../core/dto/base.query-param
 
 export enum QuestionSortBy {
   createdAt = 'createdAt',
+  body = 'body',
 }
 export enum QuestionPublishedType {
   all = 'all',

@@ -10,7 +10,7 @@ import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Game, GameStatusType } from './game.orm.domain';
 import { GameAnswer } from './answer.orm.domain';
 import { GameQuestion } from './game-question.orm.domain';
-import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
+import { ForbiddenDomainException } from '../../../../core/exceptions/domain-exception';
 
 @Entity()
 export class Player {
@@ -31,7 +31,7 @@ export class Player {
   @Column({ name: 'game_id' })
   gameId: number;
 
-  @OneToMany(() => GameAnswer, (answer) => answer.player)
+  @OneToMany(() => GameAnswer, (answer) => answer.player, { cascade: true })
   answers: GameAnswer[];
 
   @Column({ default: 0 })
@@ -49,14 +49,18 @@ export class Player {
     return player;
   }
 
-  answerQuestion(question: GameQuestion, answerText: string) {
-    if (this.game.status !== GameStatusType.Active) {
-      throw BadRequestDomainException.create(
+  answerQuestion(
+    currentGame: Game,
+    question: GameQuestion,
+    answerText: string,
+  ) {
+    if (currentGame.status !== GameStatusType.Active) {
+      throw ForbiddenDomainException.create(
         'Cannot answer: game is not active',
       );
     }
     if (this.gameId !== question.gameId) {
-      throw BadRequestDomainException.create(
+      throw ForbiddenDomainException.create(
         'Question does not belong to this game',
       );
     }
@@ -65,11 +69,14 @@ export class Player {
       (a) => a.gameQuestionId === question.id,
     );
     if (existingAnswer) {
-      throw BadRequestDomainException.create(
+      throw ForbiddenDomainException.create(
         'Player already answered this question',
       );
     }
     const isCorrect = question.question.correctAnswer.includes(answerText);
+    if (isCorrect) {
+      this.increaseScore();
+    }
     const gameAnswer: GameAnswer = GameAnswer.createInstance(
       this,
       question,
@@ -77,7 +84,14 @@ export class Player {
       answerText,
     );
     this.answers.push(gameAnswer);
-    this.game.checkIsAllQuestionsAnswered();
+    currentGame.checkIsAllQuestionsAnswered();
     return gameAnswer;
+  }
+  increaseScore(): void {
+    this.score += 1;
+  }
+
+  addBonusPoint(): void {
+    this.score += 1;
   }
 }

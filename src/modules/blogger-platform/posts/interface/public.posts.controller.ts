@@ -102,12 +102,7 @@ export class PublicPostsController {
     @Query() query: GetCommentsQueryParams,
     @ExtractUserFromRequest() user: UserContextDto,
   ) {
-    try {
-      console.log('hello');
-      return this.commentsQueryRepository.getComments(query, id, user.id);
-    } catch (e) {
-      console.log(e);
-    }
+    return this.commentsQueryRepository.getComments(query, id, user.id);
   }
 
   /** Update Like Status. Update posts like counters */

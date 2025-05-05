@@ -22,7 +22,7 @@ export class Question {
   @Column('text', { array: true })
   correctAnswer: string[];
 
-  @Column({ default: false })
+  @Column({ default: true })
   published: boolean;
 
   @OneToMany(() => GameQuestion, (gameQuestion) => gameQuestion.question)
@@ -31,11 +31,11 @@ export class Question {
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column({ type: 'timestamp', nullable: true, default: null })
+  updatedAt: Date | null;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+  deletedAt: Date | null;
 
   @VersionColumn({ default: 1 })
   version: number;
@@ -44,14 +44,16 @@ export class Question {
     const question = new this();
     question.body = questionInputDto.body;
     question.correctAnswer = questionInputDto.correctAnswers;
-
+    question.updatedAt = null;
     return question;
   }
   updateQuestion(questionInputDto: QuestionInputDto) {
     this.body = questionInputDto.body;
     this.correctAnswer = questionInputDto.correctAnswers;
+    this.updatedAt = new Date();
   }
   publishQuestion(publish: boolean) {
     this.published = publish;
+    this.updatedAt = new Date();
   }
 }

@@ -8,11 +8,8 @@ import {
 } from 'typeorm';
 import { Player } from './player.orm.domain';
 import { GameQuestion } from './game-question.orm.domain';
+import { AnswerStatus } from '../types/answer.status.type';
 
-export enum AnswerStatus {
-  Correct = 'Correct',
-  Incorrect = 'Incorrect',
-}
 @Entity()
 export class GameAnswer {
   @PrimaryGeneratedColumn('increment')
@@ -30,7 +27,7 @@ export class GameAnswer {
   @Column({ name: 'player_id' })
   playerId: number;
 
-  @CreateDateColumn()
+  @Column({ type: 'timestamp' })
   date: Date;
 
   @Column({ type: 'enum', enum: AnswerStatus })
@@ -48,6 +45,7 @@ export class GameAnswer {
     const gameAnswer = new this();
     gameAnswer.gameQuestion = gameQuestion;
     gameAnswer.gameQuestionId = gameQuestion.id;
+    gameAnswer.date = new Date();
     gameAnswer.status = isCorrect
       ? AnswerStatus.Correct
       : AnswerStatus.Incorrect;

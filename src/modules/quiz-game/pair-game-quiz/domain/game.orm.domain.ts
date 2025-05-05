@@ -9,8 +9,12 @@ import { GameQuestion } from './game-question.orm.domain';
 import { Player } from './player.orm.domain';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Question } from '../../question/domain/question.orm.domain';
-import { BadRequestDomainException } from '../../../../core/exceptions/domain-exception';
-import { AnswerStatus, GameAnswer } from './answer.orm.domain';
+import {
+  BadRequestDomainException,
+  ForbiddenDomainException,
+} from '../../../../core/exceptions/domain-exception';
+import { GameAnswer } from './answer.orm.domain';
+import { AnswerStatus } from '../types/answer.status.type';
 
 export enum GameStatusType {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -32,7 +36,7 @@ export class Game {
     cascade: true,
     eager: true,
   })
-  questions: GameQuestion[];
+  gameQuestions: GameQuestion[];
 
   @Column({
     type: 'enum',
@@ -53,9 +57,11 @@ export class Game {
   static createInstance(user: User, questions: Question[]) {
     const game = new this();
     const player = Player.createInstance(user, game);
-    game.questions = questions.map((question, index) => {
-      return GameQuestion.createInstance(question, game, index);
-    });
+    game.gameQuestions = questions
+      .sort((a, b) => a.id - b.id)
+      .map((question, index) => {
+        return GameQuestion.createInstance(question, game, index);
+      });
     game.players = [player];
     return game;
   }
@@ -72,7 +78,7 @@ export class Game {
       );
     }
     if (this.players[0].userId === user._id) {
-      throw BadRequestDomainException.create('User already joined this game');
+      throw ForbiddenDomainException.create('User already joined this game');
     }
     const secondPlayer = Player.createInstance(user, this);
     this.players = [...this.players, secondPlayer];
@@ -84,6 +90,7 @@ export class Game {
   finishGame() {
     const isAllQuestionsAnswered = this.checkIsAllQuestionsAnswered();
     if (isAllQuestionsAnswered) {
+      this.setBonusPointForSpeed();
       this.status = GameStatusType.Finished;
       this.finishGameDate = new Date();
     }
@@ -111,17 +118,17 @@ export class Game {
         : Infinity;
 
     if (player1GotCorrectAnswer && player1AnswerTime < player2AnswerTime) {
-      return player1;
+      player1.addBonusPoint();
     } else if (
       player2GotCorrectAnswer &&
       player2AnswerTime < player1AnswerTime
     ) {
-      return player2;
+      player2.addBonusPoint();
     }
   }
   checkIsAllQuestionsAnswered() {
     return this.players.every(
-      (p) => p.answers.length === this.questions.length,
+      (p) => p.answers.length === this.gameQuestions.length,
     );
   }
 }

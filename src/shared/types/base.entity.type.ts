@@ -1,6 +1,7 @@
 import {
   CreateDateColumn,
   DeleteDateColumn,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VersionColumn,

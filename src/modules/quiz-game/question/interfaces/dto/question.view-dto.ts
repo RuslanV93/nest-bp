@@ -16,7 +16,7 @@ export class QuestionViewDto {
   @ApiProperty() correctAnswers: string[];
   @ApiProperty() published: boolean;
   @ApiProperty() createdAt: string;
-  @ApiProperty() updatedAt: string;
+  @ApiProperty() updatedAt: string | null;
 
   public static mapToView(this: void, question: QuestionFromSql | Question) {
     const dto = new QuestionViewDto();
@@ -25,7 +25,9 @@ export class QuestionViewDto {
     dto.correctAnswers = question.correctAnswer;
     dto.published = question.published;
     dto.createdAt = question.createdAt.toISOString();
-    dto.updatedAt = question.updatedAt.toISOString();
+    dto.updatedAt = question.updatedAt
+      ? question.updatedAt.toISOString()
+      : null;
     return dto;
   }
 }

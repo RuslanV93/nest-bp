@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import { BazaEntity } from '../../../../shared/types/base.entity.type';
 import { EmailInfo } from './email-info.orm.domain';
 import { PasswordInfo } from './password-info.orm.domain';
@@ -9,6 +9,9 @@ import { LikeDislike } from '../../../blogger-platform/likes/domain/like.orm.dom
 import { Player } from '../../../quiz-game/pair-game-quiz/domain/player.orm.domain';
 
 @Entity()
+@Index('idx_user_not_deleted', ['deletedAt'], {
+  where: `"deleted_at" IS NULL`,
+})
 export class User extends BazaEntity {
   @Column()
   login: string;

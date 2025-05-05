@@ -3,6 +3,7 @@ import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.rep
 import { logErrorToFile } from '../../../../../common/error-logger';
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   InternalServerErrorException,
   NotFoundException,
@@ -29,9 +30,10 @@ export class AnswerUseCase {
       const currentGame: Game = await this.quizGameRepository.findActiveGame(
         command.userId,
       );
+      console.log(currentGame);
       const player = this.getPlayer(currentGame, command.userId);
       const answers = this.getAnswers(player);
-      const playerAnswersCount = answers.length + 1;
+      const playerAnswersCount = answers.length;
 
       this.checkIsAllQuestionsAnswered(answers, currentGame);
 
@@ -40,8 +42,13 @@ export class AnswerUseCase {
         playerAnswersCount,
       );
 
-      const gameAnswer = player.answerQuestion(nextQuestion, command.answer);
+      const gameAnswer = player.answerQuestion(
+        currentGame,
+        nextQuestion,
+        command.answer,
+      );
       currentGame.finishGame();
+      await this.quizGameRepository.save(currentGame);
       return gameAnswer;
     } catch (e) {
       logErrorToFile(e);
@@ -74,12 +81,12 @@ export class AnswerUseCase {
   }
 
   checkIsAllQuestionsAnswered(answers: GameAnswer[], currentGame: Game) {
-    if (answers.length >= currentGame.questions.length) {
-      throw new BadRequestException('You have already answered all questions');
+    if (answers.length >= currentGame.gameQuestions.length) {
+      throw new ForbiddenException('You have already answered all questions');
     }
   }
   getNextQuestion(currentGame: Game, playerAnswersCount: number) {
-    const nextQuestion = currentGame.questions.find(
+    const nextQuestion = currentGame.gameQuestions.find(
       (q) => q.order === playerAnswersCount,
     );
     if (!nextQuestion) {

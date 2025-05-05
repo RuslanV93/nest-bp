@@ -4,6 +4,7 @@ import { Question } from '../../domain/question.orm.domain';
 import {
   GetQuestionsQueryParams,
   QuestionPublishedType,
+  QuestionSortBy,
 } from '../../interfaces/dto/get-questions.query-params.input.dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { Repository } from 'typeorm';
@@ -33,16 +34,10 @@ export class QuestionsQueryRepository {
           ? 'ASC'
           : 'DESC'
         : 'DESC';
-    const sortField = 'created_at';
+    const sortField =
+      query.sortBy === QuestionSortBy.body ? QuestionSortBy.body : 'created_at';
 
     const countQuery = this.questionRepository.createQueryBuilder('question');
-
-    if (query.bodySearchTerm) {
-      countQuery.where('question.body ILIKE :search', {
-        search: `%${query.bodySearchTerm}%`,
-      });
-    }
-    const totalCount = await countQuery.getCount();
 
     const questionQuery = this.questionRepository
       .createQueryBuilder('question')
@@ -54,9 +49,15 @@ export class QuestionsQueryRepository {
       .addSelect('question.updatedAt', 'updatedAt');
 
     if (query.bodySearchTerm) {
+      countQuery.where('question.body ILIKE :search', {
+        search: `%${query.bodySearchTerm}%`,
+      });
       questionQuery.where('question.body ILIKE :search', {
         search: `%${query.bodySearchTerm}%`,
       });
+    } else {
+      countQuery.where('1 = 1');
+      questionQuery.where('1=1');
     }
     if (
       query.publishedStatus &&
@@ -64,12 +65,17 @@ export class QuestionsQueryRepository {
     ) {
       const isPublished =
         query.publishedStatus === QuestionPublishedType.published;
-      questionQuery.where('question.published = :search', {
+      questionQuery.andWhere('question.published = :search', {
+        search: isPublished,
+      });
+      countQuery.andWhere('question.published = :search', {
         search: isPublished,
       });
     }
     questionQuery.orderBy(sortField, validSortDirections);
     questionQuery.limit(query.pageSize).offset(query.calculateSkipParam());
+
+    const totalCount = await countQuery.getCount();
 
     const questions = await questionQuery.getRawMany();
 

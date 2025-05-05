@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Question } from '../../../question/domain/question.orm.domain';
 
 @Injectable()
@@ -11,6 +15,14 @@ export class QuizGameRepository {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
   ) {}
+
+  async findActiveOrPendingGameForUser(userId: number) {
+    return this.gameRepository
+      .createQueryBuilder('game')
+      .leftJoinAndSelect('game.players', 'player')
+      .where('player.userId = :userId', { userId: userId })
+      .getOne();
+  }
 
   async findPendingGame() {
     return this.gameRepository
@@ -26,35 +38,38 @@ export class QuizGameRepository {
   async findFiveRandomQuestions() {
     const questions: Question[] = await this.questionRepository
       .createQueryBuilder('q')
+      .where('q.published is TRUE')
       .orderBy(`RANDOM()`)
       .limit(5)
       .getMany();
 
     if (!questions.length) {
-      throw new NotFoundException();
+      throw new NotFoundException('No published questions.');
     }
     return questions;
   }
-
-  async connection() {}
-
-  async answer() {}
 
   async save(gameToSave: Game) {
     return this.gameRepository.save(gameToSave);
   }
 
   async findActiveGame(userId: number) {
-    const activeGame = await this.gameRepository
+    const activeGame: Game | null = await this.gameRepository
       .createQueryBuilder('game')
-      .leftJoinAndSelect('game.questions', 'gq')
-      .leftJoinAndSelect('game.player', 'p')
+      .leftJoinAndSelect('game.gameQuestions', 'gq')
+      .leftJoinAndSelect('gq.question', 'question')
+      .leftJoinAndSelect('game.players', 'p')
       .leftJoinAndSelect('p.answers', 'a')
-      .where('p.userId = :userId', { userId })
+      .innerJoin(
+        'game.players',
+        'playerFilter',
+        'playerFilter.userId = :userId',
+        { userId },
+      )
       .andWhere('game.status = :status', { status: GameStatusType.Active })
       .getOne();
     if (!activeGame) {
-      throw new NotFoundException('Game not found.');
+      throw new ForbiddenException('Player is not a participant of this game.');
     }
     return activeGame;
   }
