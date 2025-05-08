@@ -46,7 +46,7 @@ import { DataSource } from 'typeorm';
         autoLoadEntities: true,
         synchronize: true,
         namingStrategy: new SnakeNamingStrategy(),
-        logging: true,
+        logging: ['error'],
         // extra: {
         //   ssl: {
         //     rejectUnauthorized: false,
