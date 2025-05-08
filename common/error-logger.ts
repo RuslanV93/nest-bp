@@ -1,10 +1,12 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
-const logDir = path.resolve(process.cwd(), 'logs');
+const isVercel =
+  process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const logDir = isVercel ? '/tmp/logs' : path.resolve(process.cwd(), 'logs');
 
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(logDir, { recursive: true });
 }
 
 const errorPath = path.join(logDir, 'errors.log');
