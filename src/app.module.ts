@@ -43,15 +43,18 @@ import { DataSource } from 'typeorm';
         username: coreConfig.postgresLogin,
         password: coreConfig.postgresPassword,
         database: coreConfig.postgresDbName,
-        autoLoadEntities: true,
+        autoLoadEntities: false,
         synchronize: true,
         namingStrategy: new SnakeNamingStrategy(),
-        logging: true,
-        // extra: {
-        //   ssl: {
-        //     rejectUnauthorized: false,
-        //   },
-        // },
+        logging: ['error'],
+        extra:
+          coreConfig.env === 'production'
+            ? {
+                ssl: {
+                  rejectUnauthorized: false,
+                },
+              }
+            : undefined,
       }),
       inject: [CoreConfig],
     }),
