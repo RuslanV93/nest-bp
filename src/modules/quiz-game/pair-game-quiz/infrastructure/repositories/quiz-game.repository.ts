@@ -19,11 +19,11 @@ export class QuizGameRepository {
     private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async findActiveOrPendingGameForPlayer(playerId: number) {
+  async findActiveOrPendingGameForUser(userId: number) {
     return this.gameRepository
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.players', 'player')
-      .where('player.id = :playerId', { playerId })
+      .where('player.userId = :userId', { userId })
       .andWhere('game.status IN (:...statuses)', {
         statuses: [GameStatusType.Active, GameStatusType.PendingSecondPlayer],
       })
@@ -81,18 +81,15 @@ export class QuizGameRepository {
         'playerFilter.userId = :userId',
         { userId },
       )
+      .where('game.status IN (:...statuses)', {
+        statuses: [GameStatusType.Active],
+      })
       .setLock('pessimistic_write', undefined, ['game'])
       .getOne();
     if (!activeGame) {
       throw new ForbiddenException('Game not found.');
     }
 
-    switch (activeGame?.status) {
-      case GameStatusType.PendingSecondPlayer:
-        throw new ForbiddenException('The game is not active.');
-      case GameStatusType.Finished:
-        throw new ForbiddenException('The game is finished.');
-    }
     return activeGame;
   }
 }

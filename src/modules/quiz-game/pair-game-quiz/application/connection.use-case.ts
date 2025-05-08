@@ -4,7 +4,6 @@ import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.rep
 import { Game } from '../domain/game.orm.domain';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Question } from '../../question/domain/question.orm.domain';
-import { UnitOfWork } from '../infrastructure/repositories/unit.of.work';
 import {
   ForbiddenException,
   HttpException,
@@ -12,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { logErrorToFile } from '../../../../../common/error-logger';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
-import { Player } from '../domain/player.orm.domain';
 import { Transactional } from 'typeorm-transactional';
 
 export class ConnectionCommand {
@@ -24,7 +22,6 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
   constructor(
     private readonly usersRepository: UsersOrmRepository,
     private readonly quizGameRepository: QuizGameRepository,
-    private readonly unitOfWork: UnitOfWork,
   ) {}
   @Transactional()
   async execute(command: ConnectionCommand) {
@@ -32,28 +29,21 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
       const user: User = await this.usersRepository.findOrNotFoundException(
         command.userId,
       );
-
-      let player: Player | null =
-        await this.quizGameRepository.findPlayerByUserId(command.userId);
-      if (!player) {
-        player = Player.createInstance(user);
-      }
-
       const activePendingGameForUser =
-        await this.quizGameRepository.findActiveOrPendingGameForPlayer(
-          player.id,
+        await this.quizGameRepository.findActiveOrPendingGameForUser(
+          command.userId,
         );
-
-      this.checkIsActiveOrPendingGameForPlayer(activePendingGameForUser);
+      this.checkIsActiveOrPendingGameForUser(activePendingGameForUser);
       const pendingGame = await this.quizGameRepository.findPendingGame();
+
       if (pendingGame) {
-        pendingGame.addSecondPlayer(player);
+        pendingGame.addSecondPlayer(user);
 
         return this.quizGameRepository.save(pendingGame);
       } else if (!pendingGame) {
         const questions: Question[] =
           await this.quizGameRepository.findFiveRandomQuestions();
-        const newGame = Game.createInstance(player, questions);
+        const newGame = Game.createInstance(user, questions);
 
         return this.quizGameRepository.save(newGame);
       }
@@ -69,7 +59,7 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
       throw new InternalServerErrorException('Unexpected error');
     }
   }
-  checkIsActiveOrPendingGameForPlayer(game: Game | null) {
+  checkIsActiveOrPendingGameForUser(game: Game | null) {
     if (game) {
       throw new ForbiddenException('User already have active game session');
     }

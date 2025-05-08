@@ -33,12 +33,8 @@ export class Player {
 
   @OneToMany(() => GameAnswer, (answer) => answer.player, {
     cascade: true,
-    orphanedRowAction: 'disable',
   })
   answers: GameAnswer[];
-
-  @Column({ default: 1 })
-  playerPosition: number;
 
   @Column({ default: 0 })
   score: number;
@@ -49,7 +45,11 @@ export class Player {
 
   static createInstance(user: User) {
     const player = new this();
+
+    player.score = 0;
+    player.answers = [];
     player.user = user;
+    player.userId = user._id;
     player.score = 0;
     return player;
   }

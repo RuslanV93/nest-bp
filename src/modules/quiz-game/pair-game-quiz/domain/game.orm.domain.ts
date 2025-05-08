@@ -14,6 +14,7 @@ import {
 } from '../../../../core/exceptions/domain-exception';
 import { GameAnswer } from './answer.orm.domain';
 import { AnswerStatus } from '../types/answer.status.type';
+import { User } from '../../../users-account/users/domain/users.orm.domain';
 
 export enum GameStatusType {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -53,24 +54,21 @@ export class Game {
   @Column({ type: 'timestamp', nullable: true })
   finishGameDate: Date | null;
 
-  static createInstance(player: Player, questions: Question[]) {
+  static createInstance(user: User, questions: Question[]) {
     const game = new this();
-
     game.gameQuestions = questions
       .sort((a, b) => a.id - b.id)
       .map((question, index) => {
         return GameQuestion.createInstance(question, game, index + 1);
       });
+    const player = Player.createInstance(user);
     player.game = game;
-    player.score = 0;
-    player.answers = [];
     player.gameId = game.id;
-    player.playerPosition = 1;
     game.players = [player];
     return game;
   }
 
-  addSecondPlayer(player: Player) {
+  addSecondPlayer(user: User) {
     if (this.status !== GameStatusType.PendingSecondPlayer) {
       throw BadRequestDomainException.create(
         'Game is not waiting for a second player',
@@ -81,14 +79,12 @@ export class Game {
         'Game already has correct number of players',
       );
     }
-    if (this.players[0].userId === player.userId) {
+    if (this.players[0].userId === user._id) {
       throw ForbiddenDomainException.create('User already joined this game');
     }
+    const player = Player.createInstance(user);
     player.game = this;
     player.gameId = this.id;
-    player.score = 0;
-    player.answers = [];
-    player.playerPosition = 2;
     this.players = [...this.players, player];
 
     this.startGameDate = new Date();
