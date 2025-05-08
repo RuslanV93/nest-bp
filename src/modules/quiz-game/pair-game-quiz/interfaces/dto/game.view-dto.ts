@@ -41,9 +41,11 @@ export class GameViewDto {
 
   public static mapToView(game: Game) {
     const dto = new GameViewDto();
-    const firstPlayer = game.players[0];
-    const secondPlayer = game.players.length > 1 ? game.players[1] : null;
-    console.log(game.gameQuestions[0].question);
+    const sortedPlayers = game.players.sort(
+      (a, b) => a.playerPosition - b.playerPosition,
+    );
+    const firstPlayer = sortedPlayers[0] || null;
+    const secondPlayer = sortedPlayers.length > 1 ? sortedPlayers[1] : null;
 
     const questions =
       game.status === GameStatusType.PendingSecondPlayer

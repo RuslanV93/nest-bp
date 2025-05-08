@@ -31,8 +31,14 @@ export class Player {
   @Column({ name: 'game_id' })
   gameId: number;
 
-  @OneToMany(() => GameAnswer, (answer) => answer.player, { cascade: true })
+  @OneToMany(() => GameAnswer, (answer) => answer.player, {
+    cascade: true,
+    orphanedRowAction: 'disable',
+  })
   answers: GameAnswer[];
+
+  @Column({ default: 1 })
+  playerPosition: number;
 
   @Column({ default: 0 })
   score: number;
@@ -41,10 +47,9 @@ export class Player {
     return this.user.login;
   }
 
-  static createInstance(user: User, game: Game) {
+  static createInstance(user: User) {
     const player = new this();
     player.user = user;
-    player.game = game;
     player.score = 0;
     return player;
   }

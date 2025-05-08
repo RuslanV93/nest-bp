@@ -1,6 +1,5 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -21,7 +20,12 @@ export class GameAnswer {
   @Column({ name: 'question_id' })
   gameQuestionId: number;
 
-  @ManyToOne(() => Player, (player) => player.answers)
+  @Column({ name: 'game_id' })
+  gameId: number;
+
+  @ManyToOne(() => Player, (player) => player.answers, {
+    orphanedRowAction: 'disable',
+  })
   @JoinColumn({ name: 'player_id' })
   player: Player;
   @Column({ name: 'player_id' })
@@ -46,13 +50,13 @@ export class GameAnswer {
     gameAnswer.gameQuestion = gameQuestion;
     gameAnswer.gameQuestionId = gameQuestion.id;
     gameAnswer.date = new Date();
+    gameAnswer.gameId = player.gameId;
     gameAnswer.status = isCorrect
       ? AnswerStatus.Correct
       : AnswerStatus.Incorrect;
     gameAnswer.answerText = answerText;
     gameAnswer.player = player;
     gameAnswer.playerId = player.id;
-
     return gameAnswer;
   }
 }

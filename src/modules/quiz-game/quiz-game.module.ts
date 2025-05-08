@@ -13,7 +13,6 @@ import { Player } from './pair-game-quiz/domain/player.orm.domain';
 import { Game } from './pair-game-quiz/domain/game.orm.domain';
 import { GameQuestion } from './pair-game-quiz/domain/game-question.orm.domain';
 import { GameAnswer } from './pair-game-quiz/domain/answer.orm.domain';
-import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
 import { ConnectionUseCase } from './pair-game-quiz/application/connection.use-case';
 import { QuizGameRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.repository';
 import { QuizGameQueryRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.query-repository';
@@ -22,6 +21,7 @@ import { AnswerUseCase } from './pair-game-quiz/application/answer.use-case';
 import { GetCurrentGameHandler } from './pair-game-quiz/application/current-game.query-handler';
 import { GameAnswerHandler } from './pair-game-quiz/application/game-answer.query-handler';
 import { GetGameByIdHandler } from './pair-game-quiz/application/game-by-id.query-handler';
+import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,

@@ -10,9 +10,10 @@ import {
   HttpException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Transactional } from 'typeorm-transactional';
 import { logErrorToFile } from '../../../../../common/error-logger';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { Player } from '../domain/player.orm.domain';
+import { Transactional } from 'typeorm-transactional';
 
 export class ConnectionCommand {
   constructor(public userId: number) {}
@@ -31,20 +32,29 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
       const user: User = await this.usersRepository.findOrNotFoundException(
         command.userId,
       );
-      const activePendingGameForUser =
-        await this.quizGameRepository.findActiveOrPendingGameForUser(
-          command.userId,
-        );
-      this.checkIsActiveOrPendingGameForUser(activePendingGameForUser);
-      const pendingGame = await this.quizGameRepository.findPendingGame();
 
+      let player: Player | null =
+        await this.quizGameRepository.findPlayerByUserId(command.userId);
+      if (!player) {
+        player = Player.createInstance(user);
+      }
+
+      const activePendingGameForUser =
+        await this.quizGameRepository.findActiveOrPendingGameForPlayer(
+          player.id,
+        );
+
+      this.checkIsActiveOrPendingGameForPlayer(activePendingGameForUser);
+      const pendingGame = await this.quizGameRepository.findPendingGame();
       if (pendingGame) {
-        pendingGame.addSecondPlayer(user);
+        pendingGame.addSecondPlayer(player);
+
         return this.quizGameRepository.save(pendingGame);
       } else if (!pendingGame) {
         const questions: Question[] =
           await this.quizGameRepository.findFiveRandomQuestions();
-        const newGame = Game.createInstance(user, questions);
+        const newGame = Game.createInstance(player, questions);
+
         return this.quizGameRepository.save(newGame);
       }
     } catch (e) {
@@ -59,7 +69,7 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
       throw new InternalServerErrorException('Unexpected error');
     }
   }
-  checkIsActiveOrPendingGameForUser(game: Game | null) {
+  checkIsActiveOrPendingGameForPlayer(game: Game | null) {
     if (game) {
       throw new ForbiddenException('User already have active game session');
     }

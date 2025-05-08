@@ -9,7 +9,7 @@ export class AnswerViewDto {
 
   static mapToView(answer: GameAnswer) {
     const dto = new AnswerViewDto();
-    dto.questionId = answer.id.toString();
+    dto.questionId = answer.gameQuestionId.toString();
     dto.answerStatus = answer.status;
     dto.addedAt = answer.date.toISOString();
     return dto;

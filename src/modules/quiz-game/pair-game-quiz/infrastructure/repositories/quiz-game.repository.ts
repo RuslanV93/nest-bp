@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { Repository } from 'typeorm';
 import { Question } from '../../../question/domain/question.orm.domain';
+import { Player } from '../../domain/player.orm.domain';
 
 @Injectable()
 export class QuizGameRepository {
@@ -14,12 +15,25 @@ export class QuizGameRepository {
     @InjectRepository(Game) private readonly gameRepository: Repository<Game>,
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
+    @InjectRepository(Player)
+    private readonly playerRepository: Repository<Player>,
   ) {}
 
-  async findActiveOrPendingGameForUser(userId: number) {
+  async findActiveOrPendingGameForPlayer(playerId: number) {
     return this.gameRepository
       .createQueryBuilder('game')
       .leftJoinAndSelect('game.players', 'player')
+      .where('player.id = :playerId', { playerId })
+      .andWhere('game.status IN (:...statuses)', {
+        statuses: [GameStatusType.Active, GameStatusType.PendingSecondPlayer],
+      })
+      .getOne();
+  }
+
+  async findPlayerByUserId(userId: number) {
+    return this.playerRepository
+      .createQueryBuilder('player')
+      .leftJoinAndSelect('player.answers', 'answer')
       .where('player.userId = :userId', { userId: userId })
       .getOne();
   }
@@ -56,20 +70,28 @@ export class QuizGameRepository {
   async findActiveGame(userId: number) {
     const activeGame: Game | null = await this.gameRepository
       .createQueryBuilder('game')
-      .leftJoinAndSelect('game.gameQuestions', 'gq')
-      .leftJoinAndSelect('gq.question', 'question')
+      .innerJoinAndSelect('game.gameQuestions', 'gq')
+      .setLock('pessimistic_write')
+      .innerJoinAndSelect('gq.question', 'question')
       .leftJoinAndSelect('game.players', 'p')
-      .leftJoinAndSelect('p.answers', 'a')
+      .leftJoinAndSelect('p.answers', 'a', 'a.gameId = p.gameId')
       .innerJoin(
         'game.players',
         'playerFilter',
         'playerFilter.userId = :userId',
         { userId },
       )
-      .andWhere('game.status = :status', { status: GameStatusType.Active })
+      .setLock('pessimistic_write', undefined, ['game'])
       .getOne();
     if (!activeGame) {
-      throw new ForbiddenException('Player is not a participant of this game.');
+      throw new ForbiddenException('Game not found.');
+    }
+
+    switch (activeGame?.status) {
+      case GameStatusType.PendingSecondPlayer:
+        throw new ForbiddenException('The game is not active.');
+      case GameStatusType.Finished:
+        throw new ForbiddenException('The game is finished.');
     }
     return activeGame;
   }

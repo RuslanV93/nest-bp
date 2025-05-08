@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 import { GameQuestion } from './game-question.orm.domain';
 import { Player } from './player.orm.domain';
-import { User } from '../../../users-account/users/domain/users.orm.domain';
 import { Question } from '../../question/domain/question.orm.domain';
 import {
   BadRequestDomainException,
@@ -54,19 +53,24 @@ export class Game {
   @Column({ type: 'timestamp', nullable: true })
   finishGameDate: Date | null;
 
-  static createInstance(user: User, questions: Question[]) {
+  static createInstance(player: Player, questions: Question[]) {
     const game = new this();
-    const player = Player.createInstance(user, game);
+
     game.gameQuestions = questions
       .sort((a, b) => a.id - b.id)
       .map((question, index) => {
-        return GameQuestion.createInstance(question, game, index);
+        return GameQuestion.createInstance(question, game, index + 1);
       });
+    player.game = game;
+    player.score = 0;
+    player.answers = [];
+    player.gameId = game.id;
+    player.playerPosition = 1;
     game.players = [player];
     return game;
   }
 
-  addSecondPlayer(user: User) {
+  addSecondPlayer(player: Player) {
     if (this.status !== GameStatusType.PendingSecondPlayer) {
       throw BadRequestDomainException.create(
         'Game is not waiting for a second player',
@@ -77,15 +81,19 @@ export class Game {
         'Game already has correct number of players',
       );
     }
-    if (this.players[0].userId === user._id) {
+    if (this.players[0].userId === player.userId) {
       throw ForbiddenDomainException.create('User already joined this game');
     }
-    const secondPlayer = Player.createInstance(user, this);
-    this.players = [...this.players, secondPlayer];
+    player.game = this;
+    player.gameId = this.id;
+    player.score = 0;
+    player.answers = [];
+    player.playerPosition = 2;
+    this.players = [...this.players, player];
 
     this.startGameDate = new Date();
     this.status = GameStatusType.Active;
-    return secondPlayer;
+    return player;
   }
   finishGame() {
     const isAllQuestionsAnswered = this.checkIsAllQuestionsAnswered();

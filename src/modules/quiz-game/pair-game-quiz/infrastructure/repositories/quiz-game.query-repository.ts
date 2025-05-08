@@ -20,11 +20,14 @@ export class QuizGameQueryRepository {
         .leftJoinAndSelect('game.players', 'player')
         .leftJoinAndSelect('game.gameQuestions', 'gameQuestions')
         .leftJoinAndSelect('player.user', 'user')
-        .leftJoinAndSelect('player.answers', 'answer')
+        .leftJoinAndSelect(
+          'player.answers',
+          'answer',
+          'answer.gameId = player.gameId',
+        )
         .leftJoinAndSelect('gameQuestions.question', 'questions')
         .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion');
 
-      // условие по какому полю ищем
       if (userId) {
         queryBuilder.innerJoin(
           'game.players',
@@ -35,14 +38,18 @@ export class QuizGameQueryRepository {
       } else if (gameId) {
         queryBuilder.where('game.id = :gameId', { gameId });
       }
+      const statuses = gameId
+        ? [
+            GameStatusType.Active,
+            GameStatusType.PendingSecondPlayer,
+            GameStatusType.Finished,
+          ]
+        : [GameStatusType.Active, GameStatusType.PendingSecondPlayer];
 
       queryBuilder
-        .andWhere('game.status IN (:...statuses)', {
-          statuses: [GameStatusType.Active, GameStatusType.PendingSecondPlayer],
-        })
+        .andWhere('game.status IN (:...statuses)', { statuses })
         .orderBy('gameQuestion.order', 'ASC')
         .orderBy('answer', 'ASC');
-
       const game: Game | null = await queryBuilder.getOne();
       // const gameRawData = await queryBuilder.getRawOne
       if (!game) {
@@ -59,7 +66,8 @@ export class QuizGameQueryRepository {
   async getAnswer(answerId: number) {
     return this.gameAnswerRepository
       .createQueryBuilder('answer')
-      .where('id = :answerId', { answerId })
+      .leftJoinAndSelect('answer.gameQuestion', 'gameQuestion')
+      .where('answer.id = :answerId', { answerId })
       .getOne();
   }
 }

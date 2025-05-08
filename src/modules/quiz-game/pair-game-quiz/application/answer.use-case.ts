@@ -2,17 +2,17 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.repository';
 import { logErrorToFile } from '../../../../../common/error-logger';
 import {
-  BadRequestException,
   ForbiddenException,
   HttpException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Game } from '../domain/game.orm.domain';
-import { Transactional } from 'typeorm-transactional';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
 import { Player } from '../domain/player.orm.domain';
 import { GameAnswer } from '../domain/answer.orm.domain';
+import { UnitOfWork } from '../infrastructure/repositories/unit.of.work';
+import { Transactional } from 'typeorm-transactional';
 
 export class AnswerCommand {
   constructor(
@@ -23,30 +23,31 @@ export class AnswerCommand {
 
 @CommandHandler(AnswerCommand)
 export class AnswerUseCase {
-  constructor(private readonly quizGameRepository: QuizGameRepository) {}
+  constructor(
+    private readonly quizGameRepository: QuizGameRepository,
+    private readonly unitOfWork: UnitOfWork,
+  ) {}
   @Transactional()
   async execute(command: AnswerCommand) {
     try {
       const currentGame: Game = await this.quizGameRepository.findActiveGame(
         command.userId,
       );
-      console.log(currentGame);
       const player = this.getPlayer(currentGame, command.userId);
       const answers = this.getAnswers(player);
       const playerAnswersCount = answers.length;
-
       this.checkIsAllQuestionsAnswered(answers, currentGame);
 
       const nextQuestion = this.getNextQuestion(
         currentGame,
         playerAnswersCount,
       );
-
       const gameAnswer = player.answerQuestion(
         currentGame,
         nextQuestion,
         command.answer,
       );
+
       currentGame.finishGame();
       await this.quizGameRepository.save(currentGame);
       return gameAnswer;
@@ -86,9 +87,12 @@ export class AnswerUseCase {
     }
   }
   getNextQuestion(currentGame: Game, playerAnswersCount: number) {
-    const nextQuestion = currentGame.gameQuestions.find(
-      (q) => q.order === playerAnswersCount,
+    const sortedQuestions = currentGame.gameQuestions.sort(
+      (a, b) => a.order - b.order,
     );
+
+    const nextQuestion = sortedQuestions[playerAnswersCount];
+
     if (!nextQuestion) {
       throw new NotFoundException('Next question was not found!');
     }

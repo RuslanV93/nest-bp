@@ -28,7 +28,7 @@ import { DataSource } from 'typeorm';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          ttl: 10000,
+          ttl: 1000,
           limit: 30,
         },
       ],
