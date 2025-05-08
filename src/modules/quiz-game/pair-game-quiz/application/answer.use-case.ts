@@ -23,10 +23,7 @@ export class AnswerCommand {
 
 @CommandHandler(AnswerCommand)
 export class AnswerUseCase {
-  constructor(
-    private readonly quizGameRepository: QuizGameRepository,
-    private readonly unitOfWork: UnitOfWork,
-  ) {}
+  constructor(private readonly quizGameRepository: QuizGameRepository) {}
   @Transactional()
   async execute(command: AnswerCommand) {
     try {

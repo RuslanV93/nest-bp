@@ -30,14 +30,6 @@ export class QuizGameRepository {
       .getOne();
   }
 
-  async findPlayerByUserId(userId: number) {
-    return this.playerRepository
-      .createQueryBuilder('player')
-      .leftJoinAndSelect('player.answers', 'answer')
-      .where('player.userId = :userId', { userId: userId })
-      .getOne();
-  }
-
   async findPendingGame() {
     return this.gameRepository
       .createQueryBuilder('game')
