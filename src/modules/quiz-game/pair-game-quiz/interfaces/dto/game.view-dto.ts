@@ -41,9 +41,7 @@ export class GameViewDto {
 
   public static mapToView(game: Game) {
     const dto = new GameViewDto();
-    const sortedPlayers = game.players.sort(
-      (a, b) => a.playerPosition - b.playerPosition,
-    );
+    const sortedPlayers = game.players.sort((a, b) => a.id - b.id);
     const firstPlayer = sortedPlayers[0] || null;
     const secondPlayer = sortedPlayers.length > 1 ? sortedPlayers[1] : null;
 
@@ -65,7 +63,7 @@ export class GameViewDto {
       }));
       return {
         answers,
-        player: { id: player.id.toString(), login: player.login },
+        player: { id: player.userId.toString(), login: player.login },
         score: player.score,
       };
     };
