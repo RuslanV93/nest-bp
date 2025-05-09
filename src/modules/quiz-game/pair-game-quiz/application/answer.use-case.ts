@@ -1,4 +1,4 @@
-import { CommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus } from '@nestjs/cqrs';
 import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.repository';
 import { logErrorToFile } from '../../../../../common/error-logger';
 import {
@@ -11,7 +11,6 @@ import { Game } from '../domain/game.orm.domain';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
 import { Player } from '../domain/player.orm.domain';
 import { GameAnswer } from '../domain/answer.orm.domain';
-import { UnitOfWork } from '../infrastructure/repositories/unit.of.work';
 import { Transactional } from 'typeorm-transactional';
 
 export class AnswerCommand {
@@ -23,7 +22,10 @@ export class AnswerCommand {
 
 @CommandHandler(AnswerCommand)
 export class AnswerUseCase {
-  constructor(private readonly quizGameRepository: QuizGameRepository) {}
+  constructor(
+    private readonly quizGameRepository: QuizGameRepository,
+    private readonly eventBus: EventBus,
+  ) {}
   @Transactional()
   async execute(command: AnswerCommand) {
     try {
@@ -46,6 +48,12 @@ export class AnswerUseCase {
       );
 
       currentGame.finishGame();
+      const events = currentGame.getDomainEvents();
+      for (const event of events) {
+        this.eventBus.publish(event);
+      }
+      currentGame.clearEvents();
+
       await this.quizGameRepository.save(currentGame);
       return gameAnswer;
     } catch (e) {

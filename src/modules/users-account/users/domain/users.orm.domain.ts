@@ -23,14 +23,12 @@ export class User extends BazaEntity {
   players: Player[];
 
   @OneToOne(() => EmailInfo, (e) => e.user, { cascade: true, eager: true })
-  // @JoinColumn()
   emailConfirmationInfo: EmailInfo;
 
   @OneToOne(() => PasswordInfo, (p) => p.user, {
     cascade: true,
     eager: true,
   })
-  // @JoinColumn()
   passwordInfo: PasswordInfo;
 
   @OneToMany(() => Device, (device) => device.user)

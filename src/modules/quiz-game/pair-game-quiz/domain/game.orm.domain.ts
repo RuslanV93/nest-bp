@@ -15,6 +15,11 @@ import {
 import { GameAnswer } from './answer.orm.domain';
 import { AnswerStatus } from '../types/answer.status.type';
 import { User } from '../../../users-account/users/domain/users.orm.domain';
+import {
+  DomainEvent,
+  GameFinishedEvent,
+  GameResult,
+} from './game-event.domain';
 
 export enum GameStatusType {
   PendingSecondPlayer = 'PendingSecondPlayer',
@@ -54,6 +59,8 @@ export class Game {
   @Column({ type: 'timestamp', nullable: true })
   finishGameDate: Date | null;
 
+  private domainEvents: DomainEvent[] = [];
+
   static createInstance(user: User, questions: Question[]) {
     const game = new this();
     game.gameQuestions = questions
@@ -66,6 +73,13 @@ export class Game {
     player.gameId = game.id;
     game.players = [player];
     return game;
+  }
+
+  getDomainEvents(): DomainEvent[] {
+    return [...this.domainEvents];
+  }
+  clearEvents(): void {
+    this.domainEvents = [];
   }
 
   addSecondPlayer(user: User) {
@@ -98,6 +112,39 @@ export class Game {
       this.status = GameStatusType.Finished;
       this.finishGameDate = new Date();
     }
+
+    const gameResult = this.calculateResult();
+    this.domainEvents.push(
+      new GameFinishedEvent(this.id, this.players, gameResult),
+    );
+  }
+  private calculateResult(): GameResult {
+    const winner: Player | null = this.determineWinner();
+    return {
+      winnerId: winner !== null ? winner.userId : null,
+      isDraw: this.isDraw(),
+      scores: this.players.map((p) => ({
+        userId: p.userId,
+        score: p.calculateScore(),
+      })),
+    };
+  }
+  private determineWinner(): Player | null {
+    if (this.isDraw()) return null;
+
+    return this.players.reduce(
+      (winner: Player | null, player) =>
+        !winner || player.calculateScore() > winner.calculateScore()
+          ? player
+          : winner,
+      null,
+    );
+  }
+
+  private isDraw() {
+    return (
+      this.players[0].calculateScore() === this.players[1].calculateScore()
+    );
   }
   setBonusPointForSpeed() {
     const player1 = this.players[0];

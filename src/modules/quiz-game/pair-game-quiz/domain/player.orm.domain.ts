@@ -54,6 +54,10 @@ export class Player {
     return player;
   }
 
+  calculateScore() {
+    return this.score;
+  }
+
   answerQuestion(
     currentGame: Game,
     question: GameQuestion,

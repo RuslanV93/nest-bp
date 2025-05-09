@@ -3,6 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { Repository } from 'typeorm';
 import { GameAnswer } from '../../domain/answer.orm.domain';
+import { Statistic } from '../../domain/statistic.orm.domain';
+import {
+  GameSortBy,
+  GetGamesQueryParams,
+} from '../../interfaces/dto/get-games.query-params';
+import { GameViewDto } from '../../interfaces/dto/game.view-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 
 @Injectable()
 export class QuizGameQueryRepository {
@@ -10,7 +17,57 @@ export class QuizGameQueryRepository {
     @InjectRepository(Game) private readonly gameRepository: Repository<Game>,
     @InjectRepository(GameAnswer)
     private readonly gameAnswerRepository: Repository<GameAnswer>,
+    @InjectRepository(Statistic)
+    private readonly statisticRepository: Repository<Statistic>,
   ) {}
+
+  async getStatisticByUserId(userId: number) {
+    return this.statisticRepository.findOne({ where: { userId: userId } });
+  }
+  async getGamesByUserId(userId: number, query: GetGamesQueryParams) {
+    const gameQuery = this.gameRepository.createQueryBuilder('game');
+
+    gameQuery
+      .leftJoinAndSelect('game.players', 'player')
+      .leftJoinAndSelect('game.gameQuestions', 'gameQuestions')
+      .leftJoinAndSelect('player.user', 'user')
+      .leftJoinAndSelect(
+        'player.answers',
+        'answer',
+        'answer.gameId = player.gameId',
+      )
+      .leftJoinAndSelect('gameQuestions.question', 'questions')
+      .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion')
+      .innerJoin(
+        'game.players',
+        'playerFilter',
+        'playerFilter.userId = :userId',
+        { userId },
+      );
+
+    const totalCount = await gameQuery.clone().getCount();
+    const direction =
+      query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    if (query.sortBy === GameSortBy.status) {
+      gameQuery.addOrderBy('game.status', direction);
+    }
+    if (query.sortBy === GameSortBy.pairCreatedDate) {
+      gameQuery.addOrderBy('game.pairCreatedDate', direction);
+    } else {
+      gameQuery.addOrderBy('game.pairCreatedDate', 'DESC');
+    }
+    gameQuery.limit(query.pageSize).offset(query.calculateSkipParam());
+
+    const games: Game[] = await gameQuery.getMany();
+    const items = games.map((game) => GameViewDto.mapToView(game));
+
+    return PaginatedViewDto.mapToView({
+      items,
+      page: query.pageNumber,
+      size: query.pageSize,
+      totalCount,
+    });
+  }
 
   async getGame(userId?: number, gameId?: number) {
     try {
@@ -26,7 +83,13 @@ export class QuizGameQueryRepository {
           'answer.gameId = player.gameId',
         )
         .leftJoinAndSelect('gameQuestions.question', 'questions')
-        .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion');
+        .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion')
+        .innerJoin(
+          'game.players',
+          'playerFilter',
+          'playerFilter.userId = :userId',
+          { userId },
+        );
 
       if (userId) {
         queryBuilder.innerJoin(

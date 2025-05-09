@@ -22,6 +22,7 @@ import { GetCurrentGameHandler } from './pair-game-quiz/application/current-game
 import { GameAnswerHandler } from './pair-game-quiz/application/game-answer.query-handler';
 import { GetGameByIdHandler } from './pair-game-quiz/application/game-by-id.query-handler';
 import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
+import { GameEventHandler } from './pair-game-quiz/application/event-handlers/game.event.handler';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,
@@ -56,6 +57,7 @@ const GameUseCases = [
     QuizGameRepository,
     QuizGameQueryRepository,
     UnitOfWork,
+    GameEventHandler,
   ],
 })
 export class QuizGameModule {}

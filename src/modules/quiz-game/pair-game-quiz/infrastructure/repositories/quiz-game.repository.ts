@@ -8,6 +8,7 @@ import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { Repository } from 'typeorm';
 import { Question } from '../../../question/domain/question.orm.domain';
 import { Player } from '../../domain/player.orm.domain';
+import { Statistic } from '../../domain/statistic.orm.domain';
 
 @Injectable()
 export class QuizGameRepository {
@@ -15,8 +16,8 @@ export class QuizGameRepository {
     @InjectRepository(Game) private readonly gameRepository: Repository<Game>,
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
-    @InjectRepository(Player)
-    private readonly playerRepository: Repository<Player>,
+    @InjectRepository(Statistic)
+    private readonly statisticRepository: Repository<Statistic>,
   ) {}
 
   async findActiveOrPendingGameForUser(userId: number) {
@@ -27,6 +28,13 @@ export class QuizGameRepository {
       .andWhere('game.status IN (:...statuses)', {
         statuses: [GameStatusType.Active, GameStatusType.PendingSecondPlayer],
       })
+      .getOne();
+  }
+
+  findStatisticsByUserId(userId: number) {
+    return this.statisticRepository
+      .createQueryBuilder('stat')
+      .where('stat.userId = :userId', { userId })
       .getOne();
   }
 
@@ -59,6 +67,9 @@ export class QuizGameRepository {
     return this.gameRepository.save(gameToSave);
   }
 
+  async saveStatistic(stats: Statistic) {
+    return this.statisticRepository.save(stats);
+  }
   async findActiveGame(userId: number) {
     const activeGame: Game | null = await this.gameRepository
       .createQueryBuilder('game')
