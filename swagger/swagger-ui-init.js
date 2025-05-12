@@ -2134,6 +2134,53 @@ window.onload = function() {
           ]
         }
       },
+      "/api/pair-game-quiz/pairs/my": {
+        "get": {
+          "operationId": "PairGameQuizController_getMyGames",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/PaginatedViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get all games for current user",
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
       "/api/pair-game-quiz/pairs/{id}": {
         "get": {
           "operationId": "PairGameQuizController_getGameById",
@@ -2289,6 +2336,100 @@ window.onload = function() {
             }
           ],
           "summary": "Answer the question",
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
+      "/api/pair-game-quiz/users/my-statistic": {
+        "get": {
+          "operationId": "PairGameQuizController_getUserStatistic",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/StatisticsViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get the user statistic",
+          "tags": [
+            "PairGameQuiz"
+          ]
+        }
+      },
+      "/api/pair-game-quiz/users/top": {
+        "get": {
+          "operationId": "PairGameQuizController_getPlayersTop",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "totalCount": {
+                        "type": "number"
+                      },
+                      "pagesCount": {
+                        "type": "number"
+                      },
+                      "page": {
+                        "type": "number"
+                      },
+                      "pageSize": {
+                        "type": "number"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/PaginatedViewDto"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearer": []
+            }
+          ],
+          "summary": "Get the top",
           "tags": [
             "PairGameQuiz"
           ]
@@ -2826,6 +2967,37 @@ window.onload = function() {
           },
           "required": [
             "answer"
+          ]
+        },
+        "StatisticsViewDto": {
+          "type": "object",
+          "properties": {
+            "sumScore": {
+              "type": "number"
+            },
+            "avgScores": {
+              "type": "number"
+            },
+            "gamesCount": {
+              "type": "number"
+            },
+            "winsCount": {
+              "type": "number"
+            },
+            "lossesCount": {
+              "type": "number"
+            },
+            "drawsCount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "sumScore",
+            "avgScores",
+            "gamesCount",
+            "winsCount",
+            "lossesCount",
+            "drawsCount"
           ]
         }
       }

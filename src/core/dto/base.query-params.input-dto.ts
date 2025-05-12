@@ -4,7 +4,7 @@ export enum SortDirection {
   asc = 'asc',
   desc = 'desc',
 }
-class PaginationParams {
+export class PaginationParams {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -14,7 +14,10 @@ class PaginationParams {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Transform(({ value }): number => (value <= 0 ? 10 : value))
+  @Transform(({ value }): number => {
+    const maxPageSize = 100;
+    return value <= 0 ? 10 : value > maxPageSize ? maxPageSize : value;
+  })
   pageSize: number = 10;
   calculateSkipParam() {
     return (this.pageNumber - 1) * this.pageSize;

@@ -25,20 +25,22 @@ export class GameEventHandler {
       userStats.avgScores = 0;
       userStats.drawsCount = 0;
       userStats.winsCount = 0;
-      userStats.losesCount = 0;
+      userStats.lossesCount = 0;
     }
     userStats.gamesCount++;
     const playerScore = gameResult.scores.find((s) => s.userId === userId);
     if (playerScore) {
       userStats.sumScore += playerScore.score;
-      userStats.avgScores = userStats.sumScore / userStats.gamesCount;
+      userStats.avgScores = parseFloat(
+        (userStats.sumScore / userStats.gamesCount).toFixed(2),
+      );
     }
     if (gameResult.isDraw) {
       userStats.drawsCount++;
     } else if (gameResult.winnerId === userId) {
       userStats.winsCount++;
-    } else {
-      userStats.losesCount++;
+    } else if (gameResult.winnerId !== userId) {
+      userStats.lossesCount++;
     }
 
     await this.quizGameRepository.saveStatistic(userStats);

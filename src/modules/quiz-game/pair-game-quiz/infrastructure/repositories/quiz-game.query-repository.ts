@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { Repository } from 'typeorm';
@@ -9,7 +13,9 @@ import {
   GetGamesQueryParams,
 } from '../../interfaces/dto/get-games.query-params';
 import { GameViewDto } from '../../interfaces/dto/game.view-dto';
-import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
+import { GetStatisticsQueryParams } from '../../interfaces/dto/get-statistic.query-params';
+import { StatisticsViewDto } from '../../interfaces/dto/statistics.view-dto';
+import { PlayerTopViewDto } from '../../interfaces/dto/player-top.view-dto';
 
 @Injectable()
 export class QuizGameQueryRepository {
@@ -25,48 +31,45 @@ export class QuizGameQueryRepository {
     return this.statisticRepository.findOne({ where: { userId: userId } });
   }
   async getGamesByUserId(userId: number, query: GetGamesQueryParams) {
-    const gameQuery = this.gameRepository.createQueryBuilder('game');
+    try {
+      const direction =
+        query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+      const answersQuery = this.gameAnswerRepository
+        .createQueryBuilder('ga')
+        .leftJoin('ga.player', 'player')
+        .orderBy('ga.date', 'ASC');
 
-    gameQuery
-      .leftJoinAndSelect('game.players', 'player')
-      .leftJoinAndSelect('game.gameQuestions', 'gameQuestions')
-      .leftJoinAndSelect('player.user', 'user')
-      .leftJoinAndSelect(
-        'player.answers',
-        'answer',
-        'answer.gameId = player.gameId',
-      )
-      .leftJoinAndSelect('gameQuestions.question', 'questions')
-      .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion')
-      .innerJoin(
-        'game.players',
-        'playerFilter',
-        'playerFilter.userId = :userId',
-        { userId },
-      );
+      console.log(answersQuery);
+      const gameQuery = this.gameRepository
+        .createQueryBuilder('game')
+        .innerJoin('game.players', 'p', 'p.userId = :userId', {
+          userId,
+        })
+        .leftJoinAndSelect('game.players', 'player')
+        .leftJoinAndSelect('player.user', 'user')
+        .leftJoinAndSelect('game.gameQuestions', 'gq')
+        .leftJoinAndSelect('gq.question', 'question')
+        .leftJoinAndSelect('player.answers', 'pa');
 
-    const totalCount = await gameQuery.clone().getCount();
-    const direction =
-      query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    if (query.sortBy === GameSortBy.status) {
-      gameQuery.addOrderBy('game.status', direction);
+      const totalCount = await gameQuery.clone().getCount();
+
+      if (query.sortBy === GameSortBy.status) {
+        gameQuery.addOrderBy('game.status', direction);
+      }
+      if (query.sortBy === GameSortBy.pairCreatedDate) {
+        gameQuery.addOrderBy('game.pairCreatedDate', direction);
+      } else {
+        gameQuery.addOrderBy('game.pairCreatedDate', 'DESC');
+      }
+      gameQuery.take(query.pageSize).skip(query.calculateSkipParam());
+
+      const games: Game[] = await gameQuery.getMany();
+      const items = games.map((game) => GameViewDto.mapToView(game));
+      return { items, totalCount };
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException(error);
     }
-    if (query.sortBy === GameSortBy.pairCreatedDate) {
-      gameQuery.addOrderBy('game.pairCreatedDate', direction);
-    } else {
-      gameQuery.addOrderBy('game.pairCreatedDate', 'DESC');
-    }
-    gameQuery.limit(query.pageSize).offset(query.calculateSkipParam());
-
-    const games: Game[] = await gameQuery.getMany();
-    const items = games.map((game) => GameViewDto.mapToView(game));
-
-    return PaginatedViewDto.mapToView({
-      items,
-      page: query.pageNumber,
-      size: query.pageSize,
-      totalCount,
-    });
   }
 
   async getGame(userId?: number, gameId?: number) {
@@ -83,13 +86,7 @@ export class QuizGameQueryRepository {
           'answer.gameId = player.gameId',
         )
         .leftJoinAndSelect('gameQuestions.question', 'questions')
-        .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion')
-        .innerJoin(
-          'game.players',
-          'playerFilter',
-          'playerFilter.userId = :userId',
-          { userId },
-        );
+        .leftJoinAndSelect('answer.gameQuestion', 'answerGameQuestion');
 
       if (userId) {
         queryBuilder.innerJoin(
@@ -132,5 +129,31 @@ export class QuizGameQueryRepository {
       .leftJoinAndSelect('answer.gameQuestion', 'gameQuestion')
       .where('answer.id = :answerId', { answerId })
       .getOne();
+  }
+  async getPlayersTop(query: GetStatisticsQueryParams) {
+    try {
+      const sorts = query.parsedSort;
+      const playersTopQuery = this.statisticRepository
+        .createQueryBuilder('stats')
+        .leftJoinAndSelect('stats.user', 'user')
+        .take(query.pageSize)
+        .skip(query.calculateSkipParam());
+      const totalCount = await playersTopQuery.clone().getCount();
+      for (const sortParams of sorts) {
+        playersTopQuery.addOrderBy(
+          `stats.${sortParams.field}`,
+          sortParams.direction,
+        );
+      }
+      playersTopQuery.take(query.pageSize).skip(query.calculateSkipParam());
+      const topPlayers = await playersTopQuery.getMany();
+      const items = topPlayers.map((player) =>
+        PlayerTopViewDto.mapToView(player),
+      );
+      return { items, totalCount };
+    } catch (e) {
+      console.log(e);
+      throw new InternalServerErrorException(e);
+    }
   }
 }

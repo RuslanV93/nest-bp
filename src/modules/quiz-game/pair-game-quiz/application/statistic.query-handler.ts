@@ -1,6 +1,5 @@
 import { QueryHandler } from '@nestjs/cqrs';
 import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-game.query-repository';
-import { NotFoundException } from '@nestjs/common';
 import { StatisticsViewDto } from '../interfaces/dto/statistics.view-dto';
 
 export class GetStatisticQuery {
@@ -15,7 +14,14 @@ export class GetStatisticHandler {
       query.userId,
     );
     if (!stat) {
-      throw new NotFoundException(query.userId);
+      return {
+        sumScore: 0,
+        avgScores: 0,
+        gamesCount: 0,
+        winsCount: 0,
+        lossesCount: 0,
+        drawsCount: 0,
+      };
     }
     return StatisticsViewDto.mapToView(stat);
   }

@@ -48,8 +48,6 @@ export class ConnectionUseCase implements ICommandHandler<ConnectionCommand> {
         return this.quizGameRepository.save(newGame);
       }
     } catch (e) {
-      logErrorToFile(e);
-
       if (e instanceof DomainException || e instanceof HttpException) {
         throw e;
       }

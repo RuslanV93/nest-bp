@@ -24,6 +24,7 @@ export class DropSqlRepository {
       TRUNCATE TABLE "player" RESTART IDENTITY CASCADE;
       TRUNCATE TABLE "game_answer" RESTART IDENTITY CASCADE;
       TRUNCATE TABLE "question" RESTART IDENTITY CASCADE;
+      TRUNCATE TABLE "statistic" RESTART IDENTITY CASCADE;
       
       
 

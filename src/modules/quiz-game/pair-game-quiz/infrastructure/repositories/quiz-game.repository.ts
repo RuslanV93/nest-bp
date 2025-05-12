@@ -90,6 +90,7 @@ export class QuizGameRepository {
       .setLock('pessimistic_write', undefined, ['game'])
       .getOne();
     if (!activeGame) {
+      console.log('here');
       throw new ForbiddenException('Game not found.');
     }
 

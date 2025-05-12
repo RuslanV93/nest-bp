@@ -7,7 +7,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Game } from '../domain/game.orm.domain';
+import { Game, GameStatusType } from '../domain/game.orm.domain';
 import { DomainException } from '../../../../core/exceptions/domain-exception';
 import { Player } from '../domain/player.orm.domain';
 import { GameAnswer } from '../domain/answer.orm.domain';
@@ -49,6 +49,7 @@ export class AnswerUseCase {
 
       currentGame.finishGame();
       const events = currentGame.getDomainEvents();
+
       for (const event of events) {
         this.eventBus.publish(event);
       }

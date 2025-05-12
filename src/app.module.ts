@@ -43,7 +43,7 @@ import { DataSource } from 'typeorm';
         username: coreConfig.postgresLogin,
         password: coreConfig.postgresPassword,
         database: coreConfig.postgresDbName,
-        autoLoadEntities: false,
+        autoLoadEntities: true,
         synchronize: true,
         namingStrategy: new SnakeNamingStrategy(),
         logging: ['error'],

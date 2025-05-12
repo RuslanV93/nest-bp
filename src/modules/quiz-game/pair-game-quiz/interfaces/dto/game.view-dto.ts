@@ -56,11 +56,13 @@ export class GameViewDto {
             }));
     const getPlayerProgress = (player: Player | null) => {
       if (!player) return null;
-      const answers = player.answers.map((answer) => ({
-        questionId: answer.gameQuestionId.toString(),
-        answerStatus: answer.status,
-        addedAt: answer.date.toISOString(),
-      }));
+      const answers = player.answers
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .map((answer) => ({
+          questionId: answer.gameQuestionId.toString(),
+          answerStatus: answer.status,
+          addedAt: answer.date.toISOString(),
+        }));
       return {
         answers,
         player: { id: player.userId.toString(), login: player.login },

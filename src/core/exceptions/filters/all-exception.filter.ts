@@ -1,7 +1,7 @@
 import { Catch, HttpException, HttpStatus } from '@nestjs/common';
 import { BaseExceptionFilter, ErrorMessage } from './base-exception.filter';
 import { Response } from 'express';
-import * as fs from 'node:fs';
+import { logErrorToFile } from '../../../../common/error-logger';
 
 // Интерфейс для описания структуры ошибки
 
@@ -12,6 +12,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
+    logErrorToFile(exception);
+
     if (status === 400) {
       const responseMessage: ErrorMessage = (exception as any).response.message;
       response.status(status).json({

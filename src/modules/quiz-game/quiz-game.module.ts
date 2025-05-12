@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { QuestionController } from './question/interfaces/questions.controller';
 import { CreateQuestionUseCase } from './question/application/use-cases/create-question.use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,6 +23,11 @@ import { GameAnswerHandler } from './pair-game-quiz/application/game-answer.quer
 import { GetGameByIdHandler } from './pair-game-quiz/application/game-by-id.query-handler';
 import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
 import { GameEventHandler } from './pair-game-quiz/application/event-handlers/game.event.handler';
+import { GetMyGamesHandler } from './pair-game-quiz/application/my-games.query-handler';
+import { GetStatisticHandler } from './pair-game-quiz/application/statistic.query-handler';
+import { Statistic } from './pair-game-quiz/domain/statistic.orm.domain';
+import { GetPlayersTopHandler } from './pair-game-quiz/application/get-top.query-handler';
+import { LoggingMiddleware } from '../../core/middleware/request.logger.middleware';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,
@@ -36,6 +41,9 @@ const GameUseCases = [
   GetCurrentGameHandler,
   GameAnswerHandler,
   GetGameByIdHandler,
+  GetMyGamesHandler,
+  GetStatisticHandler,
+  GetPlayersTopHandler,
 ];
 @Module({
   imports: [
@@ -45,6 +53,7 @@ const GameUseCases = [
       Game,
       GameQuestion,
       GameAnswer,
+      Statistic,
     ]),
     UsersAccountModule,
   ],
@@ -60,4 +69,8 @@ const GameUseCases = [
     GameEventHandler,
   ],
 })
-export class QuizGameModule {}
+export class QuizGameModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes(PairGameQuizController);
+  }
+}

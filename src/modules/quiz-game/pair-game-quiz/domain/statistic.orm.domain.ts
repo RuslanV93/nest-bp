@@ -21,7 +21,7 @@ export class Statistic {
   @Column()
   sumScore: number;
 
-  @Column()
+  @Column('double precision')
   avgScores: number;
 
   @Column()

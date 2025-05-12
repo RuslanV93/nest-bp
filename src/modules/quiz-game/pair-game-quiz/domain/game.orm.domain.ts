@@ -111,12 +111,11 @@ export class Game {
       this.setBonusPointForSpeed();
       this.status = GameStatusType.Finished;
       this.finishGameDate = new Date();
+      const gameResult = this.calculateResult();
+      this.domainEvents.push(
+        new GameFinishedEvent(this.id, this.players, gameResult),
+      );
     }
-
-    const gameResult = this.calculateResult();
-    this.domainEvents.push(
-      new GameFinishedEvent(this.id, this.players, gameResult),
-    );
   }
   private calculateResult(): GameResult {
     const winner: Player | null = this.determineWinner();

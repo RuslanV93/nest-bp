@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserContextDto } from '../../../users-account/auth/guards/dto/user-context.dto';
@@ -28,6 +29,10 @@ import { ApiPaginatedResponse } from '../../../../../swagger/swagger.decorator';
 import { StatisticsViewDto } from './dto/statistics.view-dto';
 import { GetStatisticQuery } from '../application/statistic.query-handler';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { GetGamesQueryParams } from './dto/get-games.query-params';
+import { GetMyGamesQuery } from '../application/my-games.query-handler';
+import { GetStatisticsQueryParams } from './dto/get-statistic.query-params';
+import { GetPlayersTopQuery } from '../application/get-top.query-handler';
 @ApiBearerAuth()
 @Controller('pair-game-quiz')
 export class PairGameQuizController {
@@ -44,6 +49,17 @@ export class PairGameQuizController {
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetCurrentGameQuery(user.id));
+  }
+  @Get('pairs/my')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all games for current user' })
+  @ApiPaginatedResponse(PaginatedViewDto<GameViewDto>)
+  async getMyGames(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Query() query: GetGamesQueryParams,
+  ): Promise<PaginatedViewDto<GameViewDto>> {
+    return this.queryBus.execute(new GetMyGamesQuery(user.id, query));
   }
 
   /** Get existing game by id */
@@ -101,10 +117,15 @@ export class PairGameQuizController {
     return this.queryBus.execute(new GetStatisticQuery(user.id));
   }
 
-  @Get('pairs/my')
+  @Get('users/top')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get all games for current user' })
-  @ApiPaginatedResponse(PaginatedViewDto<GameViewDto>)
-  async getMyGames(@ExtractUserFromRequest() user: UserContextDto) {}
+  @ApiOperation({ summary: 'Get the top' })
+  @ApiPaginatedResponse(PaginatedViewDto<GameViewDto[]>)
+  async getPlayersTop(@Query() query: GetStatisticsQueryParams): Promise<any> {
+    try {
+      return this.queryBus.execute(new GetPlayersTopQuery(query));
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
