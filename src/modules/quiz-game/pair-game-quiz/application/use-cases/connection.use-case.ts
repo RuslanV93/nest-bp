@@ -1,16 +1,16 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersOrmRepository } from '../../../users-account/users/infrastructure/repositories/users.orm.repository';
-import { QuizGameRepository } from '../infrastructure/repositories/quiz-game.repository';
-import { Game } from '../domain/game.orm.domain';
-import { User } from '../../../users-account/users/domain/users.orm.domain';
-import { Question } from '../../question/domain/question.orm.domain';
+import { UsersOrmRepository } from '../../../../users-account/users/infrastructure/repositories/users.orm.repository';
+import { QuizGameRepository } from '../../infrastructure/repositories/quiz-game.repository';
+import { Game } from '../../domain/game.orm.domain';
+import { User } from '../../../../users-account/users/domain/users.orm.domain';
+import { Question } from '../../../question/domain/question.orm.domain';
 import {
   ForbiddenException,
   HttpException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { logErrorToFile } from '../../../../../common/error-logger';
-import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { logErrorToFile } from '../../../../../../common/error-logger';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { Transactional } from 'typeorm-transactional';
 
 export class ConnectionCommand {

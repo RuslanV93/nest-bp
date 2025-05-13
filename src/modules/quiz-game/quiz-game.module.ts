@@ -13,21 +13,25 @@ import { Player } from './pair-game-quiz/domain/player.orm.domain';
 import { Game } from './pair-game-quiz/domain/game.orm.domain';
 import { GameQuestion } from './pair-game-quiz/domain/game-question.orm.domain';
 import { GameAnswer } from './pair-game-quiz/domain/answer.orm.domain';
-import { ConnectionUseCase } from './pair-game-quiz/application/connection.use-case';
+import { ConnectionUseCase } from './pair-game-quiz/application/use-cases/connection.use-case';
 import { QuizGameRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.repository';
 import { QuizGameQueryRepository } from './pair-game-quiz/infrastructure/repositories/quiz-game.query-repository';
 import { UnitOfWork } from './pair-game-quiz/infrastructure/repositories/unit.of.work';
-import { AnswerUseCase } from './pair-game-quiz/application/answer.use-case';
-import { GetCurrentGameHandler } from './pair-game-quiz/application/current-game.query-handler';
-import { GameAnswerHandler } from './pair-game-quiz/application/game-answer.query-handler';
-import { GetGameByIdHandler } from './pair-game-quiz/application/game-by-id.query-handler';
+import { AnswerUseCase } from './pair-game-quiz/application/use-cases/answer.use-case';
+import { GetCurrentGameHandler } from './pair-game-quiz/application/query-handlers/current-game.query-handler';
+import { GameAnswerHandler } from './pair-game-quiz/application/query-handlers/game-answer.query-handler';
+import { GetGameByIdHandler } from './pair-game-quiz/application/query-handlers/game-by-id.query-handler';
 import { PairGameQuizController } from './pair-game-quiz/interfaces/pair-game-quiz.controller';
 import { GameEventHandler } from './pair-game-quiz/application/event-handlers/game.event.handler';
-import { GetMyGamesHandler } from './pair-game-quiz/application/my-games.query-handler';
-import { GetStatisticHandler } from './pair-game-quiz/application/statistic.query-handler';
+import { GetMyGamesHandler } from './pair-game-quiz/application/query-handlers/my-games.query-handler';
+import { GetStatisticHandler } from './pair-game-quiz/application/query-handlers/statistic.query-handler';
 import { Statistic } from './pair-game-quiz/domain/statistic.orm.domain';
-import { GetPlayersTopHandler } from './pair-game-quiz/application/get-top.query-handler';
+import { GetPlayersTopHandler } from './pair-game-quiz/application/query-handlers/get-top.query-handler';
 import { LoggingMiddleware } from '../../core/middleware/request.logger.middleware';
+import { QueueModule } from '../../core/infrastructure/queue/queue.module';
+import { GameService } from './pair-game-quiz/application/services/game.service';
+import { FinishGameUseCase } from './pair-game-quiz/application/use-cases/finish-game.use-case';
+import { GameFinishProcessor } from './pair-game-quiz/infrastructure/processors/game-finish.processor';
 
 const QuestionUseCases = [
   CreateQuestionUseCase,
@@ -44,6 +48,7 @@ const GameUseCases = [
   GetMyGamesHandler,
   GetStatisticHandler,
   GetPlayersTopHandler,
+  FinishGameUseCase,
 ];
 @Module({
   imports: [
@@ -55,12 +60,15 @@ const GameUseCases = [
       GameAnswer,
       Statistic,
     ]),
+    QueueModule,
     UsersAccountModule,
   ],
   controllers: [QuestionController, PairGameQuizController],
   providers: [
     ...GameUseCases,
     ...QuestionUseCases,
+    GameFinishProcessor,
+    GameService,
     QuestionsRepository,
     QuestionsQueryRepository,
     QuizGameRepository,

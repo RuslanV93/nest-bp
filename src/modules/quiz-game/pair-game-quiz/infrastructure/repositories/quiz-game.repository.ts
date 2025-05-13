@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Game, GameStatusType } from '../../domain/game.orm.domain';
 import { Repository } from 'typeorm';
 import { Question } from '../../../question/domain/question.orm.domain';
-import { Player } from '../../domain/player.orm.domain';
 import { Statistic } from '../../domain/statistic.orm.domain';
 
 @Injectable()
@@ -64,6 +63,7 @@ export class QuizGameRepository {
   }
 
   async save(gameToSave: Game) {
+    console.log(gameToSave.id);
     return this.gameRepository.save(gameToSave);
   }
 
@@ -95,5 +95,23 @@ export class QuizGameRepository {
     }
 
     return activeGame;
+  }
+  async findActiveGameByGameId(gameId: number) {
+    console.log('gameId', gameId);
+    const game = await this.gameRepository
+      .createQueryBuilder('game')
+      .innerJoinAndSelect('game.gameQuestions', 'gq')
+      .innerJoinAndSelect('gq.question', 'question')
+      .leftJoinAndSelect('game.players', 'p')
+      .leftJoinAndSelect('p.answers', 'a', 'a.gameId = p.gameId')
+      .where('game.id = :gameId', { gameId })
+      .setLock('pessimistic_write', undefined, ['game'])
+      .getOne();
+
+    if (!game) {
+      throw new NotFoundException('Game for finish not found.');
+    }
+    console.log(game);
+    return game;
   }
 }

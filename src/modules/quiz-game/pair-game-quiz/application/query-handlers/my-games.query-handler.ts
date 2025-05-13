@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-game.query-repository';
-import { GetGamesQueryParams } from '../interfaces/dto/get-games.query-params';
-import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { QuizGameQueryRepository } from '../../infrastructure/repositories/quiz-game.query-repository';
+import { GetGamesQueryParams } from '../../interfaces/dto/get-games.query-params';
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 
 export class GetMyGamesQuery {
   constructor(

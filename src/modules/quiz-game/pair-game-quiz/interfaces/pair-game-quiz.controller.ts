@@ -15,24 +15,24 @@ import { ExtractUserFromRequest } from '../../../users-account/auth/guards/decor
 import { JwtAuthGuard } from '../../../users-account/auth/guards/bearer/jwt-auth-guard';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ConnectionCommand } from '../application/connection.use-case';
+import { ConnectionCommand } from '../application/use-cases/connection.use-case';
 import { Game } from '../domain/game.orm.domain';
 import { GameAnswer } from '../domain/answer.orm.domain';
-import { AnswerCommand } from '../application/answer.use-case';
+import { AnswerCommand } from '../application/use-cases/answer.use-case';
 import { AnswerInputDto } from './dto/answer.input-dto';
-import { GetCurrentGameQuery } from '../application/current-game.query-handler';
+import { GetCurrentGameQuery } from '../application/query-handlers/current-game.query-handler';
 import { GameViewDto } from './dto/game.view-dto';
-import { GetGameByIdQuery } from '../application/game-by-id.query-handler';
-import { GameAnswerQuery } from '../application/game-answer.query-handler';
+import { GetGameByIdQuery } from '../application/query-handlers/game-by-id.query-handler';
+import { GameAnswerQuery } from '../application/query-handlers/game-answer.query-handler';
 import { AnswerViewDto } from './dto/answer.view-dto';
 import { ApiPaginatedResponse } from '../../../../../swagger/swagger.decorator';
 import { StatisticsViewDto } from './dto/statistics.view-dto';
-import { GetStatisticQuery } from '../application/statistic.query-handler';
+import { GetStatisticQuery } from '../application/query-handlers/statistic.query-handler';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { GetGamesQueryParams } from './dto/get-games.query-params';
-import { GetMyGamesQuery } from '../application/my-games.query-handler';
+import { GetMyGamesQuery } from '../application/query-handlers/my-games.query-handler';
 import { GetStatisticsQueryParams } from './dto/get-statistic.query-params';
-import { GetPlayersTopQuery } from '../application/get-top.query-handler';
+import { GetPlayersTopQuery } from '../application/query-handlers/get-top.query-handler';
 @ApiBearerAuth()
 @Controller('pair-game-quiz')
 export class PairGameQuizController {

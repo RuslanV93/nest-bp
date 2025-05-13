@@ -1,7 +1,7 @@
 import { QueryHandler } from '@nestjs/cqrs';
-import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-game.query-repository';
+import { QuizGameQueryRepository } from '../../infrastructure/repositories/quiz-game.query-repository';
 import { NotFoundException } from '@nestjs/common';
-import { AnswerViewDto } from '../interfaces/dto/answer.view-dto';
+import { AnswerViewDto } from '../../interfaces/dto/answer.view-dto';
 
 export class GameAnswerQuery {
   constructor(public answerId: number) {}

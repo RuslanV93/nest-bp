@@ -3,7 +3,7 @@ import { IsBoolean, IsEnum, IsNotEmpty } from 'class-validator';
 import { configValidationUtility } from '../../shared/utils/config-validation-utility';
 import { ConfigService } from '@nestjs/config';
 
-enum EnvTypes {
+export enum EnvTypes {
   TESTING = 'testing',
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',

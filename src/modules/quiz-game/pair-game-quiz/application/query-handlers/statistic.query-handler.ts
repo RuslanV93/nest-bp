@@ -1,6 +1,6 @@
 import { QueryHandler } from '@nestjs/cqrs';
-import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-game.query-repository';
-import { StatisticsViewDto } from '../interfaces/dto/statistics.view-dto';
+import { QuizGameQueryRepository } from '../../infrastructure/repositories/quiz-game.query-repository';
+import { StatisticsViewDto } from '../../interfaces/dto/statistics.view-dto';
 
 export class GetStatisticQuery {
   constructor(public userId: number) {}

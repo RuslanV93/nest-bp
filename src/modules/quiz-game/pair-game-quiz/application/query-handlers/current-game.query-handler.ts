@@ -1,9 +1,9 @@
 import { QueryHandler } from '@nestjs/cqrs';
-import { QuizGameQueryRepository } from '../infrastructure/repositories/quiz-game.query-repository';
-import { UsersOrmRepository } from '../../../users-account/users/infrastructure/repositories/users.orm.repository';
+import { QuizGameQueryRepository } from '../../infrastructure/repositories/quiz-game.query-repository';
+import { UsersOrmRepository } from '../../../../users-account/users/infrastructure/repositories/users.orm.repository';
 import { NotFoundException } from '@nestjs/common';
-import { Game } from '../domain/game.orm.domain';
-import { GameViewDto } from '../interfaces/dto/game.view-dto';
+import { Game } from '../../domain/game.orm.domain';
+import { GameViewDto } from '../../interfaces/dto/game.view-dto';
 
 export class GetCurrentGameQuery {
   constructor(public readonly userId: number) {}

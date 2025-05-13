@@ -19,6 +19,9 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { BullModule } from '@nestjs/bullmq';
+import { RedisConfig } from './core/infrastructure/queue/redis.config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -57,6 +60,10 @@ import { DataSource } from 'typeorm';
             : undefined,
       }),
       inject: [CoreConfig],
+    }),
+    BullModule.forRootAsync({
+      useClass: RedisConfig,
+      inject: [ConfigService, CoreConfig],
     }),
     MongooseModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => {

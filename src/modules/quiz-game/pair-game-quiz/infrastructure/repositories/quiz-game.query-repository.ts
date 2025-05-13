@@ -39,7 +39,6 @@ export class QuizGameQueryRepository {
         .leftJoin('ga.player', 'player')
         .orderBy('ga.date', 'ASC');
 
-      console.log(answersQuery);
       const gameQuery = this.gameRepository
         .createQueryBuilder('game')
         .innerJoin('game.players', 'p', 'p.userId = :userId', {
