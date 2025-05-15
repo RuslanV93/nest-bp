@@ -77,8 +77,9 @@ const GameUseCases = [
     GameEventHandler,
   ],
 })
-export class QuizGameModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingMiddleware).forRoutes(PairGameQuizController);
-  }
-}
+export class QuizGameModule {}
+// export class QuizGameModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(LoggingMiddleware).forRoutes(PairGameQuizController);
+//   }
+// }

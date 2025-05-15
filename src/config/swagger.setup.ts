@@ -22,9 +22,7 @@ export class SwaggerConfigService {
       .build();
 
     const documentFactory = () => SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('swagger', app, documentFactory, {
-      customCssUrl: '/swagger/swagger-custom.css',
-    });
+    SwaggerModule.setup('swagger', app, documentFactory);
 
     get(`${serverUrl}/swagger/swagger-ui-bundle.js`, (response) => {
       response.pipe(createWriteStream('swagger/swagger-ui-bundle.js'));
