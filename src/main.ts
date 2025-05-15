@@ -15,3 +15,4 @@ async function bootstrap() {
   await app.listen(coreConfig.port);
 }
 bootstrap();
+export default bootstrap;

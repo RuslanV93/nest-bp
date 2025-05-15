@@ -37,10 +37,7 @@ import { ConfigService } from '@nestjs/config';
       ],
     }),
     CqrsModule.forRoot(),
-    BullModule.forRootAsync({
-      useClass: RedisConfig,
-      inject: [ConfigService, CoreConfig],
-    }),
+
     TypeOrmModule.forRootAsync({
       useFactory: (coreConfig: CoreConfig) => ({
         type: 'postgres',
