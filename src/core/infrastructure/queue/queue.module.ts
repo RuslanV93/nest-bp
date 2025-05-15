@@ -6,10 +6,6 @@ import { CoreConfig } from '../../core-config/core.config';
 
 @Module({
   imports: [
-    BullModule.forRootAsync({
-      useClass: RedisConfig,
-      inject: [ConfigService, CoreConfig],
-    }),
     BullModule.registerQueue({
       name: 'game-finish-queue',
     }),
